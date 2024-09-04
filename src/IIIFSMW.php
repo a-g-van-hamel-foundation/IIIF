@@ -1,0 +1,224 @@
+<?php
+
+use MediaWiki\MediaWikiServices;
+use SMW\Localizer as Localizer;
+//SMWQueryProcessor
+
+/**
+ * Methods for working with Semantic MediaWiki. 
+ */
+
+class IIIFSMW {
+
+	public static $smwConfigProps = [];
+
+	/**
+	 * Get pages or subobjects for resource
+	 * $resource can be a page id as well as a full pagename (e.g. "Dublin, Trinity College, MS 1339");
+	 * Custom queries supported for either v2 or v3, not both
+	 * @todo depreciate $smwQueryEscaped
+	 * 
+	 * @param string $resource
+	 * @param string $canvasId
+	 * @param string|false $smwQueryEscaped
+	 * 
+	 * @return array
+	 */
+	public static function getItemsForResource(
+		string|int $resource,
+		string|bool $canvasId = false,
+		$smwQueryEscaped = false,
+		$smwConfig = false
+	): array {
+		// Exits silently if SMW is not installed.
+        self::checkForSMW();
+		self::$smwConfigProps = IIIFConfig::getConfigProps( $smwConfig );
+
+		$resourcePage = is_numeric( $resource )
+			? IIIFUtils::getFullpageNameFromPageID( $resource )
+			: $resource;
+		$version = ( $canvasId == false ) ? 3 : 2;
+
+		if ( $version == 3 ) {
+			// v3
+			if ( $smwQueryEscaped == false ) {
+				// replace placeholder with resource
+				$queryArg = str_replace( "@", "{$resourcePage}", trim( self::$smwConfigProps['IIIFv3QueryArg'] ) );
+			} else {
+				// @deprecated
+				$queryArg = self::processSemanticQuery( $smwQueryEscaped, $resourcePage );
+ 			}
+		} else {
+			//v2
+			if ( $smwQueryEscaped == false ) {
+				$queryArg = str_replace( "@", "{$canvasId}", trim( self::$smwConfigProps['IIIFv2QueryArg'] ) );
+			} else {
+				// @deprecated
+				$queryArg = self::processSemanticQuery( $smwQueryEscaped, $resourcePage );
+			}
+		}
+		$sort = ( self::$smwConfigProps['IIIFAnnotSortProp'] == "" ) ? "" : trim( self::$smwConfigProps['IIIFAnnotSortProp'] );
+        $printout = "|named args=yes|link=none|limit=9999|sort={$sort}|searchlabel=";
+
+        $result = self::getAllObjectsForQuery( $queryArg, $printout );
+        return $result;
+    }
+
+    /**
+	 * Returns an array of the names of objects that are the result of an SMW query.
+	 *
+	 * @param string $queryArg
+	 * @param string $printout
+	 * @return array
+	 */
+	public static function getAllObjectsForQuery( 
+		string $queryArg,
+		string $printout,
+		array|null $propNames = null
+	): array {
+		// print_r( '<br>raw query: ' . $queryArg );
+		$rawQuery = $queryArg . $printout;
+		$rawQueryArray = explode( "|", $rawQuery );
+		list( $queryString, $processedParams, $printouts ) = SMWQueryProcessor::getComponentsFromFunctionParams( $rawQueryArray, false );
+		SMWQueryProcessor::addThisPrintout( $printouts, $processedParams );
+		$processedParams = SMWQueryProcessor::getProcessedParams( $processedParams, $printouts );
+
+		// Run query and get results
+		$queryObj = SMWQueryProcessor::createQuery( 
+			$queryString,
+			$processedParams,
+			SMWQueryProcessor::SPECIAL_PAGE,
+            '',
+            $printouts
+        );
+		$store = self::getSMWStore();
+
+		$queryRes = $store->getQueryResult( $queryObj );
+		$rows = $queryRes->getResults();
+
+		$res = [];
+		foreach ( $rows as $diWikiPage ) {
+			$objectTitle = $diWikiPage->getTitle(); // Title object
+			$pageURI = $diWikiPage->getSerialization();
+			$pageURIArr = explode( "#", $pageURI, 3 );
+			$uriStr = "https://$_SERVER[HTTP_HOST]/";
+			$page = $pageURIArr[0];
+			$namespaceName = self::getNamespaceNameFromIndex( $pageURIArr[1] );
+			$hash = $pageURIArr[2]; // includes hash and underscore
+			$uriStr .= ( $namespaceName == "" ) ? "" : "{$namespaceName}:";
+			$uriStr .= $page . $hash;
+
+			$titleDI = \SMW\DIWikiPage::newFromTitle( $objectTitle );
+			$titleData = $store->getSemanticData( $titleDI );
+
+			$res[] = self::getSelectPropertyValuesForTitleData( $uriStr, $titleData, $propNames );
+		}
+		return $res;
+
+	}
+
+	/*
+	* Helper method for 'smwquery' parameter
+	* @param string $query
+	* @param string $substr
+	* $return string
+	*/
+	public static function processSemanticQuery( $query, $substr = '' ) {
+			$query = str_replace(
+				[ "&lt;", "&gt;", "(", ")", '%', '@' ],
+				[ "<", ">", "[", "]", '|', $substr ],
+				$query
+			);
+			return $query;
+	}
+
+    /**
+     * Exits if SMW is not installed
+     */
+    public static function checkForSMW() {
+        $store = self::getSMWStore();
+        if ( $store == null ) {
+             return [];
+        }
+    }
+
+    /**
+	 * Helper function to get the SMW data store, if SMW is installed.
+	 * @return Store|null
+	 */
+	public static function getSMWStore() {
+		if ( class_exists( '\SMW\StoreFactory' ) ) {
+			return \SMW\StoreFactory::getStore();
+		} else {
+			return null;
+		}
+	}
+
+	/**
+	 * Get values for select properties
+	 */
+	public static function getSelectPropertyValuesForTitleData(
+		string $uriStr,
+		$titleData, 
+		array|null $propNames = null
+	) {
+		$allPropsArr = $titleData->getProperties();
+
+		if ( $propNames == null ) {
+			$propNames = self::$smwConfigProps['annotTextProps'];
+			$propNames[] = self::$smwConfigProps['annotTargetProp'];
+		}
+
+		// Filter properties
+		$newPropsArr = [];
+		foreach ( $propNames as $name ) {
+			if ( in_array( $name, $allPropsArr ) ) {
+				$newPropsArr[$name] = $allPropsArr[$name];
+			}
+		}
+
+		$valArr = [];
+		$valArr['smwObjectURI'] = $uriStr;
+		foreach ( $newPropsArr as $smwProp ) {
+			//$smwProp instanceof SMW\DIProperty;
+			$smwPropValsArr = $titleData->getPropertyValues( $smwProp );
+			$smwPropLabel = $smwProp->getLabel();
+			foreach ( $smwPropValsArr as $smwPropValue ) {
+				$valArr[ $smwPropLabel ][] = $smwPropValue->getSerialization();
+			}
+		}
+
+		return $valArr;
+	}
+
+	/**
+	 * For index, get namespace name in content language
+	 * @todo maybe use : str_replace( '_', ' ', $name )
+	 * getNsText vs getFormattedNsText ?
+	 */
+	public static function getNamespaceNameFromIndex( $index ) {
+		/* SMW method
+		$localizer = Localizer::getInstance();
+		$language = $localizer->getContentLanguage();
+		*/
+		$language = MediaWiki\MediaWikiServices::getInstance()->getContentLanguage();
+		$name = $language->getFormattedNsText( $index );
+		return $name;
+	}
+
+	/**
+     * Maybe SMW has a native function for this
+     * doUnserialize()
+     * @todo getNamespaceNameFromIndex is almost identical to one in SMW file
+     */
+    public static function resolveDIWikiPage( $diWikipage ) {
+        //doUnserialize
+        $arr = explode( '#', $diWikipage, 4 );
+        $namespaceNumber = intval( $arr[1] );
+        $prefix = ( $namespaceNumber !== 0 ) ? self::getNamespaceNameFromIndex( $namespaceNumber ) . ":" : "";
+        $pagename = $prefix . $arr[0];
+        $str = str_replace( "_", " ", $pagename);
+        return $str;
+    }
+
+}

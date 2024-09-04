@@ -1,0 +1,150 @@
+{
+	"name": "IIIF",
+	"version": "0.2",
+	"type": "api",
+	"author": [
+		"[https://codecs.vanhamel.nl Dennis Groenewegen]"
+	],
+	"url": "https://codecs.vanhamel.nl/Show:Lab/IIIF",
+	"description": "API services and other tools for working with IIIF, such as integrating annotations, creating collections and using MediaWiki image files.",
+	"license-name": "GPL-2.0-or-later",
+	"requires": {
+		"MediaWiki": ">= 1.39.0",
+		"extensions": {
+		}
+	},
+	"MessagesDirs": {
+		"IIIF": [
+		  "i18n"
+		]
+	},
+	"ExtensionMessagesFiles": {
+		"iiifMagic": "iiif.i18n.php",
+		"iiifNamespaces": "iiif.i18n.namespaces.php"
+	},
+	"AutoloadNamespaces": {
+		"iiif\\": "src/"
+	},
+	"AutoloadClasses": {
+		"IIIFHooks": "src/IIIFHooks.php",
+		"IIIFManifestAPI": "src/IIIFManifestAPI.php",
+		"IIIFAnnotationsAPI": "src/IIIFAnnotationsAPI.php",
+		"IIIFCollectionAPI": "src/IIIFCollectionAPI.php",
+		"IIIFMwImgAPI": "src/IIIFMwImgAPI.php",
+		"IIIFMwPresAPI": "src/IIIFMwPresAPI.php",
+		"IIIFMwRemote": "src/IIIFMwRemote.php",
+		"IIIFWikiAPI": "src/IIIFWikiAPI.php",
+		"IIIFSMW": "src/IIIFSMW.php",
+		"IIIFJson": "src/IIIFJson.php",
+		"IIIFSpecialServ": "src/IIIFSpecialServ.php",
+		"IIIFUtils": "src/IIIFUtils.php",
+		"IIIFSpecial": "src/Special/iiif.Special.php",
+		"IIIFJsonContentHandler": "src/IIIFJsonContentHandler.php",
+		"IIIFJsonContent": "src/IIIFJsonContent.php",
+		"IIIFConfig": "src/IIIFConfig.php"
+	},
+	"Hooks": {
+		"ParserFirstCallInit": [ "IIIFHooks::onParserFirstCallInit" ],
+		"ContentHandlerDefaultModelFor": [ "IIIFHooks::onContentHandlerDefaultModelFor" ],
+		"CodeEditorGetPageLanguage": [ "IIIFHooks::onCodeEditorGetPageLanguage" ],
+		"AdminLinks": [ "IIIFHooks::addToAdminLinks" ]
+	},
+	"ResourceFileModulePaths": {
+		"localBasePath": "modules",
+		"remoteExtPath": "IIIF/modules"
+	},
+	"ResourceModules": {
+		"ext.iiif.styles": {					
+			"class": "MediaWiki\\ResourceLoader\\CodexModule",			
+			"codexStyleOnly": "true",
+			"styles": "ext.iiif.styles.less",
+			"codexComponents": [
+				"CdxButton",
+				"CdxCard",
+				"CdxCheckbox",
+				"CdxProgressBar",
+				"CdxTextInput"
+			]
+		}
+	},
+	"APIModules": {
+		"iiif-annotations": "IIIFAnnotationsAPI",
+		"iiif-manifest": "IIIFManifestAPI",
+		"iiif-collection": "IIIFCollectionAPI",
+		"iiif-mw-img": "IIIFMwImgAPI",
+		"iiif-mw-pres": "IIIFMwPresAPI",
+		"iiif-wiki": "IIIFWikiAPI"
+	},
+	"SpecialPages": {
+		"IIIF": "IIIFSpecial",
+		"IIIFServ": "IIIFSpecialServ"
+	},
+	"config_prefix": "wg",
+	"config": {
+		"IIIFv3QueryArg": {
+			"value": "[[Class::Subject:manuscript items]] [[Is item in MS::@]] [[Has target URI::+]]",
+			"description": "The SMW query argument to be used by the IIIF manifest API (v3), which queries for all annotations. Use an ampersand as placeholder for the resource page."
+		},
+		"IIIFv2QueryArg": {
+			"value": "[[Class::Subject:manuscript items]] [[Has target URI::@]]",
+			"description": "The SMW query argument to be used by the IIIF manifest API (v2), which queries for annotations for the canvas only. Use an ampersand as placeholder for the canvas ID."
+		},
+		"IIIFAnnotTextProp": {
+			"value": "Has resource comments",
+			"description": "The property that contains the text of the annotation."
+		},
+		"IIIFAnnotTargetProp": {
+			"value": "Has target URI",
+			"description": "The property that links annotations to the canvas URI, corresponding to 'target' in v3, 'on' in v2."
+		},
+		"IIIFAnnotSortProp": {
+			"value": "",
+			"description": "The property or properties used to sort multiple annotations. Use a comma to separate multiple properties."
+		},
+		"IIIFAnnotDoParse": {
+			"value": true,
+			"description": "Whether or not annotations should be parsed as wikitext (true by default)."
+		},
+		"IIIFCollectionQueryArg": {
+			"value": "[[Class::Subject:CODECS external links]] [[Has link type::IIIF Manifest URL]]",
+			"description": "The default query argument for IIIF manifest links in the collection."
+		},
+		"IIIFCollectionItemURI": {
+			"value": "Link has URL",
+			"description": "Property holding the URIs of IIIF manifests and collections."
+		},
+		"IIIFCollectionItemResource": {
+			"value": "For page",
+			"description": "Currently, the property linking back to the resource."
+		},
+		"IIIFCollectionSortProp": {
+			"value": "For page",
+			"description": "The property used to sort multiple items in the collection API. Use a comma to separate multiple properties."
+		}
+	},
+
+	"ContentHandlers": {
+		"iiifjson": "IIIFJsonContentHandler"
+	},
+	"callback": "IIIFHooks::onRegister",
+	"namespaces": [
+		{
+			"id": 1230,
+			"constant": "NS_IIIF",
+			"name": "IIIF",			
+			"subpages": false,
+			"content": false
+		},
+		{
+			"id": 1231,
+			"constant": "NS_IIIF_TALK",
+			"name": "IIIF_talk",
+			"defaultcontentmodel": "wikitext",
+			"subpages": true,
+			"content": false
+		}
+	],
+
+	"manifest_version": 2,
+	"load_composer_autoloader": false
+}
