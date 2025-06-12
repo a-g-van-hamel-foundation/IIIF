@@ -10,7 +10,9 @@ $magicWords = [];
  * @author Dennis Groenewegen
  */
 
-$magicWords['en'] = [
-   'iiif' => [ 0, 'iiif' ],
-   'iiif-get-canvases' => [ 0, 'iiif-get-canvases' ]
+$magicWords["en"] = [
+	"iiif" => [ 0, "iiif" ],
+	"iiif-get-canvases" => [ 0, "iiif-get-canvases" ],
+	"iiif-annotator" => [ 0, "iiif-annotator" ],
+	"iiif-annotator-data" => [ 0, "iiif-annotator-data" ]
 ];

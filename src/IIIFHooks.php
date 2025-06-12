@@ -9,14 +9,15 @@ class IIIFHooks {
 
 	public static function onParserFirstCallInit( Parser $parser ) {
 		$flags = Parser::SFH_OBJECT_ARGS;
-		$parser->setFunctionHook( 'iiif-get-canvases', [ 'IIIFJson', 'runGetCanvasDataForTemplate' ], $flags );
-
+		$parser->setFunctionHook( "iiif-get-canvases", [ "IIIF\ParserFunctions\IIIFGetCanvases", "runGetCanvasDataForTemplate" ], $flags );
+		$parser->setFunctionHook( "iiif-annotator", [ "IIIF\ParserFunctions\IIIFAnnotator", 'runIIIFAnnotator' ], $flags );
+		$parser->setFunctionHook( "iiif-annotator-data", [ "IIIF\ParserFunctions\IIIFAnnotatorData", 'runGetAnnotationDataForTemplate' ], $flags );
 		return true;
 	}
 
 	public static function onRegister() {
 		// Must match the name used in the 'ContentHandlers' section of extension.json
-		define( 'CONTENT_MODEL_IIIF_JSON', 'iiifjson' );
+		define( "CONTENT_MODEL_IIIF_JSON", "iiifjson" );
 	}
 
 	public static function onContentHandlerDefaultModelFor( Title $title, &$model ) {		

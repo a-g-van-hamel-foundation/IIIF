@@ -3,6 +3,8 @@
 use MediaWiki\MediaWikiServices;
 use SMW\Localizer as Localizer;
 //SMWQueryProcessor
+use IIIF\Config\IIIFConfig;
+use IIIFUtils;
 
 /**
  * Methods for working with Semantic MediaWiki. 
