@@ -24,5 +24,5 @@ Once the extension has been installed, a detailed guide to configuration and usa
 - https://codecs.vanhamel.nl/Show:Lab/IIIF
 
 ## Changelog
-- 0.3 (in progress). Created documentation to be consulted on Special:IIIF. Introduced annotation tool (experimental). Extended support for Presentation API v3. Revised fetching thumbnail URLs from external wikis since the imageinfo API has become insufficient (breaking change in T360589). Overhauled the organisation of PHP files and namespaced PHP classes. Added Special page aliases.
+- 0.3. Created documentation to be consulted on Special:IIIF. Introduced annotation tool (experimental). Extended support for Presentation API v3. Revised fetching thumbnail URLs from external wikis since the imageinfo API has become insufficient (breaking change in T360589). Overhauled the organisation of PHP files and namespaced PHP classes. Added Special page aliases.
 - 0.2. Released (public).
