@@ -138,7 +138,7 @@ module.exports = defineComponent( {
 	display:flex;
 }
 .osd-viewer-list {
-	min-width:150px;
+	max-width:20em;
 }
 .osd-viewer-indicators {
 	min-width: 10em;

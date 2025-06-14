@@ -251,7 +251,7 @@ module.exports = defineComponent( {
 	position: relative;
 }
 
-.osd-dropdown-right .hidden {
+.osd-dropdown-right.hidden {
 	display:none;
 }
 .osd-dropdown-right {

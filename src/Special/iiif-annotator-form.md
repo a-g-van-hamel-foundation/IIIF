@@ -7,7 +7,7 @@ It is recommended to come up with a consistent naming pattern for pages that sto
 
 - **type** - set this to "AnnotatorFormConfig".
 - **description** - optional but a description may help to remind you or others of the purpose for which the form was designed.
-- **properties** - an array of configuration objects for your form inputs. Each object must have an `inputType` and `name` (unique) and except for hidden inputs, should have a `label`. 
+- **properties** - an array of configuration objects for your form inputs. Each object must have an `inputType` and `name` (unique) and except for hidden inputs, should have a `label`. Avoid names that are reserved as parameter names by the parser function `#iiif-annotation-data`, such as 'index', 'creator' and 'canvasid'. 
 
 ### Input types
 The properties section is where you select and configure the inputs you want from the available options. Current options for `inputType` are:

@@ -11,13 +11,27 @@ use IIIFUtils;
 class IIIFAnnotoriousParsers {
 
 	// array|string
-	private $dataMapping;
+	private $dataMapping = "all";
+	// Separator for multi-valued data in Dataset
 	private $sep = ";";
-
-	private $dataModel = "W3C";
+	private $dataModel = "W3C";	
 
 	public function __construct() {
 		//$this->dataModel = "Annotorious";
+	}
+
+	// in progress
+	public function setOptions(
+		mixed $sep = null,
+		mixed $dataModel = null
+	) {
+		if ( $sep !== null ) {
+			$this->sep = $sep;
+		}
+		//$dataMapping
+		if ( $dataModel !== null ) {
+			$this->dataModel = $dataModel;
+		}
 	}
 
 	public function convertAnnotationPages(
@@ -35,7 +49,7 @@ class IIIFAnnotoriousParsers {
 			if( array_key_exists( "references", $annotationPage ) ) {
 				$refs = $annotationPage["references"];
 				$canvasId = IIIFUtils::getArrayPath( [ "canvasId" ], $refs, null );
-				$canvasLabel = IIIFUtils::getArrayPath( [ "canvasLabel" ], $refs, null );
+				$canvasLabel = IIIFUtils::getArrayPath( [ "canvasLabel" ], $refs, "" );
 				$canvasIndex = IIIFUtils::getArrayPath( [ "index" ], $refs, null );
 				$tileSource = IIIFUtils::getArrayPath( [ "tileSource" ], $refs, null );
 				// $items = $annotationPage["items"];
@@ -46,7 +60,11 @@ class IIIFAnnotoriousParsers {
 			foreach ( $annotationPage["items"] as $k => $item ) {
 				switch( $this->dataModel ) {
 					case "W3C":
-						$dataset = IIIFUtils::getArrayPath( [ "body", 0, "Dataset" ], $item, [] );
+						$annotationId = $item["id"] ?? "";
+						// @todo Ultimately, remove deprecated "Dataset" structure
+						$dataset = IIIFUtils::getArrayPath( [ "body", 0, "Dataset" ], $item, null )
+							?? IIIFUtils::getArrayPath( [ "body", 0 ], $item, null )
+							?? [];
 						// Geometry. Assuming type:RECTANGLE
 						$geometry = IIIFUtils::getArrayPath( [ "target", "selector", "value" ], $item, null );
 						// example : "xywh=pixel:327.70835895383186,2126.9537529096556,1446.279908194182,315.7362981630413"
@@ -55,11 +73,12 @@ class IIIFAnnotoriousParsers {
 							$xywhArr = explode( ",", $xywh );
 							$y = sprintf( '%08d', round( $xywhArr[1] ) );
 						} else {
-							$xywh = null;
+							$xywh = "";
 							$y = $k;
 						}
 					break;
 					case "Annotorious":
+						$annotationId = $item["id"] ?? "";
 						$dataset = IIIFUtils::getArrayPath( [ "bodies", 0, "Dataset" ], $item, [] );
 						// Assuming type:RECTANGLE
 						$geometry = IIIFUtils::getArrayPath( [ "target", "selector", "geometry" ], $item, null );
@@ -67,34 +86,38 @@ class IIIFAnnotoriousParsers {
 							$xywh = "{$geometry['x']},{$geometry['y']},{$geometry['w']},{$geometry['h']}";
 							$y = sprintf( '%08d', round( $geometry['y'] ) );
 						} else {
-							$xywh = null;
+							$xywh = "";
 							$y = $k;
 						}
 					break;
 					default:
 						$dataset = [];
-						$xywh = null;
+						$xywh = $annotationId = "";
 				}
 
 				switch( $this->dataModel ) {
 					case "W3C":
-						$creator = array_key_exists( "creator", $item ) ? $item["creator"] : null;
+						$creatorEntry = array_key_exists( "creator", $item ) ? $item["creator"] : "";
+						// @todo Ultimately, remove legacy method where creator can be a string
+						$creator = gettype($creatorEntry) === "string" ?  $creatorEntry : $creatorEntry["id"];
+						$timeCreated = array_key_exists( "created", $item ) ? $item["created"] : "";
 						//$updater = IIIFUtils::getArrayPath( [ "target", "updatedBy" ], $item, null );
-						$updater = null;
+						$updater = "";
 					break;
 					case "Annotorious":
-						$creator = $item["target"]["creator"];
-						$updater = IIIFUtils::getArrayPath( [ "target", "updatedBy" ], $item, null );
+						$creator = gettype($item["target"]["creator"] ) === "string" ? $item["target"]["creator"] : $item["target"]["creator"]["id"];
+						$timeCreated = "";
+						$updater = IIIFUtils::getArrayPath( [ "target", "updatedBy" ], $item, "" );
 					break;
 					default:
-						$creator = $updater = "";
+						$creator = $updater = $timeCreated = "";
 				}
 
 				// Set index to sort by annotation page + decimal sep + padded y
 				// using 'y' in the absence of universal rules we can apply
 				// @todo are negative numbers possible?
 				$sortableNum = "{$canvasIndex}.$y";
-				$subobjects[$sortableNum] = $this->buildTemplateInstance( $dataset, $manifest, $canvasId, $canvasIndex, $canvasLabel, $tileSource, $xywh, $creator, $updater );
+				$subobjects[$sortableNum] = $this->buildTemplateInstance( $dataset, $manifest, $canvasId, $canvasIndex, $canvasLabel, $tileSource, $xywh, $creator, $updater, $timeCreated, $annotationId );
 			}
 		}
 
@@ -109,17 +132,31 @@ class IIIFAnnotoriousParsers {
 		return $res;
 	}
 
-	private function buildTemplateInstance( array $dataset, mixed $manifest, $canvasId, $canvasIndex, $canvasLabel, $tileSource, $xywh, $creator, $updater ) {
+	private function buildTemplateInstance(
+		array $dataset,
+		mixed $manifest,
+		$canvasId,
+		$canvasIndex,
+		$canvasLabel,
+		$tileSource,
+		$xywh,
+		$creator,
+		string $updater = "",
+		string $timeCreated = "",
+		string $annotationId = ""
+	) {
 		// $dataset - usedata mapping
 		$instance = [
 			// dataset
+			"annotationid" => $annotationId,
 			"canvasid" => $canvasId,
 			"canvasindex" => $canvasIndex,
 			"canvaslabel" => $canvasLabel,
 			"tilesource" => str_replace( "/info.json", "", $tileSource ),
 			"xywh" => $xywh, // region
 			"creator" => $creator,
-			"updater" => $updater
+			"updater" => $updater,
+			"timecreated" => $timeCreated
 		];
 		if ( $manifest !== null ) {
 			$instance["manifest"] = $manifest;
@@ -145,6 +182,7 @@ class IIIFAnnotoriousParsers {
 		// Assign data to instance
 		foreach( $dataArr as $k => $v ) {
 			if( gettype($v) === "array" ) {
+				// multi-valued data
 				$instance[$k] = implode( $this->sep, $v );
 			} else {
 				$instance[$k] = $v;

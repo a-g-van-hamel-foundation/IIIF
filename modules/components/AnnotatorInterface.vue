@@ -152,7 +152,10 @@ module.exports = defineComponent( {
 			);
 			this.setOSDAnnotatorBehaviours( this.OSDAnnotator, this.OSDViewer );
 			// Set current MW user, not Guest
-			this.OSDAnnotator.setUser( mw.user.id() );
+			this.OSDAnnotator.setUser({
+				id: mw.user.id(),
+				name: mw.user.id()
+		 	});
 			// @todo - Should we do this here?
 			this.updateAnnotationList( this.OSDAnnotator.exportAllAnnotations() );
 		},
@@ -194,7 +197,7 @@ module.exports = defineComponent( {
 			*/
 			this.OSDAnnotator.updateAnnotation(newAnno);
 			this.debugLog( "updateAnnotation: new annotation before update", JSON.stringify(newAnno) );
-			// Don't use this.writeToWiki() here because of api edit lag
+			// Don't use this.writeToWiki() here because of API edit lag
 		},
 		updateAnnotationList(annotations) {
 			const list = [];

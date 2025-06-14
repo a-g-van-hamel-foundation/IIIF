@@ -42,10 +42,11 @@ class IIIFAnnotatorData {
 			// "mode" => "normal",
 			"manifest" => null,
 			// W3C or Annotorious
-			"datamodel" => "W3C"
+			"datamodel" => "W3C",
+			"sep" => ";"
 		];
 
-		[ $page, $slot, $targetTemplate, $target, $data, $manifest, $dataModel ] = array_values( IIIFParserFunctionUtils::extractParams( $frame, $params, $paramsAllowed ) );
+		[ $page, $slot, $targetTemplate, $target, $data, $manifest, $dataModel, $sep ] = array_values( IIIFParserFunctionUtils::extractParams( $frame, $params, $paramsAllowed ) );
 
 		$jsonStr = IIIFUtils::getRawContentFromPageName( $page, $slot );
 		$jsonArr = json_decode( $jsonStr, true );
@@ -55,19 +56,22 @@ class IIIFAnnotatorData {
 
 		if( $manifest !== null && $manifest !== "" ) {
 			$manifestArr = IIIFUtils::getArrayFromJsonUrl( $manifest );
-			if ( $manifestArr == null ) {
-				//...
+			if ( $manifestArr === null ) {
+				// @todo i18n error message
+				return [ "", "noparse" => false, "isHTML" => false ];
 			}
 		}
 
 		$IIIFAnnotoriousParser = new IIIFAnnotoriousParsers();
+		$IIIFAnnotoriousParser->setOptions( $sep );
 		$newArray = $IIIFAnnotoriousParser->convertAnnotationPages( $jsonArr, $data, $dataModel );
 
 		$res = "";
-		if ( $targetTemplate !== null ) {
+		if ( $targetTemplate !== null && $targetTemplate !== "" ) {
 			$res = IIIFJson::convertArrayToWikiInstances( $newArray, 'template', $targetTemplate, "", "", "" );
-		} elseif( $target = "raw" ) {
-			$res = "<pre>" . var_export( $newArray, true ) . "</pre>";
+		} else {
+			//$res = "<pre>" . var_export( $newArray, true ) . "</pre>";
+			$res = "<pre>" . json_encode( $newArray, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES ) . "</pre>";
 		}
 
 		return [ $res, 'noparse' => false, 'isHTML' => false ];
