@@ -1,0 +1,162 @@
+{
+	"introduction": {
+		"subpage": "introduction",
+		"file": "src/Special/introduction.md",
+		"menutitle": "Introduction",
+		"pagetitle": "IIIF extension",
+		"type": "markdown"
+	},
+	"namespace": {
+		"subpage": "namespace",
+		"file": "src/Special/iiif-namespace.md",
+		"menutitle": "IIIF namespace",
+		"pagetitle": "IIIF namespace",
+		"type": "markdown"
+	},
+	"headingConfiguration": {
+		"menutitle": "Configuration",
+		"type": "subheading"
+	},
+	"config": {
+		"subpage": "config",			
+		"file": "src/Special/config.md",
+		"menutitle": "Configuration",
+		"pagetitle": "Configuration",
+		"type": "markdown"
+	},
+	"headingAPIUsageGuides": {
+		"menutitle": "API usage guides",
+		"type": "subheading"
+	},
+	"case-mw-images": {
+		"subpage": "case-mw-images",
+		"file": "src/Special/case-mw-images.md",
+		"menutitle": "Serve images from MediaWiki",
+		"pagetitle": "Serving images from MediaWiki",
+		"type": "markdown"
+	},
+	"case-collections": {
+		"subpage": "case-collections",
+		"file": "src/Special/case-collections.md",
+		"menutitle": "Create collections with SMW",
+		"pagetitle": "Creating collections with Semantic MediaWiki",
+		"type": "markdown"
+	},
+	"case-smw-annotations": {
+		"subpage": "case-smw-annotations",
+		"file": "src/Special/case-smw-annotations.md",
+		"menutitle": "From SMW data to IIIF annotations",
+		"pagetitle": "From Semantic MediaWiki data to IIIF annotations",
+		"type": "markdown"
+	},
+	"headingAPModules": {
+		"menutitle": "API modules",
+		"type": "subheading"
+	},
+	"iiif-manifest": {
+		"subpage": "iiif-manifest",
+		"file": "src/Special/api-iiif-manifest.md",
+		"menutitle": "iiif-manifest",
+		"pagetitle": "API module: <code>iiif-manifest</code>",
+		"type": "markdown"
+	},
+	"iiif-annotations": {
+		"subpage": "iiif-annotations",
+		"file": "src/Special/api-iiif-annotations.md",
+		"menutitle": "iiif-annotations",
+		"pagetitle": "API module: <code>iiif-annotations</code>",
+		"type": "markdown"
+	},
+	"iiif-mw-pres": {
+		"subpage": "iiif-mw-pres",
+		"file": "src/Special/api-iiif-mw-pres.md",
+		"menutitle": "iiif-mw-pres",
+		"pagetitle": "API module: <code>iiif-mw-pres</code>",
+		"type": "markdown"
+	},
+	"iiif-mw-img": {
+		"subpage": "iiif-mw-img",
+		"file": "src/Special/api-iiif-mw-img.md",
+		"menutitle": "iiif-mw-img",
+		"pagetitle": "API module: <code>iiif-mw-img</code>",
+		"type": "markdown"
+	},
+	"iiif-collection": {
+		"subpage": "iiif-collection",
+		"file": "src/Special/api-iiif-collection.md",
+		"menutitle": "iiif-collection",
+		"pagetitle": "API module: <code>iiif-collection</code>",
+		"type": "markdown"
+	},
+	"iiif-wiki": {
+		"subpage": "iiif-wiki",
+		"file": "src/Special/api-iiif-wiki.md",
+		"menutitle": "iiif-wiki",
+		"pagetitle": "API module: <code>iiif-wiki</code>",
+		"type": "markdown"
+	},
+	"redirect": {
+		"subpage": "redirect",
+		"file": "src/Special/api-redirect.md",
+		"menutitle": "Redirect service (Special:IIIFServ)",
+		"pagetitle": "Redirect service",
+		"type": "markdown"
+	},
+	"headingAnnotationTool": {
+		"menutitle": "Annotation tools",
+		"type": "subheading"
+	},
+	 "iiif-annotator": {
+		"subpage": "iiif-annotator",
+		"file": "src/Special/iiif-annotator.md",
+		"menutitle": "About",
+		"pagetitle": "Annotation tools",
+		"type": "markdown"
+	},
+	"pf-iiif-annotator": {
+		"subpage": "pf-iiif-annotator",
+		"file": "src/Special/pf-iiif-annotator.md",
+		"menutitle": "<code>#iiif-annotator</code>",
+		"pagetitle": "Annotation tool: <code>#iiif-annotator</code>",
+		"type": "markdown"
+	},
+	"iiif-annotator-form": {
+		"subpage": "iiif-annotator-form",
+		"file": "src/Special/iiif-annotator-form.md",
+		"menutitle": "Creating forms",
+		"pagetitle": "Annotation tool: creating forms",
+		"type": "markdown"
+	},
+	"pf-iiif-annotator-data": {
+		"subpage": "pf-iiif-annotator-data",
+		"file": "src/Special/pf-iiif-annotator-data.md",
+		"menutitle": "<code>#iiif-annotator-data</code>",
+		"pagetitle": "Annotation tool: <code>#iiif-annotator-data</code>",
+		"type": "markdown"
+	},
+	"iiif-canvas-viewer": {
+		"subpage": "iiif-canvas-viewer",
+		"file": "src/Special/smw-resultformat-canvas-viewer.md",
+		"menutitle": "iiif-canvas-viewer (result format)",
+		"pagetitle": "SMW result format: <code>iiif-canvas-viewer</code>",
+		"type": "markdown"
+	},
+	"iiif-annotation-gallery": {
+		"subpage": "iiif-annotation-gallery",
+		"file": "src/Special/smw-resultformat-annotation-gallery.md",
+		"menutitle": "iiif-annotation-gallery (result format)",
+		"pagetitle": "SMW result format: <code>iiif-annotation-gallery</code>",
+		"type": "markdown"
+	},
+	"headingOther": {
+		"menutitle": "Other",
+		"type": "subheading"
+	},
+	"pf-iiif-get-canvases": {
+		"subpage": "pf-iiif-get-canvases",
+		"file": "src/Special/pf-iiif-get-canvases.md",
+		"menutitle": "<code>#iiif-get-canvases</code>",
+		"pagetitle": "Parser function: <code>#iiif-get-canvases</code>",
+		"type": "markdown"
+	}
+}

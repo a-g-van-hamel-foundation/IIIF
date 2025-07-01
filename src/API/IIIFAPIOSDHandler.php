@@ -14,6 +14,7 @@ use Wikimedia\ParamValidator\ParamValidator;
 use IIIFUtils;
 use IIIF\IIIFParsers\IIIFCanvasParsers;
 use IIIF\IIIFParsers\IIIFParserUtils;
+use IIIF\IIIFParsers\IIIFManifestParsers;
 //use ExtensionRegistry;
 
 class IIIFAPIOSDHandler extends \ApiBase {
@@ -70,12 +71,16 @@ class IIIFAPIOSDHandler extends \ApiBase {
 			}
 		}
 
+		$iiifManifestParser = new IIIFManifestParsers( $this->presentationAPIVersion );
+		$manifestSummary = $iiifManifestParser->createSummary( $this->manifestArr );
+
 		$res = [
 			"result" => [
 				"imageInformationRequests" => $this->imageInformationRequestUrls,
 				"canvasItems" => $this->canvasItems,
 				"manifest" => $this->manifestArr,
-				"annotations" => $annotationJson
+				"annotations" => $annotationJson,
+				"summary" => $manifestSummary
 			],
 			"meta" => [
 				"module" => "iiif-osd",

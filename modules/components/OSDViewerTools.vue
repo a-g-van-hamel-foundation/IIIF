@@ -1,15 +1,17 @@
 <template>
 <div class="osd-viewer-tools">
 
-	<cdx-toggle-button
-		ref="annotationToggle"
-		class="toggle-annotate"
-		v-model="doAnnotate"
-		aria-label="Toggle annotation tool"
-		@update:model-value="onAnnotationUpdate"
-	>
-		<cdx-icon :icon="cdxIconHighlight"></cdx-icon>
-	</cdx-toggle-button>
+	<template v-if="showDrawingTool">
+		<cdx-toggle-button
+			ref="annotationToggle"
+			class="toggle-annotate"
+			v-model="doAnnotate"
+			aria-label="Toggle annotation tool"
+			@update:model-value="onAnnotationUpdate"
+		>
+			<cdx-icon :icon="cdxIconHighlight"></cdx-icon>
+		</cdx-toggle-button>
+	</template>
 
 	<cdx-button
 		class="osd-viewer-rotation"
@@ -109,6 +111,10 @@ module.exports = defineComponent( {
 		rotation: {
 			type: Number,
 			default: 0
+		},
+		showDrawingTool: {
+			type: Boolean,
+			default: true
 		}
 	},
 	computed: {

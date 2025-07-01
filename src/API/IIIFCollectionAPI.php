@@ -14,7 +14,7 @@ use SMW\DIWikiPage;
 use Wikimedia\ParamValidator\ParamValidator;
 use IIIFUtils;
 use IIIF\Config\IIIFConfig;
-use IIIFSMW;
+use IIIF\SMW\IIIFSMW;
 
 class IIIFCollectionAPI extends \ApiBase {
 
@@ -41,8 +41,8 @@ class IIIFCollectionAPI extends \ApiBase {
 		} else {
 			$smwQueryEscaped = null;
 		}
-
 		$resourceItems = self::getResourceCollection( $smwQueryEscaped );
+
 		$apiResult = $this->getResult();
 		self::setupManifestCollectionV3( $apiResult, $id, $resourceItems );
 	}
@@ -58,6 +58,7 @@ class IIIFCollectionAPI extends \ApiBase {
 		foreach( $manifestCollectionItems as $item ) {
 			$items[] = self::preprocessManifestV3( $item );
 		}
+
 		global $wgSitename;
 		$requiredStatement = [
 			"label" => [
@@ -144,15 +145,17 @@ class IIIFCollectionAPI extends \ApiBase {
 	 */
 	public static function getResourceCollection( $smwQueryEscaped = null ) {
 		// Argument for all resources with a manifest - use concept instead e.g. "Resources with IIIF manifests"
-		$IIIFCollectionQueryArg = self::$smwConfigProps['IIIFCollectionQueryArg'];
+		$IIIFCollectionQueryArg = self::$smwConfigProps["IIIFCollectionQueryArg"];
+		
 		$queryArg = ( $smwQueryEscaped == null )
 			? $IIIFCollectionQueryArg
 			: IIIFSMW::processSemanticQuery( $smwQueryEscaped );
-		$IIIFCollectionSortProp = self::$smwConfigProps['IIIFCollectionSortProp'];
+		$IIIFCollectionSortProp = self::$smwConfigProps["IIIFCollectionSortProp"];
 
 		$printout = "|named args=yes|link=none|limit=9999|sort={$IIIFCollectionSortProp}|searchlabel=";
 		$propNames = self::getPropNamesForCollection( true );
 		$resources = IIIFSMW::getAllObjectsForQuery( $queryArg, $printout, $propNames );
+
 		return $resources;
 	}
 

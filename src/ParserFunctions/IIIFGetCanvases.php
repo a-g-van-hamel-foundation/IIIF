@@ -2,10 +2,9 @@
 
 namespace IIIF\ParserFunctions;
 
-use MediaWiki\MediaWikiServices;
+//use MediaWiki\MediaWikiServices;
 use IIIF\IIIFParsers\IIIFParserUtils;
 use IIIF\IIIFParsers\IIIFCanvasParsers;
-use IIIFJson;
 use IIIFUtils;
 
 class IIIFGetCanvases {
@@ -17,7 +16,7 @@ class IIIFGetCanvases {
 		 */
 		public static function runGetCanvasDataForTemplate( $parser, $frame, $params ) {
 			$paramManifestURL = $paramTemplateName = "";
-			$userParam1 = $userParam2 = $userParam3 = "";
+			$userParams = [];
 			$indexName = "indexnumber";
 			$canvasArr = [];
 			if ( $params == null || $params == 'undefined' ) {
@@ -33,16 +32,17 @@ class IIIFGetCanvases {
 					break;
 					case 'template': $paramTemplateName = $value;
 					break;
-					case 'userparam1': $userParam1 = $value;
+					case 'userparam1': $userParams["userparam1"] = $value;
 					break;
-					case 'userparam2': $userParam2 = $value;
+					case 'userparam2': $userParams["userparam2"] = $value;
 					break;
-					case 'userparam3': $userParam3 = $value;
+					case 'userparam3': $userParams["userparam3"] = $value;
 					break;
 					case 'indexname': $indexName = $value;
 					break;
 				}
 			}
+			
 			$manifestArr = IIIFUtils::getArrayFromJsonUrl( $paramManifestURL );
 			if ( $manifestArr == null ) {
 				return;
@@ -58,12 +58,12 @@ class IIIFGetCanvases {
 			//print_r( $canvasArr );
 			$output = ( $paramTemplateName !== "" ) ? 'template' : 'json';
 			if ( $output == 'template' ) {
-				$res = IIIFJson::convertArrayToWikiInstances( 
+				$res = IIIFUtils::convertArrayToWikiInstances( 
 					$canvasArr, 'template', $paramTemplateName, 
-					$userParam1, $userParam2, $userParam3
+					$userParams
 				);
 			} else {
-				$newArr = IIIFJson::appendCustomToArray( $canvasArr, $userParam1, $userParam2, $userParam3 );
+				$newArr = IIIFUtils::appendCustomToArray( $canvasArr, $userParams );
 				$json = json_encode( $newArr, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES );
 				$res = ( $json !== false ) ? $json : "";
 			}

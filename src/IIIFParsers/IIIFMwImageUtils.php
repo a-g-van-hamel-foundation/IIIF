@@ -11,6 +11,7 @@ use MediaWiki\MediaWikiServices;
 use IIIFUtils;
 use File;
 use LocalFile;
+use IIIF\IIIFParsers\IIIFImageUtils;
 
 class IIIFMwImageUtils {
 
@@ -73,23 +74,25 @@ class IIIFMwImageUtils {
 		if ( $file === false ) {
 			return "";
 		}
-
-		// region
-		if ( $request["region"] === "full" ) {
-			// @todo - currently the assumed default
-		} else {
-			[ $x, $y, $w, $h ] = explode(",", $request["region"] );
-		}
+		$fullWidth = $file->getWidth();
+		$fullHeight = $file->getHeight();
 
 		// size
-		if( $request["size"] === "max" ) {
-			// @todo assume no thumbnail
+		[ $width, $height ] = IIIFImageUtils::getDisplayWidthHeight( $request["size"], $fullWidth, $fullHeight );
+		if ( $width === null ) {
+			$width = round( $fullWidth * ( $height / $fullHeight ) );
+			//$height = null;
+		} elseif( $height === null ) {
+			$height = LocalFile::scaleHeight( $fullWidth, $fullHeight, $width );
 		}
-		[ $width, $height ] = self::getDisplayWidthHeight( $request["size"] );		
+
+		// region:
+		// @todo currently unused because MW (on its own) does not support cropping
+		// [ $x, $y, $w, $h ] = IIIFImageUtils::translateXYWHRegion( $request["region"], $width, $height );
 
 		// Create and return thumbnail
 		$baseUrl = IIIFUtils::getUrlBase();
-		$thumbnailPath = self::createThumbnail( $file, $width, $height );
+		$thumbnailPath = self::createThumbnail( $file, $width, $height );		
 		if ( $thumbnailPath !== "" ) {
 			return $baseUrl . $thumbnailPath;
 		}
@@ -97,20 +100,16 @@ class IIIFMwImageUtils {
 	}
 
 	/**
-	 * Translate size specification in Image Request to width and height.
-	 * @todo: ^max/^w, pct:, ^pct, !w,h, etc. (iiif.io/api/image/3.0/)
-	 * @todo - Currently ignoring third and fourth param of size
+	 * @deprecated moved to IIIFImageUtils
+	 * @todo this is being replaced by IIIFImageUtils
 	 * @return array
 	 */
-	private static function getDisplayWidthHeight( string $size ) {
-		$sizeArr = explode( ",", $size );
-		$height = ( array_key_exists( 1, $sizeArr ) && $sizeArr[1] !== "" )
-			? intval($sizeArr[1])
-			: -1;
-		$width = ( array_key_exists( 0, $sizeArr ) && $sizeArr[0] !== "" )
-			? intval($sizeArr[0])
-			: $height;
-		return [ $width, $height ];
+	private static function getDisplayWidthHeight(
+		string $size,
+		mixed $fullWidth,
+		mixed $fullHeight
+	) {
+		return IIIFImageUtils::getDisplayWidthHeight( $size, $fullWidth, $fullHeight );
 	}
 
 	/**
@@ -119,6 +118,7 @@ class IIIFMwImageUtils {
 	 * @todo maybe check if we can make the requested thumbnail, and get transform parameters.
 	 * @link https://phabricator.wikimedia.org/source/mediawiki/browse/master/includes/api/ApiQueryImageInfo.php
 	 * @link https://phabricator.wikimedia.org/source/mediawiki/browse/REL1_39/includes/filerepo/file/File.php
+	 * note: createThumb: keeps aspect ratio and contrains
 	 * 
 	 * @param File $img
 	 * @param int $width
@@ -126,8 +126,20 @@ class IIIFMwImageUtils {
 	 * @return string - string is empty if requested thumbnail could not be created
 	 */
 	public static function createThumbnail( File $img, $width, $height = -1 ): string {
-		$thumb = $img->createThumb( $width, $height );
-		return $thumb;
+		//$thumb = $img->createThumb( $width, $height );
+		//return $thumb;
+		$params = [];
+		if ( $width !== null ) {
+			$params["width"] = $width;
+		}
+		if ( $height !== null || $height !== -1 ) {
+			$params["height"] = $height;
+		}
+		$thumb = $img->transform( $params );
+		if ( !$thumb || $thumb->isError() ) {
+			return "";
+		}
+		return $thumb->getUrl();
 	}
 
 	/**
@@ -201,7 +213,7 @@ class IIIFMwImageUtils {
 	}
 
 	/**
-	 * Variant that uses fixed 
+	 * Variant that uses fixed sizes
 	 * @param int $fullWidth
 	 * @param int $fullHeight
 	 * @return array

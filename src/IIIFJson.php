@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @todo Move to appropriate class
+ * @deprecated
  */
 
 use MediaWiki\MediaWikiServices;
@@ -12,56 +12,34 @@ use IIIFUtils;
 
 class IIIFJson {
 
+	/**
+	 * @deprecated Moved to IIIFUtils
+	 * @param array $templateArr
+	 * @param string $targetType
+	 * @param string $targetName
+	 * @param array $userParams
+	 * @return string
+	 */
 	public static function convertArrayToWikiInstances(
 		array $templateArr,
 		string $targetType,
 		string $targetName,
-		string $userParam1,
-		string $userParam2,
-		string $userParam3
+		array $userParams = []
 	) {
-		$str = "";
-		if ($targetType == "template") {
-			$prefix = "{{";
-		} elseif ($targetType == "widget") {
-			$prefix = "{{#widget:";
-		} elseif ($targetType == "module") {
-			$prefix = "{{#invoke:";
-		} elseif ($targetType == "subobject") {
-			// Afterthought not implemented, but note they're nameless
-			$prefix = "{{#subobject:";
-		}
-		foreach ( $templateArr as $instance ) {
-			$str .= $prefix . $targetName . "\n";
-			foreach ($instance as $k => $v) {
-				$str .= "|{$k}={$v}" . "\n";
-			}
-			$str .= "|userparam1={$userParam1}";
-			$str .= "|userparam2={$userParam2}";
-			$str .= "|userparam3={$userParam3}";
-			$str .= "}}";
-		}
-		return $str;
+		return IIIFUtils::convertArrayToWikiInstances($templateArr, $targetType, $targetName, $userParams );
 	}
 
+	/**
+	 * @deprecated Moved to IIIFUtils
+	 * @param array $arr
+	 * @param array $userParams
+	 * @return array[]
+	 */
 	public static function appendCustomToArray(
 		array $arr,
-		string $userParam1,
-		string $userParam2,
-		string $userParam3
+		array $userParams
 	) {
-		$newArr = [];
-		foreach ( $arr as $k => $instance ) {
-			$newInstance = [];
-			foreach ($instance as $k => $v) {
-				$newInstance[$k] = $v;
-			}
-			$newInstance['userparam1'] = ( $userParam1 !== "") ? $userParam1 : "";
-			$newInstance['userparam2'] = ( $userParam2 !== "") ? $userParam2 : "";
-			$newInstance['userparam3'] = ( $userParam3 !== "") ? $userParam3 : "";
-			$newArr[] = $newInstance;
-		}
-		return $newArr;
+		return IIIFUtils::appendCustomToArray( $arr, $userParams );
 	}
 
 	/**

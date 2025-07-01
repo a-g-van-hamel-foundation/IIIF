@@ -239,6 +239,17 @@ module.exports = defineComponent( {
 	justify-content: flex-end;
 	gap: .5rem;
 }
+.annotator-sidebar .submit-form-button-container .cdx-button {
+	background-color: #5f7470;
+	color:#FFF;
+}
+.annotator-sidebar .submit-form-button-container .cdx-button:hover {
+	background: #4e5f5c linear-gradient(180deg,#687774,#4e5f5c) repeat-x;
+}
+.annotator-sidebar .submit-form-button-container .cdx-button:enabled:focus:not(:active) {
+	border-color:#a1ddc6;
+	box-shadow: inset 0 0 0 1px #a1ddc6;
+}
 .annot-placeholder-text {
 	font-size:.8rem;
 }

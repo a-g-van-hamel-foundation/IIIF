@@ -110,13 +110,12 @@ class IIIFUtils {
 		$webRequest->response()->header( "Last-modified: $lastmod" );
 
 		$content = $revRecord->hasSlot( $slot ) ? $revRecord->getContent( $slot ) : null;
-		// excluding lots of checks we should be including - https://github.com/Open-CSP/WSSlots/blob/master/src/Actions/SlotAwareRawAction.php#L28 - e.g. check for slot, revision, ?section,
+		// excluding lots of checks we should be including - cf. https://github.com/Open-CSP/WSSlots/blob/master/src/Actions/SlotAwareRawAction.php#L28 - e.g. check for slot, revision, ?section,
 		return $content !== null ? $content->getText() : "";
     }
 
-
 	/**
-	 * Checks if the array is sequential/numeric
+	 * Checks if the array is sequential not numeric
 	 */
 	public static function isSequentialArray( $arr ): bool {
 		// don't use  ( count( $arr ) === count( array_filter( $arr, 'is_numeric' ) ) 
@@ -129,6 +128,7 @@ class IIIFUtils {
 
 	/**
 	 * Convert wikitext to html using a fresh new Parser
+	 * misnomer @todo rename to e.g. parseWikitext( ... )
 	 * @todo Partial method.
 	 */
 	public static function convertStrToWikitext( $str, $parser = null ) {
@@ -137,7 +137,8 @@ class IIIFUtils {
 		}
 		$parser->setOutputType( 'html' );
 		$parser->setOptions( ParserOptions::newFromAnon() );
-		$newParsed = $parser->parse( $str,
+		$newParsed = $parser->parse(
+			$str,
 			RequestContext::getMain()->getTitle(),
 			$parser->getOptions()
 		)->getText();
@@ -150,7 +151,7 @@ class IIIFUtils {
 	 * @param array $path - keys
 	 * @param array $array - the array to traverse
 	 * @param mixed $default
-	 * @return array|null
+	 * @return array|string|null
 	 */
 	public static function getArrayPath( array $path, array $array, $default = null ) {
 		$nextItem = $array;
@@ -165,7 +166,69 @@ class IIIFUtils {
 	}
 
 	/**
-	 * Dev only
+	 * Moved from IIIFJson
+	 * @param array $templateArr
+	 * @param string $targetType
+	 * @param string $targetName
+	 * @param array $userParams
+	 * @return string
+	 */
+	public static function convertArrayToWikiInstances(
+		array $templateArr,
+		string $targetType,
+		string $targetName,
+		array $userParams = []
+	) {
+		$str = "";
+		if ($targetType == "template") {
+			$prefix = "{{";
+		} elseif ($targetType == "widget") {
+			$prefix = "{{#widget:";
+		} elseif ($targetType == "module") {
+			$prefix = "{{#invoke:";
+		} elseif ($targetType == "subobject") {
+			// Afterthought not implemented, but note they're nameless
+			$prefix = "{{#subobject:";
+		}
+		foreach ( $templateArr as $instance ) {
+			$str .= $prefix . $targetName . "\n";
+			foreach ($instance as $k => $v) {
+				$str .= "|{$k}={$v}" . "\n";
+			}
+			foreach( $userParams as $name => $val ) {
+				$str .= "|{$name}={$val}";
+			}
+			$str .= "}}";
+		}
+		return $str;
+	}
+
+	/**
+	 * Moved from IIIFJson
+	 * @param array $arr
+	 * @param array $userParams
+	 * @return array<array>
+	 */
+	public static function appendCustomToArray(
+		array $arr,
+		array $userParams
+	) {
+		$newArr = [];
+		foreach ( $arr as $k => $instance ) {
+			$newInstance = [];
+			foreach( $instance as $k => $v ) {
+				$newInstance[$k] = $v;
+			}
+			foreach( $userParams as $name => $v ) {
+				$newInstance[$name] = $v;
+			}
+			$newArr[] = $newInstance;
+		}
+		return $newArr;
+	}
+
+	/**
+	 * Dev: For testing purposes only.
 	 * @internal
 	 */
 	public static function printArray( $arr ) {
@@ -173,6 +236,8 @@ class IIIFUtils {
 		print_r( $arr );
 		print_r( "</pre>" );
 	}
+
+	// DEPRECATED:
 
 	/**
 	 * @deprecated

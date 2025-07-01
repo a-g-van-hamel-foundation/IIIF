@@ -2,7 +2,7 @@
 
 namespace IIIF\ParserFunctions;
 
-use MediaWiki\MediaWikiServices;
+//use MediaWiki\MediaWikiServices;
 use IIIF\ParserFunctions\IIIFParserFunctionUtils;
 use ExtensionRegistry;
 //use Parser;
@@ -22,10 +22,11 @@ class IIIFAnnotator {
 			"profileid" => null,
 			"target" => null,
 			"targetslot" => null,
-			"canvasindex" => "0"
+			"canvasindex" => "0",
+			"mode" => "annotator"
 		];
-		list( $manifest, $profile, $profileId, $target, $targetSlot, $canvasIndex ) = array_values( IIIFParserFunctionUtils::extractParams( $frame, $params, $paramsAllowed ) );
-		$contentModel = ( str_starts_with( $target, "IIIF:" ) ) ? "iiifjson" : "json";
+		list( $manifest, $profile, $profileId, $target, $targetSlot, $canvasIndex, $mode ) = array_values( IIIFParserFunctionUtils::extractParams( $frame, $params, $paramsAllowed ) );
+		$contentModel = str_starts_with( $target, "IIIF:" ) ? "iiifjson" : "json";
 
 		$outputPage = $parser->getOutput();
 		$outputPage->addModules( [ "ext.iiif.annotator" ] );
@@ -39,7 +40,8 @@ class IIIFAnnotator {
 			"data-profile-id" => $profileId,
 			"data-target" => $target,
 			"data-target-content-model" => $contentModel,
-			"data-canvas-index" => $canvasIndex
+			"data-canvas-index" => $canvasIndex,
+			"data-mode" => $mode
 		];
 
 		// MCR

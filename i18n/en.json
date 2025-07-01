@@ -69,5 +69,17 @@
 	"iiif-annotator-osdviewertools-brightness": "Brightness",
 	"iiif-annotator-osdviewertools-contrast": "Contrast",
 	"iiif-annotator-osdviewertools-saturation": "Saturation",
-	"iiif-annotator-osdviewertools-resetfilters": "Reset"
+	"iiif-annotator-osdviewertools-resetfilters": "Reset",
+
+	"tag-iiif-annotator-edit": "IIIF annotator edit",
+	"tag-iiif-annotator-edit-description": "Tag for marking a page edit with the IIIF annotation tool.",
+
+	"iiif-printer-iiif-canvas-viewer-name": "IIIF Canvas Viewer",
+	"iiif-printer-iiif-canvas-viewer-paramdesc-template": "name of the wiki template with which to display the printouts in the sidebar",
+	"iiif-printer-iiif-annotations": "IIIF Canvas Viewer (alias)",
+	"iiif-printer-iiif-annotation-gallery-name": "IIIF Annotation Gallery",
+	"iiif-printer-iiif-annotation-gallery-paramdesc-template": "name of the wiki template with which to display the printouts in the caption",
+	"iiif-printer-iiif-annotation-gallery-paramdesc-layout": "layout theme (default or 'columns')",
+	"iiif-printer-iiif-annotation-gallery-paramdesc-columns": "number of columns (2, 3, 4, 5, 6, 8, or 12)"
+
 }

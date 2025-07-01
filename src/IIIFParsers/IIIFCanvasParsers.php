@@ -34,9 +34,9 @@ class IIIFCanvasParsers {
 	 */
 	public function getInfoFromCanvasesForOSD( $canvases, $presentationAPIVersion = "2" ) {		
 		foreach( $canvases as $index => $canvas ) {
-			if( $presentationAPIVersion == "2" ) {
+			if( $presentationAPIVersion === "2" ) {
 				$service = IIIFUtils::getArrayPath(	[ "images", 0, "resource", "service" ], $canvas );
-			} elseif( $presentationAPIVersion == "3" ) {
+			} elseif( $presentationAPIVersion === "3" ) {
 				$services = IIIFUtils::getArrayPath( [ "items", 0, "items", 0, "body", "service" ], $canvas );
 				// @todo Assuming, for now, the first service listed is good enough
 				// While valid, it may not be the best option
@@ -143,8 +143,8 @@ class IIIFCanvasParsers {
 					]
 				];
 			break;
-			case "http://iiif.io/api/image/3/context.json":		
-				// @todo !!!
+			case "http://iiif.io/api/image/3/context.json":
+				// @todo ? 
 				$urlBase = $service["id"] ?? null;
 				// todo
 				$tocItem = [
@@ -180,11 +180,11 @@ class IIIFCanvasParsers {
 			return;
 		}
 
-		// @todo :
-		// "Note that the @context key should not be present within the service,
+		// @todo : "Note that the @context key should not be present within the service,
 		// but instead included at the beginning of the document. The example
 		// below includes both version 2 and version 3 IIIF Image API services"
-		$context = $service["@context"];
+		// (docs)
+		$context = $service["@context"] ?? "";
 		switch( $context ) {
 			//
 		}
@@ -267,13 +267,10 @@ class IIIFCanvasParsers {
 			$destArr[$key]["key"] = "{$key}";
 			$destArr[$key]["id"] = IIIFUtils::getArrayPath( [ "id" ], $val, "" );
 			$labelArr = $val["label"] ?? null;
-			if ( $labelArr !== null ) {
-				// @todo - for now, get the first label we find
-				$firstK = array_keys($labelArr)[0];
-				$destArr[$key]["label"] = $labelArr[$firstK][0];
-			} else {
-				$destArr[$key]["label"] = "";
-			}
+			$destArr[$key]["label"] = $labelArr !== null
+				? IIIFParserUtils::getV3ValueAsString( $labelArr )
+				: "";
+			// @todo - description unused; if used, array?
 			$destArr[$key]["description"] = IIIFUtils::getArrayPath( ["description"], $val, "" );
 			$destArr[$key]['image'] = IIIFUtils::getArrayPath( ["items", 0, "items", 0, "body", "id"], $val, "" );
 			$service = IIIFUtils::getArrayPath( ["items", 0, "items", 0, "body", "service", 0 ], $val, null );
@@ -446,9 +443,11 @@ class IIIFCanvasParsers {
 		} elseif( array_key_exists( "@type", $service ) ) {
 			$type = $service["@type"];
 		}
-		switch( $type ) {			
+		switch( $type ) {
 			// ImageService1 and ImageService2 should not 
-			// really occur. MAY be iiif:Image in 2.1
+			// really occur? MAY be iiif:Image in 2.1
+			case "ImageService2": $version = "2";
+			break;
 			case "ImageService3": $version = "3";
 			break;
 		}
@@ -512,6 +511,69 @@ class IIIFCanvasParsers {
 			// Not supported
 		}
 		return $service;
+	}
+
+	/**
+	 * Converts Canvas V2 to V3
+	 * Currently not a full implementation of a convertor
+	 * but one geared to uses by eg IIIFSMW2CanvasItems
+	 * 
+	 * @param mixed $canvas
+	 * @return array
+	 */
+	public function convertCanvasV2ToV3( array $canvas ) {
+		$newCanvas = [
+			"type" => "Canvas",
+			"id" => $canvas["@id"] ?? "...",
+			"label" => [
+				"none" => [ $canvas["label"] ?? "" ]
+			],
+			"description" => [
+				"none" => [ $canvas["description"] ?? "" ]
+			],
+			// context?
+			"width" => $canvas["width"] ?? 0,
+			"height" => $canvas["height"] ?? 0,
+			"items" => []
+		];
+
+		$annotations = $canvas["images"] ?? [];
+		// @todo
+		foreach ( $annotations as $annotation ) {
+			// Assuming in our uses cases, there is one annotion page per annotation
+			$newAnnotationPage = [
+				"type" => "AnnotationPage",
+				"id" => $annotation["@id"] . "/annotPage",
+				"items" => []
+			];
+			$resource = $annotation["resource"] ?? null;
+			if ( $resource !== null ) {
+				$newImageBody = [
+					"type" => "Image",
+					"id" => $resource["@id"] ?? "", //??
+					"format" => $resource["format"] ?? "image/jpeg",
+					"width" => $resource["width"] ?? $canvas["width"],
+					"height" => $resource["height"] ?? $canvas["height"],
+					// Keep as-is (ImageService)
+					"service" => [ $resource["service"] ]
+				];
+			} else {
+				$newImageBody = [];
+			}
+			$newAnnotation = [
+				"type" => "Annotation",
+				"id" => $annotation["@id"] ?? "",
+				// assuming 'painting' for now
+				"motivation" => "painting",
+				"body" => $newImageBody,
+				"target" => $annotation["on"] ?? ""
+			];
+			//?
+			$newAnnotationPage["items"][] = $newAnnotation;
+			$newCanvas["items"][] = $newAnnotationPage;
+		}
+
+		return $newCanvas;
 	}
 
 }

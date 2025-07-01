@@ -1,23 +1,23 @@
 <?php
 
-namespace IIIF\API;
-
-use MediaWiki\MediaWikiServices;
-use SMW\DIWikiPage;
-use Wikimedia\ParamValidator\ParamValidator;
-use IIIFUtils;
-use IIIFJson;
-
 /**
  * A MediaWiki API which accepts a IIIF manifest and annotation data
  * and returns a new IIIF-compliant JSON-LD manifest, with annotations merged in
  * Supports IIIF Presentation API v2 and v3
  * See extension.json for globals
+ * 
+ * @todo Methods to do with merging belong in IIIFParsers namespace
  * @todo Depreciate smwquery
  * @todo Allow for multiple wgIIIFAnnotTextProps and separate resulting vals with '<br>'
  * @todo Allow for other sets of annotations through 'smwquery=((Foo::@))' to override default.
  * https://doc.wikimedia.org/mediawiki-core/master/php/classApiBase.html
  */
+
+namespace IIIF\API;
+
+use Wikimedia\ParamValidator\ParamValidator;
+use IIIFUtils;
+use IIIF\IIIFParsers\IIIFParserUtils;
 
 class IIIFManifestAPI extends \ApiBase {
 
@@ -39,7 +39,7 @@ class IIIFManifestAPI extends \ApiBase {
 
 		$currentId = IIIFUtils::getUrlBase() . "$_SERVER[REQUEST_URI]";
 		// Get version number of IIIF Presentation API
-		$presVersion = self::getPresentationApiVersion( $manifestArr );
+		$presVersion = IIIFParserUtils::getPresentationApiVersion( $manifestArr );
 
 		$obj = $params["obj"] ?? false;
 		$smwQueryRaw = $params['smwquery'] ?? false;
@@ -255,27 +255,10 @@ class IIIFManifestAPI extends \ApiBase {
 
 	/**
 	 * Get Presentation API version number from IIIF manifest
-	 * @todo Consider moving to IIIFUtils
+	 * @deprecated Moved to IIIFParserUtils
 	 */
 	public static function getPresentationApiVersion( $obj ) {
-		//$obj = IIIFJson::getArrayFromManifest( $manifest );
-		//if ( $obj == null ) {
-		//  return;
-		//}
-		$context = $obj['@context'];
-		$context = preg_replace( "(^https?://)", "", $context);
-		//print_r( $obj );
-		if ( $context == "iiif.io/api/presentation/3/context.json" ) {
-			$version = '3';
-		} elseif ( $context == "iiif.io/api/presentation/2/context.json" ) {
-			$version = '2';
-		} elseif ( $context == "iiif.io/api/presentation/1/context.json" ) {
-			//No support for annotations
-			$version = '1';
-		} else {
-			$version = '2';
-		}
-		return $version;
+		return IIIFParserUtils::getPresentationApiVersion( $obj );
 	}
 
 }

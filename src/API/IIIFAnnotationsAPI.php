@@ -18,7 +18,7 @@ use SMW\DIWikiPage;
 use Wikimedia\ParamValidator\ParamValidator;
 use IIIF\Config\IIIFConfig;
 use IIIFUtils;
-use IIIFSMW;
+use IIIF\SMW\IIIFSMW;
 use IIIF\IIIFParsers\IIIFAnnotationParsers;
 
 class IIIFAnnotationsAPI extends ApiBase {

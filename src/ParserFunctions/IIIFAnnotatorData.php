@@ -5,9 +5,9 @@ namespace IIIF\ParserFunctions;
 use Parser;
 use Title;
 use IIIFUtils;
-use IIIFJson;
 use IIIF\ParserFunctions\IIIFParserFunctionUtils;
 use IIIF\IIIFParsers\IIIFAnnotoriousParsers;
+use IIIF\IIIFParsers\IIIFImageUtils;
 
 class IIIFAnnotatorData {
 
@@ -41,12 +41,15 @@ class IIIFAnnotatorData {
 			"data" => "all",
 			// "mode" => "normal",
 			"manifest" => null,
+			"profileid" => null,
 			// W3C or Annotorious
 			"datamodel" => "W3C",
 			"sep" => ";"
 		];
 
-		[ $page, $slot, $targetTemplate, $target, $data, $manifest, $dataModel, $sep ] = array_values( IIIFParserFunctionUtils::extractParams( $frame, $params, $paramsAllowed ) );
+		[ $page, $slot, $targetTemplate, $target, $data, $manifest, $profileId, $dataModel, $sep ] = array_values( IIIFParserFunctionUtils::extractParams( $frame, $params, $paramsAllowed ) );
+		// associative array
+		$userParams = IIIFParserFunctionUtils::extractUserParams( $frame, $params );
 
 		$jsonStr = IIIFUtils::getRawContentFromPageName( $page, $slot );
 		$jsonArr = json_decode( $jsonStr, true );
@@ -60,23 +63,47 @@ class IIIFAnnotatorData {
 				// @todo i18n error message
 				return [ "", "noparse" => false, "isHTML" => false ];
 			}
+			$imageMimeType = IIIFImageUtils::getImageMimeType( $manifestArr, "image/jpeg" );
+		} else {
+			$imageMimeType = "image/jpeg";
 		}
 
 		$IIIFAnnotoriousParser = new IIIFAnnotoriousParsers();
 		$IIIFAnnotoriousParser->setOptions( $sep );
-		$newArray = $IIIFAnnotoriousParser->convertAnnotationPages( $jsonArr, $data, $dataModel );
+		// 'base' array
+		$newArray = $IIIFAnnotoriousParser->convertAnnotationPages(
+			$jsonArr,
+			$data,
+			$dataModel,
+			$manifest,
+			$profileId,
+			$imageMimeType
+		);
 
 		$res = "";
 		if ( $targetTemplate !== null && $targetTemplate !== "" ) {
-			$res = IIIFJson::convertArrayToWikiInstances( $newArray, 'template', $targetTemplate, "", "", "" );
+			$res = IIIFUtils::convertArrayToWikiInstances( $newArray, "template", $targetTemplate, $userParams );
 		} else {
 			//$res = "<pre>" . var_export( $newArray, true ) . "</pre>";
-			$res = "<pre>" . json_encode( $newArray, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES ) . "</pre>";
+			foreach( $newArray as $instance ) {
+				foreach( $userParams as $k => $v ) {
+					$instance[$k] = $v;					
+				}
+				$dataset[] = $instance;
+			}
+			$res = "<pre>" . json_encode( $dataset, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES ) . "</pre>";
 		}
 
-		return [ $res, 'noparse' => false, 'isHTML' => false ];
+		return [ $res, "noparse" => false, "isHTML" => false ];
 	}
 
+	/**
+	 * @todo Deprecated???
+	 * @param \Parser $parser
+	 * @param mixed $page
+	 * @param mixed $title
+	 * @param mixed $text
+	 */
 	private static function getTemplateText( Parser $parser, $page, $title, $text ) {
 		$title = $title ?? Title::newFromText( $page );
 		if ( $title === null || $title->isExternal() ) {

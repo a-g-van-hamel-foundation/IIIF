@@ -1,6 +1,6 @@
 {
 	"name": "IIIF",
-	"version": "0.4",
+	"version": "0.5",
 	"type": "api",
 	"author": [
 		"[https://codecs.vanhamel.nl Dennis Groenewegen]"
@@ -29,13 +29,13 @@
 		"IIIF\\API\\": "src/API/",
 		"IIIF\\ParserFunctions\\": "src/ParserFunctions/",
 		"IIIF\\IIIFParsers\\": "src/IIIFParsers/",
+		"IIIF\\SMW\\": "src/SMW/",
 		"IIIF\\Config\\": "src/Config/",
 		"IIIF\\Special\\": "src/Special/"
 	},
 	"AutoloadClasses": {
 		"IIIFHooks": "src/IIIFHooks.php",
 		"IIIFMwRemote": "src/IIIFMwRemote.php",
-		"IIIFSMW": "src/IIIFSMW.php",
 		"IIIFJson": "src/IIIFJson.php",
 		"IIIFUtils": "src/IIIFUtils.php",
 		"Parsedown": "src/External/Parsedown.php"
@@ -43,6 +43,9 @@
 	"Hooks": {
 		"ParserFirstCallInit": [ "IIIFHooks::onParserFirstCallInit" ],
 		"ContentHandlerDefaultModelFor": [ "IIIFHooks::onContentHandlerDefaultModelFor" ],
+		"ListDefinedTags": [ "IIIFHooks::onRegisterTags" ],
+		"ChangeTagsListActive": [ "IIIFHooks::onRegisterTags" ],
+		"ChangeTagsAllowedAdd":  [ "IIIFHooks::onChangeTagsAllowedAdd" ],		
 		"CodeEditorGetPageLanguage": [ "IIIFHooks::onCodeEditorGetPageLanguage" ],
 		"AdminLinks": [ "IIIFHooks::addToAdminLinks" ]
 	},
@@ -114,6 +117,60 @@
 				"iiif-annotator-osdviewertools-resetfilters"
 			]
 		},
+		"ext.iiif.resultformat.annotationgallery": {
+			"es6": true,
+			"packageFiles": [
+				"ext.iiif.resultformat.annotationgallery.js"
+			],
+			"dependencies": [
+				"vue",
+				"@wikimedia/codex",
+				"ext.iiif.gallery.components"
+			]
+		},
+		"ext.iiif.gallery.components": {
+			"packageFiles": [
+				"components/index-gallery.js",
+				"components/Gallery.vue",
+				{
+					"name": "components/icons.json",
+					"callback": "MediaWiki\\ResourceLoader\\CodexModule::getIcons",
+					"callbackParam": [
+						"cdxIconZoomIn", "cdxIconImage", "cdxIconFullScreen"
+					]
+				}
+			],
+			"dependencies": [
+				"ext.iiif.lib.photoswipe.lightbox",
+				"ext.iiif.lib.photoswipe",
+				"@wikimedia/codex"
+			]
+		},
+		"ext.iiif.resultformat.canvasviewer": {
+			"packageFiles": [
+				"ext.iiif.resultformat.canvasviewer.js"
+			],
+			"dependencies": [
+				"ext.iiif.annotator.components",
+				"ext.iiif.annotator.store",
+				"vue",
+				"vuex",
+				"mediawiki.api",
+				"mediawiki.ForeignApi",
+				"mediawiki.user"
+			],
+			"messages": [
+				"iiif-annotator-save",
+				"iiif-annotator-save-all",
+				"iiif-annotator-tab-form",
+				"iiif-annotator-tab-annotations",
+				"iiif-annotator-create-or-select-annotation",
+				"iiif-annotator-osdviewertools-brightness",
+				"iiif-annotator-osdviewertools-contrast",
+				"iiif-annotator-osdviewertools-saturation",
+				"iiif-annotator-osdviewertools-resetfilters"
+			]
+		},
 		"ext.iiif.annotator.components": {
 			"packageFiles": [
 				"components/index.js",
@@ -128,7 +185,11 @@
 				"components/FieldTextArea.vue",
 				"components/FieldTextEditor.vue",
 				"components/FieldXmlEditor.vue",
+				"components/AnnotatorDataset.vue",
+				"components/AnnotatorDataLookup.vue",
+				"components/AnnotatorDataSelect.vue",
 				"components/NavTabs.vue",
+				"components/Gallery.vue",
 				{
 					"name": "components/icons.json",
 					"callback": "MediaWiki\\ResourceLoader\\CodexModule::getIcons",
@@ -189,8 +250,10 @@
 			]
 		},
 		"ext.iiif.lib.iiifparser": {
-			"scripts": [
-				"lib-iiif-parser/upgrader-global.js"
+			"es6": true,
+			"packageFiles": [
+				"lib-iiif-parser/upgrader-global.js",
+				"lib-iiif-parser/presentation-2.global.js"
 			]
 		},
 		"ext.iiif.lib.quill": {
@@ -223,6 +286,21 @@
 			"packageFiles": [
 				"mode-xml.js",
 				"worker-xml.js"
+			]
+		},
+		"ext.iiif.lib.photoswipe.lightbox": {
+			"es6": true,
+			"packageFiles": [
+				"lib-photoswipe/photoswipe-lightbox.umd.min.js"
+			],
+			"styles": [
+				"lib-photoswipe/photoswipe.css"
+			]
+		},
+		"ext.iiif.lib.photoswipe": {
+			"es6": true,
+			"packageFiles": [
+				"lib-photoswipe/photoswipe.umd.min.js"
 			]
 		}
 	},

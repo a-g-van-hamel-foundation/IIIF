@@ -95,35 +95,68 @@
 	}
 }
 
+.iiif-annotator-widget,
+.iiif-annotation-data-widget {
+	height: 100%;
+	min-height: calc(100vh - 5rem);
+}
+
+.annot-tab-pane {
+	max-height: calc(100vh - 5rem);
+	overflow-y: auto;
+}
+
 /**
  * Credits: https://cssloaders.github.io/
  */
 .iiif-loader {
-  width: 100%;
-  height: 4.8px;
-  display: inline-block;
-  position: relative;
-  background: rgba(255, 255, 255, 0.15);
-  overflow: hidden;
+	width: 100%;
+	height: 4.8px;
+	display: inline-block;
+	position: relative;
+	background: rgba(255, 255, 255, 0.15);
+	overflow: hidden;
 }
 .iiif-loader::after {
-  content: '';
-  width: 192px;
-  height: 4.8px;
-  background: #5f7470;
-  position: absolute;
-  top: 0;
-  left: 0;
-  box-sizing: border-box;
-  animation: animloader 2s linear infinite;
+	content: '';
+	width: 192px;
+	height: 4.8px;
+	background: #5f7470;
+	position: absolute;
+	top: 0;
+	left: 0;
+	box-sizing: border-box;
+	animation: animloader 2s linear infinite;
 }
 @keyframes animloader {
   0% {
-    left: 0;
-    transform: translateX(-100%);
+	left: 0;
+	transform: translateX(-100%);
   }
   100% {
-    left: 100%;
-    transform: translateX(0%);
+	left: 100%;
+	transform: translateX(0%);
   }
+}
+
+.anno-sidebar-dataset .anno-data-item,
+.anno-sidebar-dataset .mw-parser-output {
+	animation: comp-fade-in .7s;
+	-moz-animation: comp-fade-in .7s;
+}
+
+@keyframes comp-fade-in {
+	0%   { opacity: 0; }
+	100% { opacity: 1; }
+}
+
+@keyframes fadeInOut {
+	0%,100% { opacity: 0; }
+	20%,80% { opacity: 1; }
+}
+
+/* Result formats */
+.smw-iiif-annotation-gallery-furtherresults {
+	margin: 1em 0;
+	display: block;
 }

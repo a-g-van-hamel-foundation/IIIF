@@ -51,7 +51,10 @@
 			const canvasItems = manifestData[0].result.canvasItems;
 			const tileSourcesFromManifest = manifestData[0].result.imageInformationRequests;
 			const formProfile = formProfileData == false ? null : formProfileData[0];
+			const formProfiles = {};
+			formProfiles[configProps.profileId] = formProfile;
 			const initialAnnotationPages = manifestData[0].result.annotations;
+			const summary = manifestData[0].result.summary ?? "";
 			// Create Vue App with properties
 			const createdApp = Vue.createMwApp( App, {
 				configProps,
@@ -59,7 +62,9 @@
 				canvasItems,
 				tileSourcesFromManifest,
 				formProfile,
-				initialAnnotationPages
+				formProfiles,
+				initialAnnotationPages,
+				summary
 			} );
 			//createdApp.use( Vuex );
 			createdApp.mount( item );

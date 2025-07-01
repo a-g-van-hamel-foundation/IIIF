@@ -12,6 +12,7 @@
 		></osd-viewer-navigation>
 		<osd-viewer-tools
 			:rotation="rotation"
+			:show-drawing-tool="showDrawingTool"
 			@send-rotation="setRotation"
 			:full-screen="fullScreen"
 			@send-full-screen="setFullScreen"
@@ -64,6 +65,9 @@ module.exports = defineComponent( {
 		},
 		isNavigationEnabled: {
 			type: Array, default: true
+		},
+		isViewerMode: {
+			type: Boolean, default: false
 		}
 	},
 	data() {
@@ -200,6 +204,11 @@ module.exports = defineComponent( {
 			return store.getters.getCurrentCanvas.index ?? 0;
 		});
 
+		const showDrawingTool = ref( true );
+		if ( props.isViewerMode ) {
+			showDrawingTool.value = false;
+		}
+
 		// Dev only
 		function debugLog( msg = "(No message)", loggable = "" ) {
 			//console.log( "OSDViewer: " + msg, loggable );
@@ -208,6 +217,7 @@ module.exports = defineComponent( {
 		return {
 			currentCanvas,
 			pageIndex,
+			showDrawingTool,
 			debugLog
 		}
 	}

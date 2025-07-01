@@ -17,6 +17,7 @@
 				:toc-menu-items="tocMenuItems"
 				:canvas-items="canvasItems"
 				:is-navigation-enabled="isNavigationEnabled"
+				:is-viewer-mode="isViewerMode"
 				@emit-annotation-toggle="toggleOSDDrawingTool"
 			></osd-viewer>
 		</template>
@@ -25,18 +26,12 @@
 
 	<div class="annotator-sidebar">
 		<div class="anno-sidebar-form-container">
-			<!--
-			{ id: 'more', label: 'Dev' }
-			-->
-			<nav-tabs 
-				:items="[
-					{ id: 'form', label: $i18n( 'iiif-annotator-tab-form' ).text() },
-					{ id: 'annotations', label: $i18n( 'iiif-annotator-tab-annotations' ).text() }
-				]"
+			<nav-tabs
+				:items="navTabItems"
 				:initial-active-id="activeTabId"
 				:time="tabTime"
 			>
-				<template #form >					
+				<template #form v-if="!isViewerMode">
 					<annotator-form
 						:timestamp="formKey"
 						ref="annotatorform"
@@ -49,10 +44,19 @@
 						:show-icon="iconStatus"
 					></annotator-form>
 				</template>
+				<template #dataset v-if="isViewerMode">
+					<annotator-dataset
+						ref="annotatordataset"
+						:current-annotation="currentAnnotation"
+						:current-canvas="currentCanvas"
+						:presentation-method="presentationMethod"
+						:profile-schema="formProfileSchema"
+					>testing viewer mode</annotator-dataset>
+				</template>
 
 				<template #annotations >
 					<div class="annotation-list">
-						<template v-for="(anno, index) in annotationList">
+						<template v-for="(anno, index) in annotatedCanvasRefList">
 							<a v-if="anno !== undefined"
 								:key="`annot-list-` + index"
 								class="annot-list-btn"
@@ -62,18 +66,9 @@
 					</div>
 				</template>
 
-				<!-- dev:
-				<template #more >
-					<div class="anno-field">
-						<label>Current canvas</label>
-						<div v-if="currentCanvas !== null">{{ currentCanvas.canvasId }}</div>
-					</div>
-					<div class="anno-field">
-						<label>JSON</label>
-						<div><code>{{ printArea }}</code></div>
-					</div>
+				<template #info >
+					<div v-html="summary"></div>
 				</template>
-				-->
 
 			</nav-tabs>
 		</div>
@@ -90,8 +85,9 @@ const AnnotoriousOSD = require( "ext.iiif.lib.annotorious.osd" );
 const { W3CImageFormat } = require( "ext.iiif.lib.annotorious.osd" );
 const SequenceModePlugin = require( "ext.iiif.lib.annotorious.plugin.sequencemode" ).default;
 const AnnotatorForm = require( "./AnnotatorForm.vue" );
+const AnnotatorDataset = require( "./AnnotatorDataset.vue" );
 const NavTabs = require( "./NavTabs.vue" );
-const { CdxButton, CdxIcon } = require( '@wikimedia/codex' );
+const { CdxButton, CdxIcon } = require( "@wikimedia/codex" );
 
 module.exports = defineComponent( {
 	name: "AnnotatorInterface",
@@ -100,6 +96,7 @@ module.exports = defineComponent( {
 		"cdx-icon": CdxIcon,
 		"osd-viewer": OSDViewerModule,
 		"annotator-form": AnnotatorForm,
+		"annotator-dataset": AnnotatorDataset,
 		"nav-tabs": NavTabs
 	},
 	props: {
@@ -119,14 +116,14 @@ module.exports = defineComponent( {
 			type: Array,
 			default: []
 		},
-		formProfile: {
-			type: Object,
-			default: null
-		},
+		presentationMethod: { type: String, default: "profile", description: "..." },
+		formProfile: { type: Object, default: null },
+		formProfiles: { type: Array, default: [] },
 		initialAnnotationPages: {
 			type: Array,
 			default: []
-		}
+		},
+		summary: { type: String, default: "" }
 	},
 	methods: {
 		getOSDViewerFromChild( OSDViewer ) {
@@ -150,14 +147,23 @@ module.exports = defineComponent( {
 				this.initialAnnotationPages ?? [],
 				this.canvasItems
 			);
-			this.setOSDAnnotatorBehaviours( this.OSDAnnotator, this.OSDViewer );
+			if( !this.isViewerMode ) {
+				this.setOSDAnnotatorBehaviours( this.OSDAnnotator, this.OSDViewer );
+			} else {
+				// viewer mode
+				this.onClickAnnotation( this.OSDAnnotator, this.OSDViewer, this );
+				var self = this;
+				this.OSDAnnotator.on("selectionChanged", function(annotations) {
+					self.OSDViewer.zoomPerClick = 1.5;
+				});
+			}
 			// Set current MW user, not Guest
 			this.OSDAnnotator.setUser({
 				id: mw.user.id(),
 				name: mw.user.id()
 		 	});
 			// @todo - Should we do this here?
-			this.updateAnnotationList( this.OSDAnnotator.exportAllAnnotations() );
+			this.updateAnnotatedCanvasRefList( this.OSDAnnotator.exportAllAnnotations() );
 		},
 		// Emitter handlers
 		toggleOSDDrawingTool( doAnnotate = false ) {
@@ -199,36 +205,36 @@ module.exports = defineComponent( {
 			this.debugLog( "updateAnnotation: new annotation before update", JSON.stringify(newAnno) );
 			// Don't use this.writeToWiki() here because of API edit lag
 		},
-		updateAnnotationList(annotations) {
+		updateAnnotatedCanvasRefList(annotationPages) {
 			const list = [];
-			for ( anno of annotations ) {
+			for (anno of annotationPages) {
 				let idx = anno.references.index;
 				list[idx] = {
 					canvasIndex: idx,
 					canvasId: anno.references.canvasId,
-					label: this.canvasItems[idx]["label"]
-				}
+					label: this.canvasItems[idx]["label"] ?? ""
+				};
 			}
-			this.annotationList = list;
+			this.annotatedCanvasRefList = list;
 		},
 		writeToWiki() {
-			var annotations = this.OSDAnnotator.exportAllAnnotations();
-			var prevAnnotationList = this.annotationList;
-			this.updateAnnotationList( annotations );
+			var annotationPages = this.OSDAnnotator.exportAllAnnotations();
+			var prevAnnotatedCanvasRefList = this.annotatedCanvasRefList;
+			this.updateAnnotatedCanvasRefList( annotationPages );
 
-			if ( this.annotationList === prevAnnotationList ) {
+			if ( this.annotatedCanvasRefList === prevAnnotatedCanvasRefList ) {
 				self.showStatusIcon("nochange");
 				this.debugLog( "writeToWiki(): no changes in annotation list" );
 				return;
 			} else {
-				this.debugLog( "writeToWiki(): attempting to save ", JSON.stringify(annotations) );
+				this.debugLog( "writeToWiki(): attempting to save ", JSON.stringify(annotationPages) );
 			}
 
 			// Prepare the API action
 			const wikiPage = this.configProps.target ?? null;
 			const targetSlot = this.configProps.targetSlot ?? null;
 			if ( wikiPage === null ) {
-				console.log( "Annotations could not be written to a wiki page. Reason: no wiki page specified." );
+				console.log( "AnnotationPages could not be written to a wiki page. Reason: no wiki page specified." );
 				return;
 			}
 			if ( targetSlot !== null && targetSlot !== "" ) {
@@ -241,8 +247,8 @@ module.exports = defineComponent( {
 					formatversion: "2",
 					title: wikiPage,
 					slot: targetSlot,
-					text: JSON.stringify(annotations),
-					summary: `Saved annotations in slot (${targetSlot}) with IIIF Annotator`
+					text: JSON.stringify(annotationPages),
+					summary: `Saved annotationPages in slot (${targetSlot}) with IIIF Annotator`
 				};
 			} else {
 				var editParams = {
@@ -250,10 +256,11 @@ module.exports = defineComponent( {
 					format: "json",
 					formatversion: "2",
 					title: wikiPage,
-					text: JSON.stringify(annotations),
-					summary: "Saved annotations with IIIF Annotator",
+					text: JSON.stringify(annotationPages),
+					summary: "Saved AnnotationPages with IIIF Annotator",
 					contentformat: "application/json",
-					contentmodel: this.configProps['targetContentModel'] ?? "json"
+					contentmodel: this.configProps['targetContentModel'] ?? "json",
+					tags: "iiif-annotator-edit"
 				};
 			}
 
@@ -264,7 +271,7 @@ module.exports = defineComponent( {
 			.done( function(data) {
 				self.showStatusIcon("success");
 				self.debugLog( "API response", data );
-				self.debugLog( "Successfully saved annotationPages", JSON.stringify(annotations) );
+				self.debugLog( "Successfully saved annotationPages", JSON.stringify(annotationPages) );
 			})
 			.fail( function(e) {
 				console.log( "Failed to save data with the IIIF Annotator", e );
@@ -278,6 +285,12 @@ module.exports = defineComponent( {
 		},
 		currentAnnotation: function(n,o) {
 			this.debugLog( "currentAnnotation being watched:", n );
+			// In the event that not all Annotations were created using the 
+			// same form, allows for the use of multiple profiles
+			// @todo maybe profileid info is best taken from AnnotationPage references section
+			if ( typeof n.body[0] !== 'undefined' && typeof n.body[0].profileid !== 'undefined' && typeof this.formProfiles.length !== "object" ) {
+				this.formProfileSchema = this.formProfiles[n.body[0].profileid];
+			}
 		}
 	},
 	mounted() {
@@ -310,10 +323,16 @@ module.exports = defineComponent( {
 			return store.getters.getCurrentCanvas ?? null;
 		});
 		function setCanvasFromPageIndex(idx) {
+			if (typeof idx === "string" ) {
+				var idx = parseInt(idx);
+			}
 			store.commit("updateCurrentCanvas", props.canvasItems[idx]);
 		}
 
 		// OSD Viewer navigation/TOC
+		var isViewerMode = ref( props.configProps["mode"] === "viewer" );
+		debugLog( "Are we in viewer mode?", isViewerMode.value );
+
 		var isNavigationEnabled = ref( true );
 		function createTOCFromCanvasItems( canvasItems ) {
 			toc = [];
@@ -336,11 +355,15 @@ module.exports = defineComponent( {
 				fill: '#ff0000',
 				fillOpacity: 0.15
 			},
-			multiSelect: true
+			multiSelect: true			
 		});
+		if ( isViewerMode.value ) {
+			OSDAnnotatorOptions.value.userSelectAction = "SELECT";
+		}
 		var sequenceMode = ref(true);
 		var currentAnnotation = ref(null);
-		const annotationList = ref( [] );
+		// Reference data
+		const annotatedCanvasRefList = ref( [] );
 		// Print area for dev info - to be disabled in production:
 		// var printArea = ref( '' );
 
@@ -352,6 +375,7 @@ module.exports = defineComponent( {
 			onClickAnnotation( OSDAnnotator, OSDViewer, this );
 			onSelectionChanged( OSDAnnotator, OSDViewer, this );
 		}
+
 		function onDeleteRemoveAnnotation( osdAnnotator, self ) {
 			osdViewerEl.value.addEventListener("keydown", function(evt) {
 				if (evt.key === "Delete" || evt.key === "Backspace") {
@@ -454,8 +478,8 @@ module.exports = defineComponent( {
 				} else {
 					self.currentAnnotation = annotation;
 				}
-				*/
-				self.setTab("form");
+				*/			
+				self.setTab( !self.isViewerMode ? "form" : "dataset");
 				self.showForm(true);
 				// dev: self.printArea = JSON.stringify( annotation );
 			});
@@ -463,7 +487,22 @@ module.exports = defineComponent( {
 
 		// Navigation tabs
 		const activeTabId = ref( "" );
-		activeTabId.value = "form";
+		const navTabItems = ref( [] );
+		if ( !isViewerMode.value ) {
+			navTabItems.value = [
+				{ id: 'form', label: mw.message( 'iiif-annotator-tab-form' ).text() },
+				{ id: 'annotations', label: mw.message( 'iiif-annotator-tab-annotations' ).text() },
+				{ id: 'info', label: "info" }
+			];
+			activeTabId.value = "form";
+		} else {
+			navTabItems.value = [
+				{ id: 'dataset', label: "Data" },
+				{ id: 'annotations', label: mw.message( 'iiif-annotator-tab-annotations' ).text() },
+				{ id: 'info', label: "info" }
+			];
+			activeTabId.value = "dataset";
+		}
 		const tabTime = ref(0);
 		function setTab(name) {
 			activeTabId.value = name;
@@ -529,6 +568,7 @@ module.exports = defineComponent( {
 			setCanvasFromPageIndex,
 
 			// Viewer navigation
+			isViewerMode,
 			isNavigationEnabled,
 			tocMenuItems,
 
@@ -537,6 +577,7 @@ module.exports = defineComponent( {
 			OSDAnnotatorOptions,
 			sequenceMode,
 			setOSDAnnotatorBehaviours,
+			//setOSDAnnotatorBehavioursInViewerMode,
 			onDeleteRemoveAnnotation,
 			onCreateAnnotation,
 			onDeleteAnnotation,
@@ -545,12 +586,13 @@ module.exports = defineComponent( {
 			onClickAnnotation,
 			// printArea,
 			currentAnnotation,
-			annotationList,
+			annotatedCanvasRefList,
 
 			// Sidebar navigation tabs
 			activeTabId,
 			tabTime,
 			setTab,
+			navTabItems,
 
 			// Form
 			isFormEnabled,
@@ -627,4 +669,9 @@ a.annot-list-btn:focus {
 	/*box-shadow: inset 0 3px 5px rgba(0,0,0,0.125),0 0 0 0.2rem rgba(119,137,133,0.5);*/
 }
 
+.manifest-summary { font-size: 1em; }
+.manifest-summary .item { margin-bottom: 1em; }
+.manifest-summary .iiif-manifest-urls { word-break: break-all; }
+.metadata-item { font-size: .9em; margin-bottom: .9em;  }
+.metadata-item .metadata-label { font-variant: all-petite-caps; margin-bottom:0.2em; }
 </style>

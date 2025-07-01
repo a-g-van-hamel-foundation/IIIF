@@ -52,7 +52,7 @@ class IIIFAnnotationParsers {
 			$v2anno["resource"] = self::convertAnnoBodyV3toV2( $v3anno["body"] );
 		}
 
-		// @todo if array item does not exist
+		// @todo check if array item does not exist
 
 		if ( !empty( $v3anno['target']['selector'] ) ) {
 			$targetSelector = $v3anno['target']['selector'];

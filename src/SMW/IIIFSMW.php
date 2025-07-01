@@ -1,8 +1,11 @@
 <?php
 
+namespace IIIF\SMW;
+
 use MediaWiki\MediaWikiServices;
-use SMW\Localizer as Localizer;
-//SMWQueryProcessor
+//use SMW\Localizer as Localizer;
+use SMW\DIWikiPage;
+use SMWQueryProcessor;
 use IIIF\Config\IIIFConfig;
 use IIIFUtils;
 
@@ -110,13 +113,12 @@ class IIIFSMW {
 			$uriStr .= ( $namespaceName == "" ) ? "" : "{$namespaceName}:";
 			$uriStr .= $page . $hash;
 
-			$titleDI = \SMW\DIWikiPage::newFromTitle( $objectTitle );
+			$titleDI = DIWikiPage::newFromTitle( $objectTitle );
 			$titleData = $store->getSemanticData( $titleDI );
 
 			$res[] = self::getSelectPropertyValuesForTitleData( $uriStr, $titleData, $propNames );
 		}
 		return $res;
-
 	}
 
 	/*
@@ -203,7 +205,7 @@ class IIIFSMW {
 		$localizer = Localizer::getInstance();
 		$language = $localizer->getContentLanguage();
 		*/
-		$language = MediaWiki\MediaWikiServices::getInstance()->getContentLanguage();
+		$language = MediaWikiServices::getInstance()->getContentLanguage();
 		$name = $language->getFormattedNsText( $index );
 		return $name;
 	}
@@ -222,5 +224,42 @@ class IIIFSMW {
         $str = str_replace( "_", " ", $pagename);
         return $str;
     }
+
+	/**
+	 * Utility method for simplifying a SMW property printout
+	 * Can be used to prepare data before transferring
+	 * everything to wiki templates
+	 * 
+	 * @param array $printout
+	 * @param string $link - cf. SMW link=none?
+	 * @param mixed $valueSep - if not null (default), the sep will be used to implode the array
+	 * 
+	 * @return array|string
+	 **/
+	public static function simplifyPrintoutArray(
+		array $printout,
+		$wikilink = "none",
+		mixed $valueSep = null
+	) {
+		if( gettype( $printout[0] ) === "array" && isset( $printout[0]["fulltext"] ) ) {
+			// data type Page
+			$newPrintout = [];
+			foreach( $printout as $p ) {
+				if ( $wikilink === "none" ) {
+					$newPrintout[] = $p["fulltext"];
+				} else {
+					// @todo $p["displaytitle"] ?? $p["fulltext"]?
+					$newPrintout[] = "[[" . $p["fulltext"] . "]]";
+				}
+			}
+		} else {
+			// other datatypes
+			$newPrintout = $printout;
+		}
+
+		return $valueSep !== null
+			? implode( $valueSep, $newPrintout )
+			: $newPrintout;
+	}
 
 }

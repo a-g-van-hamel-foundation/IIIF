@@ -6,6 +6,8 @@ module.exports = {
 	OSDViewer: require("./OSDViewer.vue"),
 	OSDViewerNavigation: require("./OSDViewerNavigation.vue"),
 	OSDViewerTools: require("./OSDViewerTools.vue"),
+	NavTabs: require("./NavTabs.vue"),
+	
 	AnnotatorForm: require("./AnnotatorForm.vue"),
 	DynamicFormField: require("./DynamicFormField.vue"),
 	FieldLookup: require("./FieldLookup.vue"),
@@ -13,5 +15,10 @@ module.exports = {
 	FieldTextArea: require("./FieldTextArea.vue"),
 	FieldTextEditor: require("./FieldTextEditor.vue"),
 	FieldXmlEditor: require("./FieldXmlEditor.vue"),
-	NavTabs: require("./NavTabs.vue")
+
+	AnnotatorDataset: require("./AnnotatorDataset.vue"),
+	AnnotatorDataLookup: require("./AnnotatorDataLookup.vue"),
+	AnnotatorDataSelect: require("./AnnotatorDataSelect.vue")
+
+	//Gallery: require("./Gallery.vue")
 };

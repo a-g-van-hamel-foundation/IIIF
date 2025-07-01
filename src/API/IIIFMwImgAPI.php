@@ -204,6 +204,11 @@ class IIIFMwImgAPI extends \ApiBase {
 		return $thumb;
 	}
 
+	/**
+	 * @deprecated
+	 * @param string $imageName
+	 * @return void
+	 */
 	private static function testCollectFunctionsIMightNeed( string $imageName ) {
 		// $finalThumbParams = $this->mergeThumbParams( $img, $scale, $params['urlparam'] );
 		$services = MediaWikiServices::getInstance();
