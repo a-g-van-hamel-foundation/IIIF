@@ -28,8 +28,3 @@ Once the extension has been installed, a detailed guide to configuration and usa
 - 0.4 (June 2025). Minor release. Changes to `#iiif-annotator-data`: added fix to reflect (previously revised) W3C-compliant 'dataset' structure, added 'sep' to let user customise separator of multi-valued data, added 'annotationid' and 'timecreated' template parameters. Fixed creator object in annotation tool. Updated documentation. Css fixes.
 - 0.3 (June 2025). Created documentation to be consulted on Special:IIIF. Introduced annotation tool (experimental). Extended support for Presentation API v3. Revised fetching thumbnail URLs from external wikis since the imageinfo API has become insufficient (breaking change in T360589). Overhauled the organisation of PHP files and namespaced PHP classes. Added Special page aliases.
 - 0.2 (September 2024). Released (public).
-
-$definitions[ 'searchlabel' ]
-->setDefault( wfMessage( 'srf-prolog-link' )
-->inContentLanguage()
-->text() );
