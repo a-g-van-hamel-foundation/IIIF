@@ -11,7 +11,7 @@ use LocalFile;
 use Wikimedia\ParamValidator\ParamValidator;
 use IIIFMwRemote;
 use IIIFUtils;
-use IIIF\API\IIIFMwImgAPI;
+// use IIIF\API\IIIFMwImgAPI;
 use IIIF\IIIFParsers\IIIFMwImageUtils;
 use IIIF\IIIFParsers\IIIFParserUtils;
 use IIIF\IIIFParsers\IIIFCanvasParsers;

@@ -57,11 +57,6 @@ class IIIFSpecial extends \SpecialPage {
 			$res = $this->getAnnotatorTest( $outputPage );
 			$outputPage->addWikiTextAsContent( $res );
 			return;
-		} elseif ( $subPage === "tify" ) {
-			$md = null;
-			$res = $this->getTIFYTest( $outputPage );
-			$outputPage->addWikiTextAsContent( $res );
-			return;
 		}
 
 		// Markdown pages
@@ -150,13 +145,6 @@ class IIIFSpecial extends \SpecialPage {
 		if ( $toc !== false ) {
 			$this->toc = $toc;
 		}
-	}
-
-	// @todo remove when test is no longer needed
-	private function getTIFYTest( $outputPage ) {
-		$outputPage->addModules( [ "ext.iiif.tify" ] );
-		$res = "<div id='iiif-tify-viewer' style='height: 640px'></div>";
-		return $res;
 	}
 
 	// @todo remove when test is no longer needed

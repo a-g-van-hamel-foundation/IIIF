@@ -22,6 +22,7 @@ class IIIFMwRemote {
 
 	/**
 	 * Get image info from MediaWiki API
+	 * @return array
 	 */
 	public static function getArrFromIIAPI(
 		$source = 'commons',
@@ -46,7 +47,10 @@ class IIIFMwRemote {
 		$qParams = http_build_query( $qArray );
 		$url = $apiBaseUrl . $qParams;
 		// cURL session
-		$arr = IIIFUtils::getArrayFromJsonUrl( $url );		
+		$arr = IIIFUtils::getArrayFromJsonUrl( $url, true );
+		if ( gettype($arr) !== "array" ) {
+			return [];
+		}
 		return $arr;
 	}
 

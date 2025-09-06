@@ -59,7 +59,6 @@ class CanvasViewerResultFormatter extends ResultPrinter {
 		$params = $this->params;
 		$template = $params["template"];
 		$valueSep = $params["valuesep"] ?? ";";
-		print_r( $valueSep );
 
 		// Transform result
 		$iiifSMW2CanvasItems = new IIIFSMW2CanvasItems();

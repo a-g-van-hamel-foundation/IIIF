@@ -1,6 +1,6 @@
 {
 	"name": "IIIF",
-	"version": "0.5",
+	"version": "0.6",
 	"type": "api",
 	"author": [
 		"[https://codecs.vanhamel.nl Dennis Groenewegen]"
@@ -45,7 +45,7 @@
 		"ContentHandlerDefaultModelFor": [ "IIIFHooks::onContentHandlerDefaultModelFor" ],
 		"ListDefinedTags": [ "IIIFHooks::onRegisterTags" ],
 		"ChangeTagsListActive": [ "IIIFHooks::onRegisterTags" ],
-		"ChangeTagsAllowedAdd":  [ "IIIFHooks::onChangeTagsAllowedAdd" ],		
+		"ChangeTagsAllowedAdd":  [ "IIIFHooks::onChangeTagsAllowedAdd" ],
 		"CodeEditorGetPageLanguage": [ "IIIFHooks::onCodeEditorGetPageLanguage" ],
 		"AdminLinks": [ "IIIFHooks::addToAdminLinks" ]
 	},
@@ -54,7 +54,7 @@
 		"remoteExtPath": "IIIF/modules"
 	},
 	"ResourceModules": {
-		"ext.iiif.styles": {					
+		"ext.iiif.styles": {
 			"class": "MediaWiki\\ResourceLoader\\CodexModule",
 			"codexStyleOnly": "true",
 			"styles": "ext.iiif.styles.less",
@@ -368,7 +368,7 @@
 		{
 			"id": 1230,
 			"constant": "NS_IIIF",
-			"name": "IIIF",			
+			"name": "IIIF",
 			"subpages": false,
 			"content": false
 		},

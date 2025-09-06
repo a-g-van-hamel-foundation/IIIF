@@ -26,31 +26,39 @@ class IIIFUtils {
 	}
 
 	/**
-	 * Get json-encoded content from URL and return array
+	 * Get JSON-encoded content from URL and return array
 	 * Does not allow for http: schemes
 	 * @param string $manifestUrl
 	 * 
 	 * @return array|null
 	 */
-	public static function getArrayFromJsonUrl( $url, $useCurl = false ) {
-		/* cURL session?
-		$ch = curl_init( $apiUrl );
-		curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
-		$output = curl_exec( $ch );
-		curl_close( $ch );
-		*/
+	public static function getArrayFromJsonUrl( $url, $useCurl = true ) {
 		$parsedUrlArr = parse_url( $url );
 		if ( $parsedUrlArr['scheme'] !== 'https' ) {
 			return null;
 		}
-		$json = file_get_contents( $url );
-		// associative array:
+		if ( $useCurl ) {
+			$json = self::getFileContentsByCURL( $url );
+		} else {
+			// Recommended to use stream_context_create($options);
+			$json = file_get_contents( $url, false );
+		}
 		$arr = json_decode( $json, true );
 		if ( json_last_error() === JSON_ERROR_NONE ) {
 			// JSON is valid
 			return $arr;
 		}
 		return null;
+	}
+
+	public static function getFileContentsByCURL( $apiUrl ) {
+		$ch = curl_init( $apiUrl );
+		curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
+		$urlBase = self::getUrlBase();
+		curl_setopt( $ch, CURLOPT_USERAGENT, "IIIF extension/0.0 ($urlBase)" );
+		$output = curl_exec( $ch );
+		curl_close( $ch );
+		return $output;
 	}
 
 	public static function isJson( $string ) {

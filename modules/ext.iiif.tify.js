@@ -1,4 +1,42 @@
-jQuery(document).ready(function($) {
+$( document ).ready(function($) {
+
+	tifyViewers = document.querySelectorAll( ".iiif-tify-viewer" );
+	tifyViewers.forEach( function( el ) {
+		initTifyViewer( el, el.dataset )
+	});
+
+	function initTifyViewer(el, settings) {
+		id = el.getAttribute("id");
+		console.log( "Testing TIFY..." );
+		const TIFY = require( "ext.iiif.lib.tify" );
+		const options = {
+			container: "#" + id,
+			manifestUrl: settings.manifest ?? ""
+		};
+		if (settings.annotationsVisible == "true") {
+			options.annotationsVisible = true;
+		}
+		if (settings.canvasIndex !== "" ) {
+			console.log( "canvasIndex", settings.canvasIndex );
+			options.pages = [ parseInt(settings.canvasIndex) ];
+		}
+
+		const tifyViewer = new Tify( options );
+		//tifyViewer.mount("#" + id);
+
+		tifyViewer.ready.then( () => {
+			//tify.setPage([1, 12, 13])	  
+			//tifyViewer.setView('thumbnails')
+			//tifyViewer.viewer.viewport.zoomTo(2)
+			//console.log( tifyViewer.viewer.viewport );
+			console.log( tifyViewer.viewer );
+			//AnnotoriousOSDController( tifyViewer.viewer );
+		});
+	}
+
+	/*
+	@todo remove
+
 	console.log( "Testing TIFY..." );
 	const TIFY = require( "ext.iiif.lib.tify" );
 	// const Annotorious = require( "ext.iiif.lib.annotorious" );
@@ -37,6 +75,7 @@ jQuery(document).ready(function($) {
 		console.log( tifyViewer.viewer );
 		//AnnotoriousOSDController( tifyViewer.viewer );
 	});
+	*/
 
 
 });

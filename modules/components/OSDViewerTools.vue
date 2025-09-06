@@ -255,6 +255,8 @@ module.exports = defineComponent( {
 	align-self: start;
 	flex-wrap: wrap;
 	position: relative;
+	justify-content: end;
+	min-width: 8em;
 }
 
 .osd-dropdown-right.hidden {

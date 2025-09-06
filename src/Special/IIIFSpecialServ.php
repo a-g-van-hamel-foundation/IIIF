@@ -57,8 +57,8 @@ class IIIFSpecialServ extends RedirectSpecialPage {
 		$request = [
 			"purpose" => $urlParts[0],
 			// local, commons, etc.
-			"repo" => $urlParts[1],
-			"identifier" => $urlParts[2]
+			"repo" => array_key_exists( 1, $urlParts ) ? $urlParts[1] : "",
+			"identifier" => array_key_exists( 2, $urlParts ) ? $urlParts[2] : ""
 		];
 
 		if ( $request["purpose"] === "image" ) {
