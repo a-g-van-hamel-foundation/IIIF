@@ -27,7 +27,7 @@ class IIIFUtils {
 
 	/**
 	 * Get JSON-encoded content from URL and return array
-	 * Does not allow for http: schemes
+	 * Disallows http: schemes
 	 * @param string $manifestUrl
 	 * 
 	 * @return array|null
@@ -37,11 +37,14 @@ class IIIFUtils {
 		if ( $parsedUrlArr['scheme'] !== 'https' ) {
 			return null;
 		}
-		if ( $useCurl ) {
-			$json = self::getFileContentsByCURL( $url );
+		if ( $useCurl ) {			
+			$json = self::getFileContentsByCURL( $url );			
 		} else {
 			// Recommended to use stream_context_create($options);
 			$json = file_get_contents( $url, false );
+		}
+		if ( $json === "" ) {
+			return null;	
 		}
 		$arr = json_decode( $json, true );
 		if ( json_last_error() === JSON_ERROR_NONE ) {
@@ -52,10 +55,25 @@ class IIIFUtils {
 	}
 
 	public static function getFileContentsByCURL( $apiUrl ) {
+		$httpRequestFactory = MediaWikiServices::getInstance()->getHttpRequestFactory();
+		$urlBase = self::getUrlBase();
+		$options = [ "followRedirects" => true, "userAgent" => "IIIF extension/0.0 ($urlBase)" ];
+		$res = $httpRequestFactory->post( $apiUrl, $options, __METHOD__ );
+		return $res;
+	}
+
+	/**
+	 * @deprecated Superseded by getFileContentsByCURL()
+	 * Kept in for now
+	 * @param mixed $apiUrl
+	 * @return bool|string
+	 */
+	public static function getFileContentsByCURLStandard( $apiUrl ) {
 		$ch = curl_init( $apiUrl );
 		curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
 		$urlBase = self::getUrlBase();
 		curl_setopt( $ch, CURLOPT_USERAGENT, "IIIF extension/0.0 ($urlBase)" );
+		curl_setopt( $ch, CURLOPT_FOLLOWLOCATION, 1 );
 		$output = curl_exec( $ch );
 		curl_close( $ch );
 		return $output;

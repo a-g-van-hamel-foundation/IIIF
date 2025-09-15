@@ -61,9 +61,11 @@ class IIIFJson {
 	/**
 	 * @deprecated Moved to IIIFUtils::getArrayFromJsonUrl()
 	 */
+	/*
 	public static function getArrayFromManifest( $manifestUrl ) {
 		return IIIFUtils::getArrayFromJsonUrl( $manifestUrl );
 	}
+	*/
 
 	/**
 	 * @deprecated Moved to IIIFParsers

@@ -17,7 +17,10 @@ class IIIFManifestParsers {
 		$this->apiVersion = $apiVersion;
 	}
 
-	public function createSummary( array $manifest ) {
+	public function createSummary( mixed $manifest ) {
+		if ( $manifest === null ) {
+			return "<div class='manifest-summary'></div>";
+		}
 		// First build the array
 		if ( $this->apiVersion === "2" ) {
 			$summary = [

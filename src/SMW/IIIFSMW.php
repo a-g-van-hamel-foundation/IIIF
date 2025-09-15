@@ -241,6 +241,9 @@ class IIIFSMW {
 		$wikilink = "none",
 		mixed $valueSep = null
 	) {
+		if ( count($printout) === 0 ) {
+			return $valueSep !== null ? "" : [];
+		}
 		if( gettype( $printout[0] ) === "array" && isset( $printout[0]["fulltext"] ) ) {
 			// data type Page
 			$newPrintout = [];

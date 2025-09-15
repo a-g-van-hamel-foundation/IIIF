@@ -24,6 +24,7 @@ Once the extension has been installed, a detailed guide to configuration and usa
 - https://codecs.vanhamel.nl/Show:Lab/IIIF (outdated)
 
 ## Changelog
+- 0.7. Replaced direct use of cURL with MW's Guzzle-based HttpRequestFactory and fixed redirect issue.
 - 0.6 (September 2025). Added parser function (`#iiif-tify`, or just `#tify`) for using the TIFY viewer (https://tify.rocks) with a bare-bones configuration. Changed external API requests to use cURL. Minor fixes.
 - 0.5 (July 2025). Created two new SMW result formats (`iiif-canvas-viewer` and `iiif-annotation-gallery`) for visualising queries on IIIF Annotations. Changes to `#iiif-annotator`: created presentation-only mode (just add `mode=viewer` to the parser function); added 'timemodified' and 'profileid' as template parameters; added change tag for the annotator; added resource info from the manifest. Improved support for different size notations (e.g. pct:) in Image Information Requests. Updated documentation available from Special:IIIF. Some reorganisation and minor fixes.
 - 0.4 (June 2025). Minor release. Changes to `#iiif-annotator-data`: added fix to reflect (previously revised) W3C-compliant 'dataset' structure, added 'sep' to let user customise separator of multi-valued data, added 'annotationid' and 'timecreated' template parameters. Fixed creator object in annotation tool. Updated documentation. Css fixes.

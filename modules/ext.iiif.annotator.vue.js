@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 ( function () {
 	// Require Vue.js v3
@@ -10,9 +10,9 @@
 	Vue.use(Vuex);
 
 	function fetchManifestDataAndMountApp( Vue, App, item, configProps ) {
-		const actionApiBaseUrl = "//" + mw.config.get( 'wgServerName' ) + (mw.config.get( 'wgScriptPath' ) || "") + "/api.php";
+		const actionApiBaseUrl = "//" + mw.config.get( "wgServerName" ) + (mw.config.get( "wgScriptPath" ) || "") + "/api.php";
 		const actionApi = new mw.ForeignApi( actionApiBaseUrl, { anonymous: true } );
-		const manifest = ( typeof configProps.manifest !== 'undefined' ) ? configProps.manifest : null;
+		const manifest = ( typeof configProps.manifest !== "undefined" ) ? configProps.manifest : null;
 		if ( manifest === null ) {
 			return;
 		}
@@ -30,7 +30,7 @@
 		}
 		var getManifestData = actionApi.post(iiifOsdApiParams);
 		// @todo: get the following from iiif-osd instead
-		if ( typeof configProps.profileId !== 'undefined' ) {
+		if ( typeof configProps.profileId !== "undefined" ) {
 			var getFormProfileData = actionApi.post({
 				action: "iiif-wiki",
 				formatversion: "2",
@@ -48,7 +48,7 @@
 				return;
 			}
 			const manifestObj = manifestData[0].result.manifest;
-			const canvasItems = manifestData[0].result.canvasItems;
+			const canvasItems = manifestData[0].result.canvasItems ?? [];
 			const tileSourcesFromManifest = manifestData[0].result.imageInformationRequests;
 			const formProfile = formProfileData == false ? null : formProfileData[0];
 			const formProfiles = {};

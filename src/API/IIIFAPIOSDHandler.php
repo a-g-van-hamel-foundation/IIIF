@@ -43,7 +43,7 @@ class IIIFAPIOSDHandler extends \ApiBase {
 		switch( $req ) {
 			case "ImageInformationRequests":				
 				if ( $manifestUrl !== null ) {
-					$this->manifestArr = IIIFUtils::getArrayFromJsonUrl( $manifestUrl );
+					$this->manifestArr = IIIFUtils::getArrayFromJsonUrl( $manifestUrl, true );
 					if ( $this->manifestArr === null ) {
 						$this->metaMessages[] = "Invalid manifest";
 						break;
