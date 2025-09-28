@@ -18,7 +18,7 @@ module.exports = exports = createStore({
 	},
 	getters: {
 		getCurrentCanvas (state) {
-			return state.currentCanvas;			
+			return state.currentCanvas ?? 0;
 		}
 	}
 });

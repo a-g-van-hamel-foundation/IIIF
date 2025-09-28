@@ -158,5 +158,12 @@
 		"menutitle": "<code>#iiif-get-canvases</code>",
 		"pagetitle": "Parser function: <code>#iiif-get-canvases</code>",
 		"type": "markdown"
+	},
+	"pf-iiif-tify": {
+		"subpage": "pf-iiif-tify",
+		"file": "src/Special/pf-iiif-tify.md",
+		"menutitle": "<code>#iiif-tify</code> (TIFY viewer)",
+		"pagetitle": "Parser function: <code>#iiif-tify</code>",
+		"type": "markdown"
 	}
 }

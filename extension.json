@@ -1,6 +1,6 @@
 {
 	"name": "IIIF",
-	"version": "0.7",
+	"version": "0.8",
 	"type": "api",
 	"author": [
 		"[https://codecs.vanhamel.nl Dennis Groenewegen]"
@@ -301,6 +301,19 @@
 			"es6": true,
 			"packageFiles": [
 				"lib-photoswipe/photoswipe.umd.min.js"
+			]
+		},
+		"ext.iiif.lib.draggable": {
+			"es6": true,
+			"packageFiles": [
+				"lib-sortable/vuedraggable.umd.js"
+			],
+			"dependencies": [ "ext.iiif.lib.sortable" ]
+		},
+		"ext.iiif.lib.sortable": {
+			"es6": true,
+			"packageFiles": [
+				"lib-sortable/Sortable.min.js"
 			]
 		}
 	},

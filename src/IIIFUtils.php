@@ -34,10 +34,10 @@ class IIIFUtils {
 	 */
 	public static function getArrayFromJsonUrl( $url, $useCurl = true ) {
 		$parsedUrlArr = parse_url( $url );
-		if ( $parsedUrlArr['scheme'] !== 'https' ) {
+		if ( $parsedUrlArr["scheme"] !== "https" ) {
 			return null;
 		}
-		if ( $useCurl ) {			
+		if ( $useCurl ) {
 			$json = self::getFileContentsByCURL( $url );			
 		} else {
 			// Recommended to use stream_context_create($options);
@@ -56,9 +56,13 @@ class IIIFUtils {
 
 	public static function getFileContentsByCURL( $apiUrl ) {
 		$httpRequestFactory = MediaWikiServices::getInstance()->getHttpRequestFactory();
-		$urlBase = self::getUrlBase();
-		$options = [ "followRedirects" => true, "userAgent" => "IIIF extension/0.0 ($urlBase)" ];
-		$res = $httpRequestFactory->post( $apiUrl, $options, __METHOD__ );
+		// rely on default user agent
+		// @todo consider custom one eg "userAgent" => "IIIF extension/0.0 ($urlBase)"
+		// $urlBase = self::getUrlBase();
+		$options = [ 
+			"followRedirects" => true
+		];
+		$res = $httpRequestFactory->get( $apiUrl, $options, __METHOD__ );
 		return $res;
 	}
 

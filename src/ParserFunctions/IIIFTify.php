@@ -10,6 +10,7 @@ namespace IIIF\ParserFunctions;
 use Parser;
 use PPFrame;
 use Html;
+use IIIF\ParserFunctions\IIIFParserFunctionUtils;
 
 class IIIFTify {
 
@@ -24,9 +25,10 @@ class IIIFTify {
 		$paramsAllowed = [
 			"manifest" => null,
 			"canvasindex" => "",
-			"annotationsvisible" => "true" // annotationsVisible
+			"annotationsvisible" => "true",// annotationsVisible
+			"setview" => null
 		];
-		[ $manifestUrl, $canvasIndex, $annotationsVisible ] = array_values( IIIFParserFunctionUtils::extractParams( $frame, $params, $paramsAllowed ) );
+		[ $manifestUrl, $canvasIndex, $annotationsVisible, $setView ] = array_values( IIIFParserFunctionUtils::extractParams( $frame, $params, $paramsAllowed ) );
 
 		$attributes = [
 			"id" => "iiif-tify-viewer-" . rand(10000,99999),
@@ -36,6 +38,9 @@ class IIIFTify {
 			"data-canvas-index" => $canvasIndex,
 			"style" => "height: 640px"
 		];
+		if ( $setView !== null ) {
+			$attributes["data-setview"] = $setView;
+		}
 
 		$res = Html::rawElement(
 			"div",

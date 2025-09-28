@@ -1,14 +1,14 @@
 $( document ).ready(function($) {
 
-	tifyViewers = document.querySelectorAll( ".iiif-tify-viewer" );
-	tifyViewers.forEach( function( el ) {
-		initTifyViewer( el, el.dataset )
+	const tifyViewers = document.querySelectorAll(".iiif-tify-viewer");
+	tifyViewers.forEach( function(el) {
+		initTifyViewer(el, el.dataset);
 	});
 
 	function initTifyViewer(el, settings) {
-		id = el.getAttribute("id");
-		console.log( "Testing TIFY..." );
-		const TIFY = require( "ext.iiif.lib.tify" );
+		const id = el.getAttribute("id");
+		//console.log( "Testing TIFY..." );
+		const TIFY = require("ext.iiif.lib.tify");
 		const options = {
 			container: "#" + id,
 			manifestUrl: settings.manifest ?? ""
@@ -17,19 +17,29 @@ $( document ).ready(function($) {
 			options.annotationsVisible = true;
 		}
 		if (settings.canvasIndex !== "" ) {
-			console.log( "canvasIndex", settings.canvasIndex );
-			options.pages = [ parseInt(settings.canvasIndex) ];
+			// console.log( "canvasIndex", settings.canvasIndex );
+			const pagesToBeSet = settings.canvasIndex.split(",");
+			const mappedPages = pagesToBeSet.map((x) => parseInt(x) );
+			options.pages = mappedPages;
 		}
 
 		const tifyViewer = new Tify( options );
-		//tifyViewer.mount("#" + id);
+		// tifyViewer.mount("#" + id);
 
 		tifyViewer.ready.then( () => {
-			//tify.setPage([1, 12, 13])	  
-			//tifyViewer.setView('thumbnails')
-			//tifyViewer.viewer.viewport.zoomTo(2)
-			//console.log( tifyViewer.viewer.viewport );
-			console.log( tifyViewer.viewer );
+			// further options
+			// tifyViewer.setView('thumbnails')
+			if ( settings.setview !== undefined ) {
+				// Consider doing this check in the parser function directly
+				const viewOptions = [ "export", "help", "info", "fulltext", "text", "thumbnails", "toc" ];
+				if ( viewOptions.indexOf(settings.setview) != -1 ) {
+					tifyViewer.setView( settings.view );
+				}
+			}
+			// setPage: eg tifyViewer.setPage([1, 12, 13, 20, 45]);
+			// zoomTo: tifyViewer.viewer.viewport.zoomTo(2)
+			// console.log( tifyViewer.viewer.viewport );
+			// console.log( tifyViewer.viewer );
 			//AnnotoriousOSDController( tifyViewer.viewer );
 		});
 	}

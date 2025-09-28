@@ -1,4 +1,6 @@
-Once you have stored your annotation data on a JSON page, you may want to make further use of them, for instance to present them on a wiki page or store them using Semantic MediaWiki's [`#subobject` parser function](https://www.semantic-mediawiki.org/wiki/Subobject). You can do so using the <code>#iiif-annotator-data</code> parser function, which lets you assign data to a wiki template.
+So you managed to store your annotation data on a JSON page, or a JSON content slot. Congratulatons! Now you want to maximise good use of your data, for instance by presenting your work on a wiki page in an appropriate format; or by storing everything using Semantic MediaWiki's [`#subobject` parser function](https://www.semantic-mediawiki.org/wiki/Subobject), allowing for more advanced queries across multiple annotated resources. 
+
+You can do so using the <code>#iiif-annotator-data</code> parser function, which lets you send data to a wiki template.
 
 See also [`#iiif-annotator`]({urlBase}/Special:IIIF/pf-iiif-annotator)
 

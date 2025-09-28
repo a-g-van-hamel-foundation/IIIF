@@ -10,6 +10,7 @@
 namespace IIIF\API;
 
 //use MediaWiki\MediaWikiServices;
+use ApiBase;
 use Wikimedia\ParamValidator\ParamValidator;
 use IIIFUtils;
 use IIIF\IIIFParsers\IIIFCanvasParsers;
@@ -17,7 +18,7 @@ use IIIF\IIIFParsers\IIIFParserUtils;
 use IIIF\IIIFParsers\IIIFManifestParsers;
 //use ExtensionRegistry;
 
-class IIIFAPIOSDHandler extends \ApiBase {
+class IIIFAPIOSDHandler extends ApiBase {
 
 	private $manifestArr = [];
 	private $canvases = null;
@@ -41,9 +42,13 @@ class IIIFAPIOSDHandler extends \ApiBase {
 		$results = [];
 
 		switch( $req ) {
-			case "ImageInformationRequests":				
+			case "ImageInformationRequests":
 				if ( $manifestUrl !== null ) {
 					$this->manifestArr = IIIFUtils::getArrayFromJsonUrl( $manifestUrl, true );
+					if ( $this->manifestArr === null ) {
+						// Fallback method
+						$this->manifestArr = IIIFUtils::getArrayFromJsonUrl( $manifestUrl, false );
+					}
 					if ( $this->manifestArr === null ) {
 						$this->metaMessages[] = "Invalid manifest";
 						break;

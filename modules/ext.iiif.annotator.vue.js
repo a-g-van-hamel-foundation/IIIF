@@ -28,6 +28,7 @@
 			// MCR: get content from slot
 			iiifOsdApiParams.slot = configProps.targetSlot;
 		}
+		// @dev test console.log( "https:" + actionApiBaseUrl + "?" + new URLSearchParams(iiifOsdApiParams) );
 		var getManifestData = actionApi.post(iiifOsdApiParams);
 		// @todo: get the following from iiif-osd instead
 		if ( typeof configProps.profileId !== "undefined" ) {
