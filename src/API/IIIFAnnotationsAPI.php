@@ -41,17 +41,17 @@ class IIIFAnnotationsAPI extends ApiBase {
 		$apiVersion = $params['v'];
 		$canvasId = $params['canvas'] !== 'false' ? $params['canvas'] : false;
 
-		$smwQueryEscaped = $params['smwquery'];
-		$smwConfig = $params['smwconfig'];
-		$annotId = $params['annotid'];
-		$destination = $params['dest'] ?? false;
+		$smwQueryEscaped = $params["smwquery"];
+		$smwConfig = $params["smwconfig"];
+		$annotId = $params["annotid"];
+		$destination = $params["dest"] ?? false;
 
 		$id = IIIFUtils::getUrlBase() . "$_SERVER[REQUEST_URI]";
 		$apiResult = $this->getResult();
 
 		$items = [];
 
-		if ( $smwQueryEscaped !== false || $obj !== false ) {
+		if ( $smwQueryEscaped !== "" || $obj !== false ) {
 			// Get annotations for object based on query
 			self::$smwConfigProps = IIIFConfig::getConfigProps( $smwConfig );
 
@@ -64,11 +64,11 @@ class IIIFAnnotationsAPI extends ApiBase {
 					$items[] = IIIFAnnotationParsers::preprocessAnnotationV2( $item, "commenting", self::$smwConfigProps );
 				}
 			}
-		} elseif ( $annotId !== false && $destination == 'localstorage' ) {
+		} elseif ( $annotId !== "" && $destination == "localstorage" ) {
 			// Reproduces items to be used in local storage
 			// e.g. /api.php?action=iiif-annotations&format=json&annotid={annotid}&v=3&dest=localstorage
-			$items = self::getLocalStorageStr( $annotId, '3' );
-		} elseif ( $annotId !== false && $destination !== 'localstorage' ) {
+			$items = self::getLocalStorageStr( $annotId, "3" );
+		} elseif ( $annotId !== "" && $destination !== "localstorage" ) {
 			//print_r( "annot page id: $annotId / canvas: $canvasId / apiVersion: $apiVersion " );
 			$items = self::getItemsFromPage( $annotId, $canvasId, $apiVersion );
 		}
@@ -243,9 +243,9 @@ class IIIFAnnotationsAPI extends ApiBase {
 			],
 			// What to return - manifest, annotationPage, ...
 			"v" => [
-				ParamValidator::PARAM_TYPE => 'string',
+				ParamValidator::PARAM_TYPE => "string",
 				ParamValidator::PARAM_REQUIRED => false,
-				ParamValidator::PARAM_DEFAULT => '2'
+				ParamValidator::PARAM_DEFAULT => "2"
 			],
 			// v2 only:
 			"canvas" => [
@@ -256,18 +256,18 @@ class IIIFAnnotationsAPI extends ApiBase {
 			"smwconfig" => [
 				ParamValidator::PARAM_TYPE => "string",
 				ParamValidator::PARAM_REQUIRED => false,
-				ParamValidator::PARAM_DEFAULT => false
+				ParamValidator::PARAM_DEFAULT => ""
 			],
 			"smwquery" => [
-				ParamValidator::PARAM_TYPE => 'string',
+				ParamValidator::PARAM_TYPE => "string",
 				ParamValidator::PARAM_REQUIRED => false,
-				ParamValidator::PARAM_DEFAULT => false
+				ParamValidator::PARAM_DEFAULT => ""
 				//ApiBase::PARAM_ISMULTI
 			],
 			"annotid" => [
-				ParamValidator::PARAM_TYPE => 'string',
+				ParamValidator::PARAM_TYPE => "string",
 				ParamValidator::PARAM_REQUIRED => false,
-				ParamValidator::PARAM_DEFAULT => false
+				ParamValidator::PARAM_DEFAULT => ""
 			],
 			"dest" => [
 				ParamValidator::PARAM_TYPE => 'string',

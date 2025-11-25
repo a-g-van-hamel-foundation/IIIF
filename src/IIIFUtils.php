@@ -161,12 +161,19 @@ class IIIFUtils {
 	 * misnomer @todo rename to e.g. parseWikitext( ... )
 	 * @todo Partial method.
 	 */
-	public static function convertStrToWikitext( $str, $parser = null ) {
+	public static function convertStrToWikitext( mixed $str, mixed $parser = null ) {
+		if ( $str === null ) {
+			return "";
+		}
 		if( $parser === null ) {
 			$parser = MediaWikiServices::getInstance()->getParserFactory()->create();
 		}
 		$parser->setOutputType( 'html' );
 		$parser->setOptions( ParserOptions::newFromAnon() );
+		$pageRef = RequestContext::getMain()->getTitle();
+		if ( $pageRef === null ) {
+			return "";
+		}
 		$newParsed = $parser->parse(
 			$str,
 			RequestContext::getMain()->getTitle(),

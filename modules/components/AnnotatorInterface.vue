@@ -78,7 +78,7 @@
 </template>
 
 <script>
-const { defineComponent, defineExpose, computed, ref } = require("vue");
+const { defineComponent, computed, ref } = require("vue");
 const store = require("ext.iiif.annotator.store");
 const OSDViewerModule = require( "./OSDViewer.vue" );
 const AnnotoriousOSD = require( "ext.iiif.lib.annotorious.osd" );
@@ -101,12 +101,12 @@ module.exports = defineComponent( {
 	},
 	props: {
 		configProps: {
-			type: Array,
-			default: []
+			type: Object,
+			default: {}
 		},
 		manifestObj: {
-			type: Array,
-			default: []
+			type: Object,
+			default: {}
 		},
 		canvasItems: {
 			type: Array,
@@ -118,7 +118,7 @@ module.exports = defineComponent( {
 		},
 		presentationMethod: { type: String, default: "profile", description: "..." },
 		formProfile: { type: Object, default: null },
-		formProfiles: { type: Array, default: [] },
+		formProfiles: { type: Object, default: {} },
 		initialAnnotationPages: {
 			type: Array,
 			default: []
@@ -288,7 +288,10 @@ module.exports = defineComponent( {
 			// In the event that not all Annotations were created using the 
 			// same form, allows for the use of multiple profiles
 			// @todo maybe profileid info is best taken from AnnotationPage references section
-			if ( typeof n.body[0] !== 'undefined' && typeof n.body[0].profileid !== 'undefined' && typeof this.formProfiles.length !== "object" ) {
+			if ( typeof n.body[0] !== 'undefined' && typeof n.body[0].profileid !== 'undefined' 
+			&& Object.keys(this.formProfiles).length > 0
+			//&& typeof this.formProfiles.length !== "object"
+			) {
 				this.formProfileSchema = this.formProfiles[n.body[0].profileid];
 			}
 		}
@@ -548,9 +551,6 @@ module.exports = defineComponent( {
 		function debugLog( msg = "(No message)", loggable = "" ) {
 			// console.log( "AnnotatorInterface: " + msg, loggable );
 		}
-		defineExpose({
-			//
-		});
 
 		return {
 			prefixUrl,
@@ -642,6 +642,7 @@ a.annot-list-btn {
 	font-size: 0.875rem;
 	line-height: 1.5;
 	text-align: center;
+	text-decoration: none;
 	vertical-align: middle;
 	user-select: none;
 	color: #fff;

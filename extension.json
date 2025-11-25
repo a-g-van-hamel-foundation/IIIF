@@ -1,6 +1,6 @@
 {
 	"name": "IIIF",
-	"version": "0.8",
+	"version": "0.9",
 	"type": "api",
 	"author": [
 		"[https://codecs.vanhamel.nl Dennis Groenewegen]"
@@ -45,7 +45,7 @@
 		"ContentHandlerDefaultModelFor": [ "IIIFHooks::onContentHandlerDefaultModelFor" ],
 		"ListDefinedTags": [ "IIIFHooks::onRegisterTags" ],
 		"ChangeTagsListActive": [ "IIIFHooks::onRegisterTags" ],
-		"ChangeTagsAllowedAdd":  [ "IIIFHooks::onChangeTagsAllowedAdd" ],
+		"ChangeTagsAllowedAdd":  [ "IIIFHooks::onChangeTagsAllowedAdd" ],		
 		"CodeEditorGetPageLanguage": [ "IIIFHooks::onCodeEditorGetPageLanguage" ],
 		"AdminLinks": [ "IIIFHooks::addToAdminLinks" ]
 	},
@@ -54,7 +54,7 @@
 		"remoteExtPath": "IIIF/modules"
 	},
 	"ResourceModules": {
-		"ext.iiif.styles": {
+		"ext.iiif.styles": {					
 			"class": "MediaWiki\\ResourceLoader\\CodexModule",
 			"codexStyleOnly": "true",
 			"styles": "ext.iiif.styles.less",
@@ -80,7 +80,8 @@
 				"lib-tify/tify.js"
 			],
 			"styles": [
-				"lib-tify/tify.css"
+				"lib-tify/tify.css",
+				"ext.iiif.tify.less"
 			]
 		},
 		"ext.iiif.lib.annotorious": {
@@ -235,6 +236,7 @@
 				"openseadragon",
 				"ext.iiif.lib.annotorious.plugin.sequencemode",
 				"ext.iiif.lib.quill",
+				"ext.iiif.lib.quill.min",
 				"ext.iiif.lib.ace",
 				"ext.iiif.lib.ace.utils"
 			]
@@ -259,6 +261,14 @@
 		"ext.iiif.lib.quill": {
 			"packageFiles": [
 				"lib-quill/quill-es5.js"
+			],
+			"styles": [
+				"lib-quill/quill-snow.css"
+			]
+		},
+		"ext.iiif.lib.quill.min": {
+			"packageFiles": [
+				"lib-quill/quill-es5.min.js"
 			],
 			"styles": [
 				"lib-quill/quill-snow.css"
@@ -303,17 +313,69 @@
 				"lib-photoswipe/photoswipe.umd.min.js"
 			]
 		},
+		"ext.iiif.draggable": {
+			"es6": true,
+			"packageFiles": [
+				"ext.iiif.draggable.js"
+			],
+			"dependencies": [
+				"ext.iiif.draggable.components",				
+				"vue",
+				"vuex"
+			]
+		},
+		"ext.iiif.draggable.components": {
+			"packageFiles": [
+				"components/index-draggable.js",
+				"components/Draggable.vue"
+			],
+			"dependencies": [
+				"ext.iiif.lib.draggable"
+			]
+		},		
 		"ext.iiif.lib.draggable": {
 			"es6": true,
 			"packageFiles": [
 				"lib-sortable/vuedraggable.umd.js"
 			],
-			"dependencies": [ "ext.iiif.lib.sortable" ]
+			"dependencies": [ "sortablejs" ]
 		},
-		"ext.iiif.lib.sortable": {
+		"sortablejs": {
 			"es6": true,
 			"packageFiles": [
 				"lib-sortable/Sortable.min.js"
+			]
+		},
+
+		"ext.iiif.draggableplus": {
+			"es6": true,
+			"packageFiles": [
+				"ext.iiif.draggableplus.js"
+			],
+			"dependencies": [
+				"ext.iiif.draggableplus.components",
+				"vue",
+				"vuex"
+			]
+		},
+		"ext.iiif.draggableplus.components": {
+			"es6": true,
+			"packageFiles": [
+				"components/index-draggable-plus.js",
+				"components/DraggablePlus.vue"
+			],
+			"dependencies": [
+				"ext.iiif.lib.vuedraggableplus"
+			]
+		},
+		"ext.iiif.lib.vuedraggableplus": {
+			"es6": true,
+			"packageFiles": [
+				"lib-draggable-plus/main.js"
+			],
+			"dependencies": [
+				"sortablejs",
+				"vue"
 			]
 		}
 	},
@@ -381,7 +443,7 @@
 		{
 			"id": 1230,
 			"constant": "NS_IIIF",
-			"name": "IIIF",
+			"name": "IIIF",			
 			"subpages": false,
 			"content": false
 		},

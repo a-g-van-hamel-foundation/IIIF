@@ -33,7 +33,7 @@ class IIIFSMW {
 		string|int $resource,
 		string|bool $canvasId = false,
 		$smwQueryEscaped = false,
-		$smwConfig = false
+		$smwConfig = ""
 	): array {
 		// Exits silently if SMW is not installed.
         self::checkForSMW();

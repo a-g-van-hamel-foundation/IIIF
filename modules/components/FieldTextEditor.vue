@@ -16,8 +16,11 @@
 
 <script>
 const { defineComponent, ref, computed } = require( "vue" );
-// VueQuill
-const { QuillEditor } = require( "ext.iiif.lib.quill" );
+// VueQuill - use the minified version for MW 1.42+
+// @todo proper semver unless version for MW1.39 is no longer needed
+var mwVersion = mw.config.get( "wgVersion" ).split(".")[1];
+var quillModule = Number(mwVersion) >= 42 ? "ext.iiif.lib.quill.min" : "ext.iiif.lib.quill";
+const { QuillEditor } = require( quillModule );
 
 module.exports = defineComponent( {
 	name: "FieldTextEditor",

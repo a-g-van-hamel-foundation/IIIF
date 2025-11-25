@@ -42,13 +42,13 @@ class IIIFWikiAPI extends \ApiBase {
 	public function getAllowedParams() : array {
 		$arr = [
 			"id" => [
-				ParamValidator::PARAM_TYPE     => 'string',
+				ParamValidator::PARAM_TYPE => "string",
 				ParamValidator::PARAM_REQUIRED => true
 			],
 			"format" => [
-				ParamValidator::PARAM_TYPE     => 'string',
+				ParamValidator::PARAM_TYPE => "string",
 				ParamValidator::PARAM_REQUIRED => false,
-				ParamValidator::PARAM_DEFAULT => 'json'
+				ParamValidator::PARAM_DEFAULT => "json"
 			]
 		];
 		return $arr;

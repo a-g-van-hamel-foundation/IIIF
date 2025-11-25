@@ -4,13 +4,9 @@
 	// Require Vue.js v3
 	const Vue = require("vue");
 	const Vuex = require("vuex");
-	Vue.configureCompat( {
-		MODE: 3
-	} );
-	Vue.use(Vuex);
 
-	function fetchManifestDataAndMountApp( Vue, App, item, configProps ) {
-		const actionApiBaseUrl = "//" + mw.config.get( "wgServerName" ) + (mw.config.get( "wgScriptPath" ) || "") + "/api.php";
+	function fetchManifestDataAndMountApp( Vue, Vuex, App, item, configProps ) {
+		const actionApiBaseUrl = mw.config.get("wgServer") + (mw.config.get("wgScriptPath") || "") + "/api.php";
 		const actionApi = new mw.ForeignApi( actionApiBaseUrl, { anonymous: true } );
 		const manifest = ( typeof configProps.manifest !== "undefined" ) ? configProps.manifest : null;
 		if ( manifest === null ) {
@@ -67,7 +63,7 @@
 				initialAnnotationPages,
 				summary
 			} );
-			//createdApp.use( Vuex );
+			createdApp.use( Vuex );
 			createdApp.mount( item );
 		})
 		.fail( function( manifestData, formProfileData ) {
@@ -84,7 +80,8 @@
 		var App = require( "ext.iiif.annotator.components" ).AnnotatorInterface;
 		if (typeof App !== "undefined") {
 			const configProps = item.dataset;
-			fetchManifestDataAndMountApp( Vue, App, item, configProps );
+			//const store = Vuex.createStore( ... );
+			fetchManifestDataAndMountApp( Vue, Vuex, App, item, configProps );
 		}
 	});
 

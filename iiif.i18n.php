@@ -15,5 +15,6 @@ $magicWords["en"] = [
 	"iiif-get-canvases" => [ 0, "iiif-get-canvases" ],
 	"iiif-annotator" => [ 0, "iiif-annotator" ],
 	"iiif-annotator-data" => [ 0, "iiif-annotator-data" ],
-	"iiif-tify" => [ 0, "iiif-tify", "tify" ]
+	"iiif-tify" => [ 0, "iiif-tify", "tify" ],
+	"iiif-draggable" => [ 0, "iiif-draggable" ]
 ];

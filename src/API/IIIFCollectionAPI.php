@@ -29,14 +29,13 @@ class IIIFCollectionAPI extends \ApiBase {
 		// $manifest = ( array_key_exists( 'manifest', $params ) ) ? $params['manifest'] : "";
 		$id = IIIFUtils::getUrlBase() . "$_SERVER[REQUEST_URI]";
 
-		$smwConfig = $params["smwconfig"] ?? false;
-		self::$smwConfigProps = IIIFConfig::getConfigProps( $smwConfig );
+		self::$smwConfigProps = IIIFConfig::getConfigProps( $params["smwconfig"] );
 
 		// concept takes precedence over smwquery
-		if ( $params["concept"] !== null ) {
+		if ( $params["concept"] !== "" ) {
 			$concept = trim( $params["concept"] );
 			$smwQueryEscaped = "((Concept:$concept))";
-		} elseif( $params["smwquery"] !== null ) {
+		} elseif( $params["smwquery"] !== "" ) {
 			$smwQueryEscaped = trim( $params["smwquery"] );
 		} else {
 			$smwQueryEscaped = null;
@@ -182,23 +181,23 @@ class IIIFCollectionAPI extends \ApiBase {
 	public function getAllowedParams() : array {
 		$arr = [
 			"manifest" => [
-				ParamValidator::PARAM_TYPE => 'string',
+				ParamValidator::PARAM_TYPE => "string",
 				ParamValidator::PARAM_REQUIRED => false
 			],
 			"smwconfig" => [
-				ParamValidator::PARAM_TYPE => 'string',
+				ParamValidator::PARAM_TYPE => "string",
 				ParamValidator::PARAM_REQUIRED => false,
-				ParamValidator::PARAM_DEFAULT => null
+				ParamValidator::PARAM_DEFAULT => ""
 			],
 			"smwquery" => [
-				ParamValidator::PARAM_TYPE => 'string',
+				ParamValidator::PARAM_TYPE => "string",
 				ParamValidator::PARAM_REQUIRED => false,
-				ParamValidator::PARAM_DEFAULT => null
+				ParamValidator::PARAM_DEFAULT => ""
 			],
 			"concept" => [
-				ParamValidator::PARAM_TYPE => 'string',
+				ParamValidator::PARAM_TYPE => "string",
 				ParamValidator::PARAM_REQUIRED => false,
-				ParamValidator::PARAM_DEFAULT => null
+				ParamValidator::PARAM_DEFAULT => ""
 			]
 		];
 		return $arr;

@@ -24,6 +24,7 @@ Once the extension has been installed, a detailed guide to configuration and usa
 - https://codecs.vanhamel.nl/Show:Lab/IIIF (not updated in a while)
 
 ## Changelog
+- 0.9 (November 2025). CSS fix for TIFY. Switched to calling Vuex on instance and removed `configureCompat`. Fixed type declarations. Removed wgServerName in favour of wgServer. Fixed incompatible data types in API.
 - 0.8 (September 2025). Further HTTP request fixes. Two further options for TIFY viewer, now with documentation.
 - 0.7 (September 2025). Replaced direct use of cURL with MW's Guzzle-based HttpRequestFactory and fixed redirect issue.
 - 0.6 (September 2025). Added parser function (`#iiif-tify`, or just `#tify`) for using the TIFY viewer (https://tify.rocks) with a bare-bones configuration. Changed external API requests to use cURL. Minor fixes.

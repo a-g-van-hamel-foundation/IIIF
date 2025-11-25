@@ -41,16 +41,16 @@ class IIIFManifestAPI extends \ApiBase {
 		// Get version number of IIIF Presentation API
 		$presVersion = IIIFParserUtils::getPresentationApiVersion( $manifestArr );
 
-		$obj = $params["obj"] ?? false;
-		$smwQueryRaw = $params['smwquery'] ?? false;
+		$obj = $params["obj"];
+		$smwQueryRaw = $params['smwquery'];
 		//$smwQueryProcessed = ( $smwQueryRaw == null ) ? "" : IIIFSMW::processSemanticQuery( $smwQueryRaw, $obj );
-		$smwConfig = $params["smwconfig"]  ?? false;
+		$smwConfig = $params["smwconfig"];
 		$annotPageId = $params["annotid"] ?? false;
 		$newManifestArr = $manifestArr; // default
 
-		if ( $smwConfig !== false && $obj !== false ) {
+		if ( $smwConfig !== "" && $obj !== "" ) {
 			$newManifestArr = self::mergeManifestWithAnnotationsFromConfig( $manifestArr, $obj, $smwConfig, $smwQueryRaw, $currentId, $presVersion );
-		} elseif ( $smwQueryRaw !== false || $obj !== false ) {
+		} elseif ( $smwQueryRaw !== "" || $obj !== "" ) {
 			// print_r( "obj: $obj / smwQueryRaw: $smwQueryRaw " );
 			$newManifestArr = self::mergeManifestWithAnnotationsFromQuery( $manifestArr, $obj, $smwQueryRaw, $currentId, $presVersion );
 		} elseif( $annotPageId !== false ) {
@@ -72,20 +72,20 @@ class IIIFManifestAPI extends \ApiBase {
 	 */
 	private static function mergeManifestWithAnnotationsFromConfig(
 		array $manifestArr,
-		string|bool $obj,
-		string|bool $smwConfig,
-		string|bool $smwQueryRaw,
+		string $obj,
+		string $smwConfig,
+		string $smwQueryRaw,
 		string $currentId,
 		string $presVersion
 	) {
-		$urlObject = ( $obj !== false ) ? rawurlencode( $obj ) : "";
+		$urlObject = $obj !== "" ? rawurlencode( $obj ) : "";
 		// suppose it's a page ID, @todo - check it exists!
-		if ( $smwConfig !== false ) {
+		if ( $smwConfig !== "" ) {
 			$smwConfigURLParam = "&smwconfig=" . rawurlencode( $smwConfig );
-		} elseif( $smwQueryRaw !== false ) {
+		} elseif( $smwQueryRaw !== "" ) {
 			// @todo
 			$smwQueryRaw = false;
-			$smwConfigURLParam = ( $smwQueryRaw == false ) ? "" : "&smwquery=" . rawurlencode( $smwQueryRaw );
+			$smwConfigURLParam = $smwQueryRaw == false ? "" : "&smwquery=" . rawurlencode( $smwQueryRaw );
 		} else {
 			$smwConfigURLParam = "";
 		}
@@ -118,10 +118,10 @@ class IIIFManifestAPI extends \ApiBase {
 		$manifestArr,
 		$obj,
 		$smwQueryRaw,
-		$currentId, 
+		$currentId,
 		$presVersion
 	) {	
-		$urlObject = ( $obj !== false ) ? rawurlencode( $obj ) : "";
+		$urlObject = $obj !== "" ? rawurlencode( $obj ) : "";
 
 		$smwQueryURLParam = ( $smwQueryRaw == false ) ? "" : "&smwquery=" . rawurlencode( $smwQueryRaw );
 		$annotationsId = IIIFUtils::getUrlBase() . "/api.php?action=iiif-annotations&format=json&obj={$urlObject}&v={$presVersion}{$smwQueryURLParam}";
@@ -187,19 +187,19 @@ class IIIFManifestAPI extends \ApiBase {
 				ParamValidator::PARAM_REQUIRED => true
 			],
 			"obj" => [
-				ParamValidator::PARAM_TYPE => 'string',
+				ParamValidator::PARAM_TYPE => "string",
 				ParamValidator::PARAM_REQUIRED => false,
-				ParamValidator::PARAM_DEFAULT => false
+				ParamValidator::PARAM_DEFAULT => ""
 			],
 			"smwconfig" => [
-				ParamValidator::PARAM_TYPE => 'string',
+				ParamValidator::PARAM_TYPE => "string",
 				ParamValidator::PARAM_REQUIRED => false,
-				ParamValidator::PARAM_DEFAULT => false
+				ParamValidator::PARAM_DEFAULT => ""
 			],
 			"smwquery" => [
 				ParamValidator::PARAM_TYPE => 'string',
 				ParamValidator::PARAM_REQUIRED => false,
-				ParamValidator::PARAM_DEFAULT => false
+				ParamValidator::PARAM_DEFAULT => ""
 			],
 			"annotid" => [
 				ParamValidator::PARAM_TYPE => 'string',

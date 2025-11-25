@@ -3,11 +3,7 @@
 ( function () {
 
 	const Vue = require("vue");
-	Vue.configureCompat( {
-		MODE: 3
-	} );
-	//const Vuex = require("vuex");
-	//Vue.use(Vuex);
+	//const Vuex = require("vuex");	
 
 	function htmldecode(str) {
 		var txt = document.createElement("textarea");
@@ -24,6 +20,7 @@
 			settings,
 			configProps
 		} );
+		//createdApp.use(Vuex);
 		createdApp.mount( item );
 	}
 

@@ -252,28 +252,28 @@ class IIIFMWPresAPI extends \ApiBase {
 				ParamValidator::PARAM_REQUIRED => false
 			],
 			"files" => [
-				ParamValidator::PARAM_TYPE => 'string',
+				ParamValidator::PARAM_TYPE => "string",
 				ParamValidator::PARAM_REQUIRED => false
 			],
 			"pageids" => [
-				ParamValidator::PARAM_TYPE => 'string',
+				ParamValidator::PARAM_TYPE => "string",
 				ParamValidator::PARAM_REQUIRED => false
 			],
 			"smwquery"=> [
-				ParamValidator::PARAM_TYPE => 'string',
+				ParamValidator::PARAM_TYPE => "string",
 				ParamValidator::PARAM_REQUIRED => false
 			],
 			"smwsort"=> [
-				ParamValidator::PARAM_TYPE => 'string',
+				ParamValidator::PARAM_TYPE => "string",
 				ParamValidator::PARAM_REQUIRED => false
 			],
 			"version" => [
-				ParamValidator::PARAM_TYPE => 'string',
+				ParamValidator::PARAM_TYPE => "string",
 				ParamValidator::PARAM_REQUIRED => false,
 				ParamValidator::PARAM_DEFAULT => "2"
 			],
 			"label" => [
-				ParamValidator::PARAM_TYPE => 'string',
+				ParamValidator::PARAM_TYPE => "string",
 				ParamValidator::PARAM_REQUIRED => false
 			],
 			"source" => [

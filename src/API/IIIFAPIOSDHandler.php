@@ -9,14 +9,12 @@
 
 namespace IIIF\API;
 
-//use MediaWiki\MediaWikiServices;
 use ApiBase;
 use Wikimedia\ParamValidator\ParamValidator;
 use IIIFUtils;
 use IIIF\IIIFParsers\IIIFCanvasParsers;
 use IIIF\IIIFParsers\IIIFParserUtils;
 use IIIF\IIIFParsers\IIIFManifestParsers;
-//use ExtensionRegistry;
 
 class IIIFAPIOSDHandler extends ApiBase {
 
@@ -69,7 +67,7 @@ class IIIFAPIOSDHandler extends ApiBase {
 
 		// Annotations, if any, stored on a wiki page
 		$annotationJson = [];
-		if ( $params["annotations"] !== false && $params["annotations"] !== "" ) {
+		if ( $params["annotations"] !== "" ) {
 			$content = IIIFUtils::getRawContentFromPageName( $params["annotations"], $params["slot"] );
 			if ( IIIFUtils::isJson( $content ) ) {
 				$annotationJson = json_decode( $content, true );
@@ -112,7 +110,7 @@ class IIIFAPIOSDHandler extends ApiBase {
 			"annotations" => [
 				ParamValidator::PARAM_TYPE => "string",
 				ParamValidator::PARAM_REQUIRED => false,
-				ParamValidator::PARAM_DEFAULT => false
+				ParamValidator::PARAM_DEFAULT => ""
 			],
 			// Content slot (MCR)
 			"slot" => [

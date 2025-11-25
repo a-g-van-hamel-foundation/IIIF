@@ -14,6 +14,7 @@ class IIIFHooks {
 		$parser->setFunctionHook( "iiif-annotator", [ "IIIF\ParserFunctions\IIIFAnnotator", 'runIIIFAnnotator' ], $flags );
 		$parser->setFunctionHook( "iiif-annotator-data", [ "IIIF\ParserFunctions\IIIFAnnotatorData", 'runGetAnnotationDataForTemplate' ], $flags );
 		$parser->setFunctionHook( "iiif-tify", [ "IIIF\ParserFunctions\IIIFTify", "run" ], $flags );
+		$parser->setFunctionHook( "iiif-draggable", [ "IIIF\ParserFunctions\IIIFDraggable", "run" ], $flags );
 		return true;
 	}
 

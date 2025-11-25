@@ -64,7 +64,7 @@ module.exports = defineComponent( {
 			type: Array, default: []
 		},
 		isNavigationEnabled: {
-			type: Array, default: true
+			type: Boolean, default: true
 		},
 		isViewerMode: {
 			type: Boolean, default: false

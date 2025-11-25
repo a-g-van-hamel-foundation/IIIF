@@ -26,7 +26,7 @@ class IIIFAnnotator {
 			"mode" => "annotator"
 		];
 		list( $manifest, $profile, $profileId, $target, $targetSlot, $canvasIndex, $mode ) = array_values( IIIFParserFunctionUtils::extractParams( $frame, $params, $paramsAllowed ) );
-		$contentModel = str_starts_with( $target, "IIIF:" ) ? "iiifjson" : "json";
+		$contentModel = $target !== null && str_starts_with( $target, "IIIF:" ) ? "iiifjson" : "json";
 
 		$outputPage = $parser->getOutput();
 		$outputPage->addModules( [ "ext.iiif.annotator" ] );

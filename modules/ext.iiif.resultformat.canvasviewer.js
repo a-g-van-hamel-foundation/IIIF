@@ -3,11 +3,7 @@
 ( function () {
 	// Require Vue.js v3
 	const Vue = require("vue");
-	const Vuex = require("vuex");
-	Vue.configureCompat( {
-		MODE: 3
-	} );
-	Vue.use(Vuex);
+	const Vuex = require("vuex");	
 
 	function htmldecode(str) {
 		var txt = document.createElement("textarea");
@@ -15,7 +11,7 @@
 		return txt.value;
 	}
 
-	function fetchDataAndMountApp(Vue, App, item, configProps) {
+	function fetchDataAndMountApp(Vue, Vuex, App, item, configProps) {
 		const manifestObj = JSON.parse( htmldecode(item.dataset.manifestJson) );
 		const canvasItems = JSON.parse( htmldecode(item.dataset.canvasitems) );
 		const tileSourcesFromManifest = JSON.parse( htmldecode(item.dataset.tilesources ) );
@@ -38,7 +34,7 @@
 			initialAnnotationPages,
 			summary
 		} );
-		//createdApp.use( Vuex );
+		createdApp.use( Vuex );
 		createdApp.mount( item );
 	}
 
@@ -47,7 +43,7 @@
 		var App = require( "ext.iiif.annotator.components" ).AnnotatorInterface;
 		if (typeof App !== "undefined") {
 			const configProps = item.dataset;
-			fetchDataAndMountApp( Vue, App, item, configProps );
+			fetchDataAndMountApp( Vue, Vuex, App, item, configProps );
 		}
 	});
 

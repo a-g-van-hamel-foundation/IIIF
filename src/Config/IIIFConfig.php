@@ -33,8 +33,8 @@ class IIIFConfig {
 	public static $IIIFCollectionQueryArg = "";
 	public static $IIIFCollectionSortProp = "";
 
-	public static function getConfigProps( $smwConfig = false ) {
-		if ( $smwConfig == false ) {
+	public static function getConfigProps( $smwConfig = "" ) {
+		if ( $smwConfig === "" ) {
 			$smwConfigProps = self::setPropsFromGlobalConfig();
 		} else {
 			// config from wiki page
@@ -114,7 +114,7 @@ class IIIFConfig {
 		return $res;
 	}
 
-	public static function showExampleQueries( $smwConfig = false ) {
+	public static function showExampleQueries( $smwConfig = "" ) {
 		$smwConfigProps = self::getConfigProps( $smwConfig );
 		$queryArg2 = $smwConfigProps['IIIFv2QueryArg'] ?? "";
 		$queryArg3 = $smwConfigProps['IIIFv3QueryArg'] ?? "";
