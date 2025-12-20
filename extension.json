@@ -35,9 +35,7 @@
 	},
 	"AutoloadClasses": {
 		"IIIFHooks": "src/IIIFHooks.php",
-		"IIIFMwRemote": "src/IIIFMwRemote.php",
 		"IIIFJson": "src/IIIFJson.php",
-		"IIIFUtils": "src/IIIFUtils.php",
 		"Parsedown": "src/External/Parsedown.php"
 	},
 	"Hooks": {

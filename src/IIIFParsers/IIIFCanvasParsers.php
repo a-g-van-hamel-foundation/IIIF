@@ -11,8 +11,8 @@ namespace IIIF\IIIFParsers;
 
 use LocalFile;
 use IIIF\API\IIIFMwImgAPI;
-use IIIFMwRemote;
-use IIIFUtils;
+use IIIF\IIIFMwRemote;
+use IIIF\IIIFUtils;
 use IIIF\IIIFParsers\IIIFParserUtils;
 
 class IIIFCanvasParsers {

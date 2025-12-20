@@ -8,7 +8,7 @@ namespace IIIF\IIIFParsers;
 
 use Title;
 use MediaWiki\MediaWikiServices;
-use IIIFUtils;
+use IIIF\IIIFUtils;
 use File;
 use LocalFile;
 use IIIF\IIIFParsers\IIIFImageUtils;

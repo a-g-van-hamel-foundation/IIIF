@@ -6,7 +6,7 @@
 
 namespace IIIF\IIIFParsers;
 
-use IIIFUtils;
+use IIIF\IIIFUtils;
 use IIIF\IIIFParsers\IIIFParserUtils;
 
 class IIIFImageUtils {

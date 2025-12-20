@@ -5,7 +5,7 @@ namespace IIIF\SMW;
 //use MediaWiki\MediaWikiServices;
 use SMW\Query\QueryResult;
 use SMW\Query\ResultPrinters\ResultPrinter;
-use IIIFUtils;
+use IIIF\IIIFUtils;
 use IIIF\SMW\IIIFSMW2Annotations;
 
 class GalleryResultFormatter extends ResultPrinter {

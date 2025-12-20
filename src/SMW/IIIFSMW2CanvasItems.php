@@ -6,7 +6,7 @@
 
 namespace IIIF\SMW;
 
-use IIIFUtils;
+use IIIF\IIIFUtils;
 use IIIF\SMW\IIIFSMW;
 use IIIF\IIIFParsers\IIIFCanvasParsers;
 use IIIF\IIIFParsers\IIIFParserUtils;

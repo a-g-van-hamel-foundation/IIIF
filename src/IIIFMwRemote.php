@@ -11,9 +11,11 @@
  * https://upload.wikimedia.org/wikipedia/commons/thumb/1/1f/Tree_frog_Fern_Forest.jpg/600px-Tree_frog_Fern_Forest.jpg
  */
 
+namespace IIIF;
+
 use MediaWiki\MediaWikiServices;
 //use LocalFile;
-use IIIFUtils;
+use IIIF\IIIFUtils;
 use IIIF\IIIFParsers\IIIFParserUtils;
 use IIIF\IIIFParsers\IIIFCanvasParsers;
 use IIIF\IIIFParsers\IIIFMwImageUtils;

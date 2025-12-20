@@ -1,6 +1,8 @@
 <?php
 
-//use Title;
+namespace IIIF;
+
+use Title;
 use MediaWiki\MediaWikiServices;
 use ParserOptions;
 use RequestContext;

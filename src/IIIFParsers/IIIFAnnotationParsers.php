@@ -7,7 +7,7 @@
 
 namespace IIIF\IIIFParsers;
 
-use IIIFUtils;
+use IIIF\IIIFUtils;
 
 class IIIFAnnotationParsers {
 

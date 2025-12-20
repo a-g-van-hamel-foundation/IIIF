@@ -6,7 +6,7 @@
 
 namespace IIIF\Config;
 
-use IIIFUtils;
+use IIIF\IIIFUtils;
 
 class IIIFConfig {
 

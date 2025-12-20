@@ -7,7 +7,7 @@ use MediaWiki\MediaWikiServices;
 use SMW\DIWikiPage;
 use SMWQueryProcessor;
 use IIIF\Config\IIIFConfig;
-use IIIFUtils;
+use IIIF\IIIFUtils;
 
 /**
  * Methods for working with Semantic MediaWiki. 

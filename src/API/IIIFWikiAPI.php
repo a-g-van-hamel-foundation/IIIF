@@ -9,7 +9,7 @@ namespace IIIF\API;
 
 use MediaWiki\MediaWikiServices;
 use Wikimedia\ParamValidator\ParamValidator;
-use IIIFUtils;
+use IIIF\IIIFUtils;
 
 class IIIFWikiAPI extends \ApiBase {
 

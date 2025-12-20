@@ -14,7 +14,7 @@ namespace IIIF\Special;
 
 use \Parsedown;
 use MediaWiki\MediaWikiServices;
-use IIIFUtils;
+use IIIF\IIIFUtils;
 
 class IIIFSpecial extends \SpecialPage {
 

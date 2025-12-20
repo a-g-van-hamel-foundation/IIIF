@@ -12,7 +12,7 @@ namespace IIIF\API;
 use MediaWiki\MediaWikiServices;
 use SMW\DIWikiPage;
 use Wikimedia\ParamValidator\ParamValidator;
-use IIIFUtils;
+use IIIF\IIIFUtils;
 use IIIF\Config\IIIFConfig;
 use IIIF\SMW\IIIFSMW;
 

@@ -10,7 +10,7 @@ namespace IIIF\SMW;
 //use MediaWiki\MediaWikiServices;
 use SMW\Query\QueryResult;
 use SMW\Query\ResultPrinters\ResultPrinter;
-use IIIFUtils;
+use IIIF\IIIFUtils;
 use IIIF\SMW\IIIFSMW2CanvasItems;
 
 class CanvasViewerResultFormatter extends ResultPrinter {

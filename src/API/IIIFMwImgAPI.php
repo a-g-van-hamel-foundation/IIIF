@@ -38,8 +38,8 @@ use LocalFile;
 use MediaWiki\Revision\RevisionStore;
 use MediaWiki\Revision\RevisionRecord;
 use Wikimedia\ParamValidator\ParamValidator;
-use IIIFUtils;
-use IIIFMwRemote;
+use IIIF\IIIFUtils;
+use IIIF\IIIFMwRemote;
 
 class IIIFMwImgAPI extends \ApiBase {
 

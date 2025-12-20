@@ -6,8 +6,8 @@ use MediaWiki\MediaWikiServices;
 use Title;
 use RedirectSpecialPage;
 use File;
-use IIIFUtils;
-use IIIFMwRemote;
+use IIIF\IIIFUtils;
+use IIIF\IIIFMwRemote;
 use IIIF\IIIFParsers\IIIFMwImageUtils;
 
 /**

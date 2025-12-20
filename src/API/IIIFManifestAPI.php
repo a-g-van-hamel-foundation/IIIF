@@ -16,7 +16,7 @@
 namespace IIIF\API;
 
 use Wikimedia\ParamValidator\ParamValidator;
-use IIIFUtils;
+use IIIF\IIIFUtils;
 use IIIF\IIIFParsers\IIIFParserUtils;
 
 class IIIFManifestAPI extends \ApiBase {

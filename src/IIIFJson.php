@@ -8,7 +8,7 @@ use MediaWiki\MediaWikiServices;
 use IIIF\ParserFunctions\IIIFGetCanvases;
 use IIIF\IIIFParsers\IIIFCanvasParsers;
 use IIIF\IIIFParsers\IIIFParserUtils;
-use IIIFUtils;
+use IIIF\IIIFUtils;
 
 class IIIFJson {
 

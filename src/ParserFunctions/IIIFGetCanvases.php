@@ -5,7 +5,7 @@ namespace IIIF\ParserFunctions;
 //use MediaWiki\MediaWikiServices;
 use IIIF\IIIFParsers\IIIFParserUtils;
 use IIIF\IIIFParsers\IIIFCanvasParsers;
-use IIIFUtils;
+use IIIF\IIIFUtils;
 
 class IIIFGetCanvases {
 

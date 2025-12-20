@@ -11,7 +11,7 @@ namespace IIIF\API;
 
 use ApiBase;
 use Wikimedia\ParamValidator\ParamValidator;
-use IIIFUtils;
+use IIIF\IIIFUtils;
 use IIIF\IIIFParsers\IIIFCanvasParsers;
 use IIIF\IIIFParsers\IIIFParserUtils;
 use IIIF\IIIFParsers\IIIFManifestParsers;

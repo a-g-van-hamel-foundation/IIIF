@@ -4,7 +4,7 @@ namespace IIIF\ParserFunctions;
 
 use Parser;
 use Title;
-use IIIFUtils;
+use IIIF\IIIFUtils;
 use IIIF\ParserFunctions\IIIFParserFunctionUtils;
 use IIIF\IIIFParsers\IIIFAnnotoriousParsers;
 use IIIF\IIIFParsers\IIIFImageUtils;
