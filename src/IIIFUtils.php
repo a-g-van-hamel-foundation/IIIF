@@ -2,6 +2,7 @@
 
 namespace IIIF;
 
+use Parser;
 use Title;
 use MediaWiki\MediaWikiServices;
 use ParserOptions;
@@ -170,7 +171,7 @@ class IIIFUtils {
 		if( $parser === null ) {
 			$parser = MediaWikiServices::getInstance()->getParserFactory()->create();
 		}
-		$parser->setOutputType( 'html' );
+		$parser->setOutputType( Parser::OT_HTML );
 		$parser->setOptions( ParserOptions::newFromAnon() );
 		$pageRef = RequestContext::getMain()->getTitle();
 		if ( $pageRef === null ) {
