@@ -1,6 +1,6 @@
 <template>
 	<textarea
-		style="display:none;"
+		style="display: none"
 		:name="name"
 		v-model="storableContent"
 	></textarea>
@@ -15,33 +15,28 @@
 </template>
 
 <script>
-const { defineComponent, ref, computed } = require( "vue" );
-// VueQuill - use the minified version for MW 1.42+
-// @todo proper semver unless version for MW1.39 is no longer needed
-var mwVersion = mw.config.get( "wgVersion" ).split(".")[1];
-var quillModule = Number(mwVersion) >= 42 ? "ext.iiif.lib.quill.min" : "ext.iiif.lib.quill";
-const { QuillEditor } = require( quillModule );
+const { defineComponent, ref, computed } = require("vue");
+const { QuillEditor } = require("ext.iiif.lib.quill");
 
-module.exports = defineComponent( {
+module.exports = defineComponent({
 	name: "FieldTextEditor",
 	components: {
-		QuillEditor
+		QuillEditor,
 	},
 	props: {
 		name: { type: String, default: "" },
 		label: { type: String, default: "" },
 		ariaLabel: { type: String, default: "" },
-		inputValue: { type: String, default: "hello..." }
+		inputValue: { type: String, default: "hello..." },
 	},
-	watch: {
-	},
+	watch: {},
 	setup(props) {
-		const content = ref( props.inputValue );
-		const storableContent = ref( props.inputValue );
+		const content = ref(props.inputValue);
+		const storableContent = ref(props.inputValue);
 
-		function handleUpdatedContent( str ) {
-			content.value = sanitiseContent( str );
-			if ( content.value === "<p><br></p>" ) {
+		function handleUpdatedContent(str) {
+			content.value = sanitiseContent(str);
+			if (content.value === "<p><br></p>") {
 				storableContent.value = "";
 			} else {
 				storableContent.value = content.value;
@@ -49,24 +44,26 @@ module.exports = defineComponent( {
 		}
 
 		// https://gomakethings.com/how-to-sanitize-html-strings-with-vanilla-js-to-reduce-your-risk-of-xss-attacks/
-		function sanitiseContent( str ) {
+		function sanitiseContent(str) {
 			// convert string to html obj
 			let parser = new DOMParser();
-			let doc = parser.parseFromString( str, 'text/html' );
-			let html = doc.body || document.createElement('body');
+			let doc = parser.parseFromString(str, "text/html");
+			let html = doc.body || document.createElement("body");
 			//
-			removeTags( html );
+			removeTags(html);
 			return html.innerHTML;
 		}
 
 		function removeTags(html) {
 			// Get content only
-			let tags = html.querySelectorAll('html, body, a, h1, h2, h3, h4');
+			let tags = html.querySelectorAll("html, body, a, h1, h2, h3, h4");
 			for (let t of tags) {
-				t.replaceWith( t.innerHTML );
+				t.replaceWith(t.innerHTML);
 			}
 			// Remove entirely
-			let removableTags = html.querySelectorAll('img, script, audio, video, embed, frame, input');
+			let removableTags = html.querySelectorAll(
+				"img, script, audio, video, embed, frame, input"
+			);
 			for (let r of removableTags) {
 				r.remove();
 			}
@@ -77,15 +74,15 @@ module.exports = defineComponent( {
 			storableContent,
 			// methods
 			handleUpdatedContent,
-			sanitiseContent
-		}
-	}
-} );
+			sanitiseContent,
+		};
+	},
+});
 </script>
 
 <style>
 ul.cdx-menu {
-	margin-left:0 !important;
+	margin-left: 0 !important;
 }
 
 .ql-container {
@@ -94,28 +91,28 @@ ul.cdx-menu {
 .ql-editor {
 	border-color: #a2a9b1;
 	box-shadow: inset 0 0 0 2px transparent;
-	transition-property: background-color,color,border-color,box-shadow;
-	transition-duration: .25s;
+	transition-property: background-color, color, border-color, box-shadow;
+	transition-duration: 0.25s;
 }
 .ql-editor:hover {
 	border-color: #72777d;
 }
 .ql-editor:focus {
-	border-color:#36c;
+	border-color: #36c;
 	box-shadow: inset 0 0 0 2px #36c;
-	outline:1px solid transparent;
+	outline: 1px solid transparent;
 }
 
 .ql-editor ol,
 .ql-editor ul {
-	padding-left:0;
-	margin-bottom:.5rem !important;
+	padding-left: 0;
+	margin-bottom: 0.5rem !important;
 }
 .ql-editor ul > li::before {
 	content: none;
 }
-.ql-editor ol li:not(.ql-direction-rtl), 
+.ql-editor ol li:not(.ql-direction-rtl),
 .ql-editor ul li:not(.ql-direction-rtl) {
-  padding-left: .5em;
+	padding-left: 0.5em;
 }
 </style>

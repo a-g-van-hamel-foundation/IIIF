@@ -2,21 +2,16 @@
 	"name": "IIIF",
 	"version": "0.9",
 	"type": "api",
-	"author": [
-		"[https://codecs.vanhamel.nl Dennis Groenewegen]"
-	],
+	"author": ["[https://codecs.vanhamel.nl Dennis Groenewegen]"],
 	"url": "https://codecs.vanhamel.nl/Show:Lab/IIIF",
 	"description": "API services and other tools for working with IIIF, such as integrating annotations, creating collections and using MediaWiki image files.",
 	"license-name": "GPL-2.0-or-later",
 	"requires": {
 		"MediaWiki": ">= 1.39.0",
-		"extensions": {
-		}
+		"extensions": {}
 	},
 	"MessagesDirs": {
-		"IIIF": [
-		  "i18n"
-		]
+		"IIIF": ["i18n"]
 	},
 	"ExtensionMessagesFiles": {
 		"iiifMagic": "iiif.i18n.php",
@@ -39,20 +34,22 @@
 		"Parsedown": "src/External/Parsedown.php"
 	},
 	"Hooks": {
-		"ParserFirstCallInit": [ "IIIFHooks::onParserFirstCallInit" ],
-		"ContentHandlerDefaultModelFor": [ "IIIFHooks::onContentHandlerDefaultModelFor" ],
-		"ListDefinedTags": [ "IIIFHooks::onRegisterTags" ],
-		"ChangeTagsListActive": [ "IIIFHooks::onRegisterTags" ],
-		"ChangeTagsAllowedAdd":  [ "IIIFHooks::onChangeTagsAllowedAdd" ],		
-		"CodeEditorGetPageLanguage": [ "IIIFHooks::onCodeEditorGetPageLanguage" ],
-		"AdminLinks": [ "IIIFHooks::addToAdminLinks" ]
+		"ParserFirstCallInit": ["IIIFHooks::onParserFirstCallInit"],
+		"ContentHandlerDefaultModelFor": [
+			"IIIFHooks::onContentHandlerDefaultModelFor"
+		],
+		"ListDefinedTags": ["IIIFHooks::onRegisterTags"],
+		"ChangeTagsListActive": ["IIIFHooks::onRegisterTags"],
+		"ChangeTagsAllowedAdd": ["IIIFHooks::onChangeTagsAllowedAdd"],
+		"CodeEditorGetPageLanguage": ["IIIFHooks::onCodeEditorGetPageLanguage"],
+		"AdminLinks": ["IIIFHooks::addToAdminLinks"]
 	},
 	"ResourceFileModulePaths": {
 		"localBasePath": "modules",
 		"remoteExtPath": "IIIF/modules"
 	},
 	"ResourceModules": {
-		"ext.iiif.styles": {					
+		"ext.iiif.styles": {
 			"class": "MediaWiki\\ResourceLoader\\CodexModule",
 			"codexStyleOnly": "true",
 			"styles": "ext.iiif.styles.less",
@@ -65,36 +62,22 @@
 			]
 		},
 		"ext.iiif.tify": {
-			"packageFiles": [
-				"ext.iiif.tify.js"
-			],
-			"dependencies": [
-				"ext.iiif.lib.tify",
-				"ext.iiif.lib.annotorious"
-			]
+			"packageFiles": ["ext.iiif.tify.js"],
+			"dependencies": ["ext.iiif.lib.tify", "ext.iiif.lib.annotorious"]
 		},
 		"ext.iiif.lib.tify": {
-			"packageFiles": [
-				"lib-tify/tify.js"
-			],
-			"styles": [
-				"lib-tify/tify.css",
-				"ext.iiif.tify.less"
-			]
+			"packageFiles": ["lib-tify/tify.js"],
+			"styles": ["lib-tify/tify.css", "ext.iiif.tify.less"]
 		},
 		"ext.iiif.lib.annotorious": {
 			"packageFiles": [
 				"lib-annotorious/annotorious-min.js",
 				"lib-annotorious/annotorious-min-cdn.js"
 			],
-			"styles": [
-				"lib-annotorious/annotorious-cdn.css"
-			]
+			"styles": ["lib-annotorious/annotorious-cdn.css"]
 		},
 		"ext.iiif.annotator": {
-			"packageFiles": [
-				"ext.iiif.annotator.vue.js"
-			],
+			"packageFiles": ["ext.iiif.annotator.vue.js"],
 			"dependencies": [
 				"ext.iiif.annotator.components",
 				"ext.iiif.annotator.store",
@@ -118,14 +101,8 @@
 		},
 		"ext.iiif.resultformat.annotationgallery": {
 			"es6": true,
-			"packageFiles": [
-				"ext.iiif.resultformat.annotationgallery.js"
-			],
-			"dependencies": [
-				"vue",
-				"@wikimedia/codex",
-				"ext.iiif.gallery.components"
-			]
+			"packageFiles": ["ext.iiif.resultformat.annotationgallery.js"],
+			"dependencies": ["vue", "@wikimedia/codex", "ext.iiif.gallery.components"]
 		},
 		"ext.iiif.gallery.components": {
 			"packageFiles": [
@@ -135,7 +112,9 @@
 					"name": "components/icons.json",
 					"callback": "MediaWiki\\ResourceLoader\\CodexModule::getIcons",
 					"callbackParam": [
-						"cdxIconZoomIn", "cdxIconImage", "cdxIconFullScreen"
+						"cdxIconZoomIn",
+						"cdxIconImage",
+						"cdxIconFullScreen"
 					]
 				}
 			],
@@ -146,9 +125,7 @@
 			]
 		},
 		"ext.iiif.resultformat.canvasviewer": {
-			"packageFiles": [
-				"ext.iiif.resultformat.canvasviewer.js"
-			],
+			"packageFiles": ["ext.iiif.resultformat.canvasviewer.js"],
 			"dependencies": [
 				"ext.iiif.annotator.components",
 				"ext.iiif.annotator.store",
@@ -193,7 +170,20 @@
 					"name": "components/icons.json",
 					"callback": "MediaWiki\\ResourceLoader\\CodexModule::getIcons",
 					"callbackParam": [
-						"cdxIconPrevious", "cdxIconNext", "cdxIconMoveFirst", "cdxIconMoveLast", "cdxIconReload", "cdxIconZoomIn", "cdxIconZoomOut", "cdxIconImage", "cdxIconFullScreen", "cdxIconExitFullscreen", "cdxIconHighlight", "cdxIconClose", "cdxIconCheck", "cdxIconEllipsis"
+						"cdxIconPrevious",
+						"cdxIconNext",
+						"cdxIconMoveFirst",
+						"cdxIconMoveLast",
+						"cdxIconReload",
+						"cdxIconZoomIn",
+						"cdxIconZoomOut",
+						"cdxIconImage",
+						"cdxIconFullScreen",
+						"cdxIconExitFullscreen",
+						"cdxIconHighlight",
+						"cdxIconClose",
+						"cdxIconCheck",
+						"cdxIconEllipsis"
 					]
 				}
 			],
@@ -218,36 +208,25 @@
 			]
 		},
 		"ext.iiif.annotator.store": {
-			"packageFiles": [
-				"store/index.js"
-			],
-			"dependencies": [ "vue", "vuex" ]
+			"packageFiles": ["store/index.js"],
+			"dependencies": ["vue", "vuex"]
 		},
 		"ext.iiif.lib.annotorious.osd": {
-			"packageFiles": [
-				"lib-annotorious/annotorious-openseadragon-es5.js"
-			],
-			"styles": [
-				"lib-annotorious/annotorious-openseadragon.css"
-			],
+			"packageFiles": ["lib-annotorious/annotorious-openseadragon-es5.js"],
+			"styles": ["lib-annotorious/annotorious-openseadragon.css"],
 			"dependencies": [
 				"openseadragon",
 				"ext.iiif.lib.annotorious.plugin.sequencemode",
 				"ext.iiif.lib.quill",
-				"ext.iiif.lib.quill.min",
 				"ext.iiif.lib.ace",
 				"ext.iiif.lib.ace.utils"
 			]
 		},
 		"ext.iiif.lib.annotorious.plugin.sequencemode": {
-			"packageFiles": [
-				"lib-annotorious/plugin-sequencemode-es5.js"
-			]
+			"packageFiles": ["lib-annotorious/plugin-sequencemode-es5.js"]
 		},
 		"openseadragon": {
-			"packageFiles": [
-				"lib-openseadragon/openseadragon.js"
-			]
+			"packageFiles": ["lib-openseadragon/openseadragon.js"]
 		},
 		"ext.iiif.lib.iiifparser": {
 			"es6": true,
@@ -257,104 +236,59 @@
 			]
 		},
 		"ext.iiif.lib.quill": {
-			"packageFiles": [
-				"lib-quill/quill-es5.js"
-			],
-			"styles": [
-				"lib-quill/quill-snow.css"
-			]
-		},
-		"ext.iiif.lib.quill.min": {
-			"packageFiles": [
-				"lib-quill/quill-es5.min.js"
-			],
-			"styles": [
-				"lib-quill/quill-snow.css"
-			]
+			"packageFiles": ["lib-quill/quill-es5.js"],
+			"styles": ["lib-quill/quill-snow.css"],
+			"dependencies": ["vue"]
 		},
 		"ext.iiif.ace": {
-			"packageFiles": [
-				"ext.iiif.ace.js"
-			],
-			"dependencies": [
-				"ext.iiif.lib.ace",
-				"ext.iiif.lib.ace.utils"
-			]
+			"packageFiles": ["ext.iiif.ace.js"],
+			"dependencies": ["ext.iiif.lib.ace", "ext.iiif.lib.ace.utils"]
 		},
 		"ext.iiif.lib.ace": {
 			"localBasePath": "modules/lib-ace",
 			"remoteExtPath": "IIIF/modules/lib-ace",
-			"packageFiles": [
-				"ace.js"
-			]
+			"packageFiles": ["ace.js"]
 		},
 		"ext.iiif.lib.ace.utils": {
 			"localBasePath": "modules/lib-ace",
-   			"remoteExtPath": "IIIF/modules/lib-ace",
-			"packageFiles": [
-				"mode-xml.js",
-				"worker-xml.js"
-			]
+			"remoteExtPath": "IIIF/modules/lib-ace",
+			"packageFiles": ["mode-xml.js", "worker-xml.js"]
 		},
 		"ext.iiif.lib.photoswipe.lightbox": {
 			"es6": true,
-			"packageFiles": [
-				"lib-photoswipe/photoswipe-lightbox.umd.min.js"
-			],
-			"styles": [
-				"lib-photoswipe/photoswipe.css"
-			]
+			"packageFiles": ["lib-photoswipe/photoswipe-lightbox.umd.min.js"],
+			"styles": ["lib-photoswipe/photoswipe.css"]
 		},
 		"ext.iiif.lib.photoswipe": {
 			"es6": true,
-			"packageFiles": [
-				"lib-photoswipe/photoswipe.umd.min.js"
-			]
+			"packageFiles": ["lib-photoswipe/photoswipe.umd.min.js"]
 		},
 		"ext.iiif.draggable": {
 			"es6": true,
-			"packageFiles": [
-				"ext.iiif.draggable.js"
-			],
-			"dependencies": [
-				"ext.iiif.draggable.components",				
-				"vue",
-				"vuex"
-			]
+			"packageFiles": ["ext.iiif.draggable.js"],
+			"dependencies": ["ext.iiif.draggable.components", "vue", "vuex"]
 		},
 		"ext.iiif.draggable.components": {
 			"packageFiles": [
 				"components/index-draggable.js",
 				"components/Draggable.vue"
 			],
-			"dependencies": [
-				"ext.iiif.lib.draggable"
-			]
-		},		
+			"dependencies": ["ext.iiif.lib.draggable"]
+		},
 		"ext.iiif.lib.draggable": {
 			"es6": true,
-			"packageFiles": [
-				"lib-sortable/vuedraggable.umd.js"
-			],
-			"dependencies": [ "sortablejs" ]
+			"packageFiles": ["lib-sortable/vuedraggable.umd.js"],
+			"dependencies": ["sortablejs"]
 		},
 		"sortablejs": {
 			"es6": true,
-			"packageFiles": [
-				"lib-sortable/Sortable.min.js"
-			]
+			"packageFiles": ["lib-sortable/Sortable.min.js"]
 		},
 
 		"ext.iiif.draggableplus": {
 			"es6": true,
-			"packageFiles": [
-				"ext.iiif.draggableplus.js"
-			],
-			"dependencies": [
-				"ext.iiif.draggableplus.components",
-				"vue",
-				"vuex"
-			]
+			"packageFiles": ["ext.iiif.draggableplus.js"],
+			"dependencies": ["ext.iiif.draggableplus.components", "vue", "vuex"]
 		},
 		"ext.iiif.draggableplus.components": {
 			"es6": true,
@@ -362,19 +296,12 @@
 				"components/index-draggable-plus.js",
 				"components/DraggablePlus.vue"
 			],
-			"dependencies": [
-				"ext.iiif.lib.vuedraggableplus"
-			]
+			"dependencies": ["ext.iiif.lib.vuedraggableplus"]
 		},
 		"ext.iiif.lib.vuedraggableplus": {
 			"es6": true,
-			"packageFiles": [
-				"lib-draggable-plus/main.js"
-			],
-			"dependencies": [
-				"sortablejs",
-				"vue"
-			]
+			"packageFiles": ["lib-draggable-plus/main.js"],
+			"dependencies": ["sortablejs", "vue"]
 		}
 	},
 	"APIModules": {
@@ -441,7 +368,7 @@
 		{
 			"id": 1230,
 			"constant": "NS_IIIF",
-			"name": "IIIF",			
+			"name": "IIIF",
 			"subpages": false,
 			"content": false
 		},
