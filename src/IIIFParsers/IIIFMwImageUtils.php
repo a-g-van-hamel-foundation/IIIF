@@ -30,14 +30,14 @@ class IIIFMwImageUtils {
 	 * @return string|bool
 	 */
 	public static function getIIRImage( $urlParts ) {
-		// https://codecs.vanhamel.nl/Special:IIIFServ
-		// /image
-		// /local
-		// /44736
-		// /923.5431214151888,708.4897398147448,338.87043189368774,258.0287929125137
-		// /,250
-		// /0
-		// /default.jpg
+		// example: /Special:IIIFServ
+		// purpose: /image
+		// repo: /local
+		// identifier: /44736
+		// region: /923.5431214151888,708.4897398147448,338.87043189368774,258.0287929125137
+		// size: /,250
+		// rotation: /0
+		// quality: /default.jpg
 		$request = [
 			"purpose" => $urlParts[0],
 			"repo" => $urlParts[1],
@@ -54,9 +54,8 @@ class IIIFMwImageUtils {
 		// default
 		$repo = $request["repo"];
 
-		// @todo ?
 		$prefixAndIdArr = explode( ":", $request["identifier"] );
-		if ( $prefixAndIdArr < 2 ) {
+		if ( count( $prefixAndIdArr ) < 2 ) {
 			$pageidArr = explode( "-", $request["identifier"] );
 		} else {
 			// has prefix for repo - should not be necessary though
@@ -65,7 +64,6 @@ class IIIFMwImageUtils {
 		}
 
 		// identifier: get file
-		$pageidArr = explode( "-", $request["identifier"] ); // assuming we're doing this
 		$pageid = $pageidArr[0];
 		// @todo: deal with possible revid = $pageidArr[1] ?
 		$titleObj = Title::newFromID( $pageid, 0 );
@@ -97,19 +95,6 @@ class IIIFMwImageUtils {
 			return $baseUrl . $thumbnailPath;
 		}
 		return false;
-	}
-
-	/**
-	 * @deprecated moved to IIIFImageUtils
-	 * @todo this is being replaced by IIIFImageUtils
-	 * @return array
-	 */
-	private static function getDisplayWidthHeight(
-		string $size,
-		mixed $fullWidth,
-		mixed $fullHeight
-	) {
-		return IIIFImageUtils::getDisplayWidthHeight( $size, $fullWidth, $fullHeight );
 	}
 
 	/**
