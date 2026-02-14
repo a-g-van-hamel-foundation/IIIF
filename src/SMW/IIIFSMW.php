@@ -81,24 +81,7 @@ class IIIFSMW {
 		string $printout,
 		array|null $propNames = null
 	): array {
-		// print_r( '<br>raw query: ' . $queryArg );
-		$rawQuery = $queryArg . $printout;
-		$rawQueryArray = explode( "|", $rawQuery );
-		list( $queryString, $processedParams, $printouts ) = SMWQueryProcessor::getComponentsFromFunctionParams( $rawQueryArray, false );
-		SMWQueryProcessor::addThisPrintout( $printouts, $processedParams );
-		$processedParams = SMWQueryProcessor::getProcessedParams( $processedParams, $printouts );
-
-		// Run query and get results
-		$queryObj = SMWQueryProcessor::createQuery( 
-			$queryString,
-			$processedParams,
-			SMWQueryProcessor::SPECIAL_PAGE,
-            '',
-            $printouts
-        );
-		$store = self::getSMWStore();
-
-		$queryRes = $store->getQueryResult( $queryObj );
+		$queryRes = self::getQueryResultForQuery( $queryArg, $printout );
 		$rows = $queryRes->getResults();
 
 		$res = [];
@@ -121,12 +104,39 @@ class IIIFSMW {
 		return $res;
 	}
 
-	/*
-	* Helper method for 'smwquery' parameter
-	* @param string $query
-	* @param string $substr
-	* $return string
-	*/
+	/**
+	 * @return SMW\\Query\\QueryResult
+	 */
+	public static function getQueryResultForQuery( 
+		string $queryArg,
+		string $printout
+	) {
+		$rawQuery = $queryArg . $printout;
+		// @todo || may be used in a query!
+		$rawQueryArray = explode( "|", $rawQuery );
+		[ $queryString, $processedParams, $printouts ] = SMWQueryProcessor::getComponentsFromFunctionParams( $rawQueryArray, false );
+		SMWQueryProcessor::addThisPrintout( $printouts, $processedParams );
+		$processedParams = SMWQueryProcessor::getProcessedParams( $processedParams, $printouts );
+
+		// Run query and get results
+		$queryObj = SMWQueryProcessor::createQuery( 
+			$queryString,
+			$processedParams,
+			SMWQueryProcessor::SPECIAL_PAGE,
+            '',
+            $printouts
+        );
+		$store = self::getSMWStore();
+		return $store->getQueryResult( $queryObj );
+	}
+
+	/**
+	 * Helper method for 'smwquery' parameter
+	 * 
+	 * @param string $query
+	 * @param string $substr
+	 * $return string
+	 */
 	public static function processSemanticQuery( $query, $substr = '' ) {
 			$query = str_replace(
 				[ "&lt;", "&gt;", "(", ")", '%', '@' ],

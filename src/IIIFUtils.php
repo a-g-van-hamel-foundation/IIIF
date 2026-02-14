@@ -308,5 +308,12 @@ class IIIFUtils {
 		return IIIFAnnotationParsers::convertAnnoSelectorV3toV2( $v3selector );
 	}
 
+	public static function base64urlEncode( $s ) {
+		return str_replace( ['+', '/'], ['-', '_'], base64_encode( $s ) );
+    }
+
+	public static function base64urlDecode( $s ) {
+		return base64_decode( str_replace( ['-', '_'], ['+', '/'], $s ) );
+	}
 
 }

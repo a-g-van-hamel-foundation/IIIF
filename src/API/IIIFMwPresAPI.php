@@ -15,6 +15,7 @@ use IIIF\IIIFUtils;
 use IIIF\IIIFParsers\IIIFMwImageUtils;
 use IIIF\IIIFParsers\IIIFParserUtils;
 use IIIF\IIIFParsers\IIIFCanvasParsers;
+use IIIF\SMW\IIIFSMW;
 
 /**
  * Creates IIIF Presentation API using MediaWiki file system
@@ -27,7 +28,8 @@ use IIIF\IIIFParsers\IIIFCanvasParsers;
  * 
  * api.php?action=iiif-mw-pres&format=json&files=a|b|c
  * api.php?action=iiif-mw-pres&format=json&pageids=
- * api.php?action=iiif-mw-pres&format=json&smwquery=((Concept:...))
+ * //api.php?action=iiif-mw-pres&format=json&smwquery=((Concept:...))
+ * new: api.php?action=iiif-mw-pres&format=json&smwquery=<base64url>
  * 
  * Uses Special:IIIFServ/presentation/... as redirect - supports pageids
  * 
@@ -45,7 +47,8 @@ class IIIFMWPresAPI extends \ApiBase {
 		$resourceType = $params["resourcetype"];
 		$pageIdStr = $params["pageids"];
 		$fileStr = $params["files"];
-		// $smwquery = $params['smwquery'];
+		$smwquery = $params['smwquery'];
+
 		$repoGeneric = $params['source'] ?? "local";
 		$label = $params["label"] ?? "Collection of images";
 		$res = $canvases = [];
@@ -94,14 +97,9 @@ class IIIFMWPresAPI extends \ApiBase {
 			$fileArr = explode( ";", trim($fileStr) );
 			foreach ( $fileArr as $file ) {
 				if ( $repoSource === "local" ) {
-					$canvasData = $params["version"] === "3"
+					$canvases[] = $params["version"] === "3"
 						? self::buildCanvasV3( null, $file, null )
 						: self::buildCanvasV2( null, $file, null );
-					if ( $canvasData !== null ) {
-						$canvases[] = $canvasData;
-					} else {
-						$this->metaErrors[] = "'$file' is not a valid file page";
-					}
 				} else {
 					$canvases[] = IIIFMwRemote::buildCanvasRemotely(
 						null,
@@ -112,6 +110,14 @@ class IIIFMWPresAPI extends \ApiBase {
 					);
 				}
 			}
+		} elseif ( $resourceType === "manifest" && $smwquery !== null ) {
+			$redirectParams = "smwquery/" . trim($smwquery);
+			// Currently, v3 only
+			$params["version"] = "3";
+			$rawQuery = IIIFUtils::base64urlDecode( $smwquery );
+			$rawQuery .= "|?Page ID#=pageid|link=none|limit=999";
+			$smwQueryRes = IIIFSMW::getQueryResultForQuery( $rawQuery, "" )->toArray();
+			$canvases[] = $this->convertSMWQueryResultsToCanvasItems( $smwQueryRes["results"] );
 		}
 
 		if ( $resourceType === "manifest" && $redirectParams !== null ) {
@@ -162,7 +168,7 @@ class IIIFMWPresAPI extends \ApiBase {
 		$IIIFMwImageUtils = new IIIFMwImageUtils();
 		// pageid, fileName, sourceWidth, sourceHeight, uploader, mediaType, thumbnailUrl, imageResourceId, smallThumb
 		$fileData = $IIIFMwImageUtils->getFileDataForCanvas( $baseUrl, $pageid, $fileName, $revid );
-		if ( $fileData === null ) {
+		if ( $fileData === null || empty($fileData) ) {
 			return null;
 		}
 		$canvasMetaData = [];
@@ -181,7 +187,8 @@ class IIIFMWPresAPI extends \ApiBase {
 			$fileData["sourceHeight"],
 			$fileData["imageResourceId"],
 			$fileData["smallThumb"],
-			$fileData["mediaType"] );
+			$fileData["mediaType"]
+		);
 		return $canvas;
 	}
 
@@ -194,7 +201,7 @@ class IIIFMWPresAPI extends \ApiBase {
 		$IIIFMwImageUtils = new IIIFMwImageUtils();
 		// pageid, fileName, sourceWidth, sourceHeight, uploader, mediaType, thumbnailUrl, imageResourceId, smallThumb
 		$fileData = $IIIFMwImageUtils->getFileDataForCanvas( $baseUrl, $pageid, $fileName, $revid );
-		if ( $fileData === null ) {
+		if ( $fileData === null || empty($fileData) ) {
 			return null;
 		}
 		$canvasMetaData = [];
@@ -213,7 +220,8 @@ class IIIFMWPresAPI extends \ApiBase {
 			$fileData["sourceHeight"],
 			$fileData["imageResourceId"],
 			$fileData["smallThumb"],
-			$fileData["mediaType"] );
+			$fileData["mediaType"]
+		);
 		return $canvas;
 	}
 
@@ -314,6 +322,27 @@ class IIIFMWPresAPI extends \ApiBase {
 			]
 		];
 		return $arr;
+	}
+
+	private function convertSMWQueryResultsToCanvasItems( array $results ) {
+		$canvases = [];
+		foreach( $results as $pagename => $data ) {
+			$fullurl = $data["fullurl"];
+			$pageid = $data["printouts"]["pageid"][0];
+			
+			$canvasData = self::buildCanvasV3( $pageid, null, null );
+			if ( $canvasData !== null ) {
+				if ( !empty($data["printouts"]["label"]) ) {
+					$canvasData["label"]["none"][0] = $data["printouts"]["label"][0];
+				}
+				// add anything else?
+				//$description = $data["printouts"]["description"][0];
+				$canvases[] = $canvasData;
+			} else {
+				$this->metaErrors[] = "$pageid is not a valid page id for a file page";
+			}
+		}
+		return $canvases;
 	}
 	
 }
