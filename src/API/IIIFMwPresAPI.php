@@ -117,7 +117,7 @@ class IIIFMWPresAPI extends \ApiBase {
 			$rawQuery = IIIFUtils::base64urlDecode( $smwquery );
 			$rawQuery .= "|?Page ID#=pageid|link=none|limit=999";
 			$smwQueryRes = IIIFSMW::getQueryResultForQuery( $rawQuery, "" )->toArray();
-			$canvases[] = $this->convertSMWQueryResultsToCanvasItems( $smwQueryRes["results"] );
+			$canvases = $this->convertSMWQueryResultsToCanvasItems( $smwQueryRes["results"] );
 		}
 
 		if ( $resourceType === "manifest" && $redirectParams !== null ) {
