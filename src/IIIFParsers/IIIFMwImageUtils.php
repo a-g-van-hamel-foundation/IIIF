@@ -149,19 +149,25 @@ class IIIFMwImageUtils {
 	 * @param mixed $pageid
 	 * @param string|null $fileName
 	 * @param mixed $revid - currently unused
-	 * @return array
+	 * @return array|null
 	 */
 	public function getFileDataForCanvas(
 		string $baseUrl,
 		mixed $pageid = null,
 		mixed $fileName = null,
 		mixed $revid = null
-	) {		
+	) {
 		if ( $pageid !== null ) {
 			$titleObj = Title::newFromID( $pageid, 0 );
+			if ( $titleObj === null ) {
+				return null;
+			}
 			$fileName = $titleObj->getText();
 		} elseif ( $fileName !== null ) {
 			$titleObj = Title::newFromText( $fileName, NS_FILE );
+			if ( $titleObj === null ) {
+				return null;
+			}
 			$pageid = $titleObj->getId();
 		}
 		// $fileUrl = $titleObj->getFullURL(); // maybe
@@ -170,8 +176,7 @@ class IIIFMwImageUtils {
 		// @todo maybe allow for getting file by revision ID
 		// $fileObj = IIIFMwImgAPI::getFile( $pageid, "pageid", $revid );
 		if ( $fileObj === false ) {
-			print_r( "No file object.<br>" );
-			return [];
+			return null;
 		}
 
 		$sourceHeight = $fileObj->getHeight();

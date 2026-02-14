@@ -38,6 +38,8 @@ use IIIF\IIIFParsers\IIIFCanvasParsers;
 
 class IIIFMWPresAPI extends \ApiBase {
 
+	private $metaErrors = [];
+
 	public function execute() {
 		$params = $this->extractRequestParams();
 		$resourceType = $params["resourcetype"];
@@ -68,9 +70,14 @@ class IIIFMWPresAPI extends \ApiBase {
 				$pageid = $idArr[0];
 				$revId = ( array_key_exists( 1, $idArr ) ) ? $idArr[1]: null;
 				if ( $repoSource === "local" || $repoSource === "" ) {
-					$canvases[] = $params["version"] === "3"
+					$canvasData = $params["version"] === "3"
 						? self::buildCanvasV3( $pageid, null, $revId )
 						: self::buildCanvasV2( $pageid, null, $revId );
+					if ( $canvasData !== null ) {
+						$canvases[] = $canvasData;
+					} else {
+						$this->metaErrors[] = "$pageid is not a valid page ID for a file page";
+					}
 				} else {
 					$canvases[] = IIIFMwRemote::buildCanvasRemotely(
 						$pageid,
@@ -87,9 +94,14 @@ class IIIFMWPresAPI extends \ApiBase {
 			$fileArr = explode( ";", trim($fileStr) );
 			foreach ( $fileArr as $file ) {
 				if ( $repoSource === "local" ) {
-					$canvases[] = $params["version"] === "3"
+					$canvasData = $params["version"] === "3"
 						? self::buildCanvasV3( null, $file, null )
 						: self::buildCanvasV2( null, $file, null );
+					if ( $canvasData !== null ) {
+						$canvases[] = $canvasData;
+					} else {
+						$this->metaErrors[] = "'$file' is not a valid file page";
+					}
 				} else {
 					$canvases[] = IIIFMwRemote::buildCanvasRemotely(
 						null,
@@ -123,6 +135,12 @@ class IIIFMWPresAPI extends \ApiBase {
 			// sequence, canvas or annotation
 		}
 
+		if ( !empty( $this->metaErrors ) ) {
+			foreach( $this->metaErrors as $comm ) {
+				$res["meta"]["error"][] = $comm;
+			}
+		};
+
 		$apiResult = $this->getResult();
 		foreach( $res as $key => $val ) {
 			$apiResult->addValue( null, $key, $val );
@@ -133,8 +151,9 @@ class IIIFMWPresAPI extends \ApiBase {
 	/**
 	 * Build canvas for IIIF Presentation v2
 	 * Local files only. Cf. iiifMwRemote::buildCanvasRemotely()
+	 * @return array|null
 	 */
-	public static function buildCanvasV2(
+	private static function buildCanvasV2(
 		$pageid = null,
 		$fileName = null,
 		$revid = null
@@ -143,6 +162,9 @@ class IIIFMWPresAPI extends \ApiBase {
 		$IIIFMwImageUtils = new IIIFMwImageUtils();
 		// pageid, fileName, sourceWidth, sourceHeight, uploader, mediaType, thumbnailUrl, imageResourceId, smallThumb
 		$fileData = $IIIFMwImageUtils->getFileDataForCanvas( $baseUrl, $pageid, $fileName, $revid );
+		if ( $fileData === null ) {
+			return null;
+		}
 		$canvasMetaData = [];
 		$canvasMetaData[] = [
 			"label" => "Uploaded by",
@@ -165,12 +187,16 @@ class IIIFMWPresAPI extends \ApiBase {
 
 	/**
 	 * Build canvas for IIIF Presentation v3
+	 * @return array|null
 	 */
-	public static function buildCanvasV3( $pageid, $fileName, $revid ) {
+	private static function buildCanvasV3( $pageid, $fileName, $revid ) {
 		$baseUrl = IIIFUtils::getUrlBase();
 		$IIIFMwImageUtils = new IIIFMwImageUtils();
 		// pageid, fileName, sourceWidth, sourceHeight, uploader, mediaType, thumbnailUrl, imageResourceId, smallThumb
 		$fileData = $IIIFMwImageUtils->getFileDataForCanvas( $baseUrl, $pageid, $fileName, $revid );
+		if ( $fileData === null ) {
+			return null;
+		}
 		$canvasMetaData = [];
 		$canvasMetaData[] = [
 			"label" => IIIFParserUtils::formatLabelOrValue( "Uploaded by", "3" ),
