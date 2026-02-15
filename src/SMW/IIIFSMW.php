@@ -81,6 +81,7 @@ class IIIFSMW {
 		string $printout,
 		array|null $propNames = null
 	): array {
+		$store = self::getSMWStore();
 		$queryRes = self::getQueryResultForQuery( $queryArg, $printout );
 		$rows = $queryRes->getResults();
 
