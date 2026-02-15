@@ -19,6 +19,11 @@ class IIIFManifestFromSMWQuery {
 	 * 
 	 */
 	public static function run( Parser $parser, PPFrame $frame, $params ) {
+		if ( !array_key_exists( 0, $params ) || trim( $params[0] ) == "" ) {
+			// Nothing to process
+			return "";
+		}
+
 		$paramsAllowed = [
 			"labelprop" => "",
 			"descriptionprop" => "",
@@ -45,7 +50,7 @@ class IIIFManifestFromSMWQuery {
 		$base64 = IIIFUtils::base64urlEncode( trim($query) );
 
 		$baseUrl = IIIFUtils::getUrlBase();
-		$res = "$baseUrl/Special:IIIFServ/presentation/manifest/local/smwquery/{$base64}";
+		$res = "$baseUrl/Special:IIIFServ/presentation3/manifest/local/smwquery/{$base64}";
 		return [ $res, 'noparse' => false, 'isHTML' => false ];
 	}
 

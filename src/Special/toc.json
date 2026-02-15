@@ -165,5 +165,12 @@
 		"menutitle": "<code>#iiif-tify</code> (TIFY viewer)",
 		"pagetitle": "Parser function: <code>#iiif-tify</code>",
 		"type": "markdown"
+	},
+	"pf-iiif-manifest-from-smwquery": {
+		"subpage": "pf-iiif-manifest-from-smwquery",
+		"file": "src/Special/pf-iiif-manifest-from-smwquery.md",
+		"menutitle": "<code>#iiif-manifest-from-smwquery</code>",
+		"pagetitle": "Parser function: <code>#iiif-manifest-from-smwquery</code>",
+		"type": "markdown"
 	}
 }

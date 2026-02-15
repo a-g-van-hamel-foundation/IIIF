@@ -1,15 +1,25 @@
-The `iiif-mw-pres` API module implements the IIIF Presentation API (currently 2.0 only) using the MediaWiki file system. It supports image files (level 0, tileless, pyramidically sized) from the local MediaWiki repository as well as from external repositories such as Wikimedia Commons.
+The `iiif-mw-pres` API module implements the IIIF Presentation API using the MediaWiki file system. It supports image files (level 0, tileless, pyramidically sized) from the local MediaWiki repository as well as from external repositories such as Wikimedia Commons.
 
+### Specific images identified by page id or file name
 [See here for a usage guide]({urlBase}/Special:IIIF/case-mw-images)
+
+### Images as results from a Semantic MediaWiki query
+For the `smwquery` service, see the section on the `#iiif-manifest-from-smwquery` parser function.
 
 ## Parameters
 [Documentation API]({urlBase}/api.php?action=help&modules=iiif-mw-pres)
 
 ## Redirect service
+Presentation API v2:
 - `Special:IIIFServ/presentation/manifest/{source}/pageids/{pageids}`
 - `Special:IIIFServ/presentation/manifest/{source}/files/{files}`
+Presentation API v3:
+- `Special:IIIFServ/presentation3/manifest/{source}/pageids/{pageids}`
+- `Special:IIIFServ/presentation3/manifest/{source}/files/{files}`
+
+The `smwquery` service currently supports Presentation API v3 only.
+- `Special:IIIFServ/presentation3/manifest/local/smwquery/{query in base64url}`
 
 ## Links
-- The `iiif-mw-pres` API module is inspired by [Tom Crane's 2018 blog post on the topic of IIIF and Wikimedia](https://gist.github.com/tomcrane/70e879884a744ce69d329cc6a33a34ac) and two services he created, ['mediawiki-iiifproxy'](https://github.com/tomcrane/mediawiki-iiifproxy) and ['wikipedia-to-iiif'](https://github.com/tomcrane/wikipedia-to-iiif)). 
+- The `iiif-mw-pres` API module was inspired by [Tom Crane's 2018 blog post on the topic of IIIF and Wikimedia](https://gist.github.com/tomcrane/70e879884a744ce69d329cc6a33a34ac) and two services he created, ['mediawiki-iiifproxy'](https://github.com/tomcrane/mediawiki-iiifproxy) and ['wikipedia-to-iiif'](https://github.com/tomcrane/wikipedia-to-iiif)). 
 - https://commons.wikimedia.org/wiki/Commons:International_Image_Interoperability_Framework
-
