@@ -14,7 +14,7 @@ class IIIFAnnotator {
 	 * Parser function #iiif-annotator
 	 * @return void
 	 */
-	public static function runIIIFAnnotator( $parser, $frame, $params ) {
+	public function runIIIFAnnotator( $parser, $frame, $params ) {
 
 		$paramsAllowed = [
 			"manifest" => null,

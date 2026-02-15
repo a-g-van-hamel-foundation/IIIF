@@ -13,7 +13,7 @@ use Html;
 use IIIF\ParserFunctions\IIIFParserFunctionUtils;
 
 class IIIFDraggable {
-	public static function run( Parser $parser, PPFrame $frame, $params ) {
+	public function run( Parser $parser, PPFrame $frame, $params ) {
 		$paramsAllowed = [
 			"lib" => null
 		];

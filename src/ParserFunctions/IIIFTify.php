@@ -21,7 +21,7 @@ class IIIFTify {
 	 * @param mixed $params
 	 * @return 
 	 */
-	public static function run( Parser $parser, PPFrame $frame, $params ) {
+	public function run( Parser $parser, PPFrame $frame, $params ) {
 		$paramsAllowed = [
 			"manifest" => null,
 			"canvasindex" => "",

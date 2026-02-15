@@ -21,7 +21,7 @@ class IIIFAnnotatorData {
 	 * @param mixed $params
 	 * @return
 	 */
-	public static function runGetAnnotationDataForTemplate( $parser, $frame, $params ) {
+	public function runGetAnnotationDataForTemplate( $parser, $frame, $params ) {
 		if ( $params == null || $params == 'undefined' ) {
 			print_r( "nothing to see here" );
 			return false;

@@ -18,7 +18,7 @@ class IIIFManifestFromSMWQuery {
 	 * {{#iiif-manifest-from-smquery: <query> |labelprop= |sort= |order= }}
 	 * 
 	 */
-	public static function run( Parser $parser, PPFrame $frame, $params ) {
+	public function run( Parser $parser, PPFrame $frame, $params ) {
 		if ( !array_key_exists( 0, $params ) || trim( $params[0] ) == "" ) {
 			// Nothing to process
 			return "";

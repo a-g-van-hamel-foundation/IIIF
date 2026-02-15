@@ -14,7 +14,7 @@ class IIIFGetCanvases {
 		 * and send them to a MW template.
 		 * {{#iiif-get-canvases:manifest=... |template=... }}
 		 */
-		public static function runGetCanvasDataForTemplate( $parser, $frame, $params ) {
+		public function runGetCanvasDataForTemplate( $parser, $frame, $params ) {
 			$paramManifestURL = $paramTemplateName = "";
 			$userParams = [];
 			$indexName = "indexnumber";

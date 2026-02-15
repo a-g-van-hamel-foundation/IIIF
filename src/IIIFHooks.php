@@ -1,22 +1,35 @@
 <?php
 
+namespace IIIF;
+
 use MediaWiki\MediaWikiServices;
-use MediaWiki\OutputPage;
-use MediaWiki\ParserOutput;
-use MediaWiki\PPFrame;
-// use IIIF\SMW\ResultPrinter;
+use MediaWiki\Parser\Parser;
+use MediaWiki\Parser\PPFrame;
+use MediaWiki\Registration\ExtensionRegistry;
+use MediaWiki\Hook\ParserFirstCallInitHook;
+use MediaWiki\Revision\Hook\ContentHandlerDefaultModelForHook;
+use MediaWiki\ChangeTags\Hook\ListDefinedTagsHook;
+use MediaWiki\ChangeTags\Hook\ChangeTagsListActiveHook;
+use MediaWiki\ChangeTags\Hook\ChangeTagsAllowedAddHook;
+use ALTree;
+use ALSection;
+use ALItem;
+use ALRow;
+use IIIF\ParserFunctions\IIIFGetCanvases;
+use IIIF\ParserFunctions\IIIFAnnotator;
+use IIIF\ParserFunctions\IIIFAnnotatorData;
+use IIIF\ParserFunctions\IIIFTify;
+use IIIF\ParserFunctions\IIIFDraggable;
+use IIIF\ParserFunctions\IIIFManifestFromSMWQuery;
 
-class IIIFHooks {
+class IIIFHooks implements
+	ParserFirstCallInitHook,
+	ContentHandlerDefaultModelForHook,
+	ListDefinedTagsHook,
+	ChangeTagsListActiveHook,
+	ChangeTagsAllowedAddHook {
 
-	public static function onParserFirstCallInit( Parser $parser ) {
-		$flags = Parser::SFH_OBJECT_ARGS;
-		$parser->setFunctionHook( "iiif-get-canvases", [ "IIIF\ParserFunctions\IIIFGetCanvases", "runGetCanvasDataForTemplate" ], $flags );
-		$parser->setFunctionHook( "iiif-annotator", [ "IIIF\ParserFunctions\IIIFAnnotator", 'runIIIFAnnotator' ], $flags );
-		$parser->setFunctionHook( "iiif-annotator-data", [ "IIIF\ParserFunctions\IIIFAnnotatorData", 'runGetAnnotationDataForTemplate' ], $flags );
-		$parser->setFunctionHook( "iiif-tify", [ "IIIF\ParserFunctions\IIIFTify", "run" ], $flags );
-		$parser->setFunctionHook( "iiif-draggable", [ "IIIF\ParserFunctions\IIIFDraggable", "run" ], $flags );
-		$parser->setFunctionHook( "iiif-manifest-from-smwquery", [ "IIIF\ParserFunctions\IIIFManifestFromSMWQuery", "run" ], $flags );
-		return true;
+	public function __construct() {
 	}
 
 	public static function onRegister() {
@@ -25,7 +38,61 @@ class IIIFHooks {
 		self::registerSMWResultFormats();
 	}
 
-	public static function onContentHandlerDefaultModelFor( Title $title, &$model ) {		
+	public function onParserFirstCallInit( $parser ) {
+		$flags = Parser::SFH_OBJECT_ARGS;
+
+		$parser->setFunctionHook(
+			"iiif-get-canvases",
+			function( Parser $parser, PPFrame $frame, array $args ) {
+				$pf = new IIIFGetCanvases;
+				return $pf->runGetCanvasDataForTemplate( $parser, $frame, $args );
+			},
+			$flags
+		);
+		$parser->setFunctionHook(
+			"iiif-annotator",
+			function( Parser $parser, PPFrame $frame, array $args ) {
+				$pf = new IIIFAnnotator;
+				return $pf->runIIIFAnnotator( $parser, $frame, $args );
+			},
+			$flags
+		);
+		$parser->setFunctionHook(
+			"iiif-annotator-data",
+			function( Parser $parser, PPFrame $frame, array $args ) {
+				$pf = new IIIFAnnotatorData;
+				return $pf->runGetAnnotationDataForTemplate( $parser, $frame, $args );
+			},
+			$flags
+		);
+		$parser->setFunctionHook(
+			"iiif-tify",
+			function( Parser $parser, PPFrame $frame, array $args ) {
+				$pf = new IIIFTify;
+				return $pf->run( $parser, $frame, $args );
+			},
+			$flags
+		);
+		$parser->setFunctionHook(
+			"iiif-draggable",
+			function( Parser $parser, PPFrame $frame, array $args ) {
+				$pf = new IIIFDraggable;
+				return $pf->run( $parser, $frame, $args );
+			},
+			$flags
+		);
+		$parser->setFunctionHook(
+			"iiif-manifest-from-smwquery",
+			function( Parser $parser, PPFrame $frame, array $args ) {
+				$pf = new IIIFManifestFromSMWQuery;
+				return $pf->run( $parser, $frame, $args );
+			},
+			$flags
+		);
+		return true;
+	}
+
+	public function onContentHandlerDefaultModelFor( $title, &$model ) {
 		if ( $title->getNamespace() === NS_IIIF ) {
 			$model = CONTENT_MODEL_IIIF_JSON;
 			return false;
@@ -33,20 +100,31 @@ class IIIFHooks {
 		return true;
 	}
 
-	// Register change tag with both ListDefinedTags hook
-	// and active it with ChangeTagsListActive hook
-	public static function onRegisterTags( array &$tags ) {
+	/** Register change tag with both ListDefinedTags hook
+	 * and activate it with ChangeTagsListActive hook
+	 */
+	public function onListDefinedTags( &$tags ) {
+		$tags[] = "iiif-annotator-edit";
+		return true;
+	}
+
+	/** Register change tag with both ListDefinedTags hook
+	 * and activate it with ChangeTagsListActive hook
+	 */
+	public function onChangeTagsListActive( &$tags ) {
 		$tags[] = "iiif-annotator-edit";
 		return true;
 	}
 
 	// Allow tag to be used by the API (ChangeTagsAllowedAdd)
-	public static function onChangeTagsAllowedAdd( array &$allowedTags, $tags, \User $user = null ) {
+	public function onChangeTagsAllowedAdd( &$allowedTags, $tags, $user ) {
 		$allowedTags[] = "iiif-annotator-edit";
 	}
 
 	public static function registerSMWResultFormats() {
-		if ( \ExtensionRegistry::getInstance()->isLoaded( 'SemanticMediaWiki' ) ) {
+		//MediaWikiServices::getInstance()->getExtensionRegistry()
+		$extensionRegistry = ExtensionRegistry::getInstance();
+		if ( $extensionRegistry->isLoaded( 'SemanticMediaWiki' ) ) {
 			$GLOBALS['smwgResultFormats']['iiif-canvas-viewer'] = \IIIF\SMW\CanvasViewerResultFormatter::class;
 			// alias for iiif-canvas-viewer - @todo depreciate
 			$GLOBALS['smwgResultFormats']['iiif-annotations'] = \IIIF\SMW\CanvasViewerResultFormatter::class;
@@ -62,8 +140,9 @@ class IIIFHooks {
 	 * @param string $format
 	 * @return bool
 	 */
-	public static function onCodeEditorGetPageLanguage( Title $title, &$lang, string $model, string $format ) {
-		if ( \ExtensionRegistry::getInstance()->isLoaded( 'CodeEditor' ) == false ) {
+	public static function onCodeEditorGetPageLanguage( $title, &$lang, string $model, string $format ) {
+		$extensionRegistry = ExtensionRegistry::getInstance();
+		if ( $extensionRegistry->isLoaded( 'CodeEditor' ) == false ) {
 			return true;
 		}
 		if ( $title->getNamespace() === NS_IIIF ) {
@@ -79,8 +158,9 @@ class IIIFHooks {
 	 * @param ALTree &$adminLinksTree
 	 * @return bool
 	 */
-	public static function addToAdminLinks( ALTree &$adminLinksTree ): bool {
-		if ( ExtensionRegistry::getInstance()->isLoaded( 'Admin Links' ) == false ) {
+	public static function onAdminLinks( ALTree &$adminLinksTree ): bool {
+		$extensionRegistry = ExtensionRegistry::getInstance();
+		if ( $extensionRegistry->isLoaded( 'Admin Links' ) == false ) {
 			return true;
 		}
 		

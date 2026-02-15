@@ -29,20 +29,21 @@
 		"IIIF\\Special\\": "src/Special/"
 	},
 	"AutoloadClasses": {
-		"IIIFHooks": "src/IIIFHooks.php",
-		"IIIFJson": "src/IIIFJson.php",
 		"Parsedown": "src/External/Parsedown.php"
 	},
+	"HookHandlers": {
+		"main": {
+			"class": "IIIF\\IIIFHooks"
+		}
+	},
 	"Hooks": {
-		"ParserFirstCallInit": ["IIIFHooks::onParserFirstCallInit"],
-		"ContentHandlerDefaultModelFor": [
-			"IIIFHooks::onContentHandlerDefaultModelFor"
-		],
-		"ListDefinedTags": ["IIIFHooks::onRegisterTags"],
-		"ChangeTagsListActive": ["IIIFHooks::onRegisterTags"],
-		"ChangeTagsAllowedAdd": ["IIIFHooks::onChangeTagsAllowedAdd"],
-		"CodeEditorGetPageLanguage": ["IIIFHooks::onCodeEditorGetPageLanguage"],
-		"AdminLinks": ["IIIFHooks::addToAdminLinks"]
+		"ParserFirstCallInit": "main",
+		"ContentHandlerDefaultModelFor": "main",
+		"ListDefinedTags": "main",
+		"ChangeTagsListActive": "main",
+		"ChangeTagsAllowedAdd": "main",
+		"CodeEditorGetPageLanguage": "main",
+		"AdminLinks": "main"
 	},
 	"ResourceFileModulePaths": {
 		"localBasePath": "modules",
@@ -363,7 +364,7 @@
 	"ContentHandlers": {
 		"iiifjson": "IIIF\\Config\\IIIFJsonContentHandler"
 	},
-	"callback": "IIIFHooks::onRegister",
+	"callback": "IIIF\\IIIFHooks::onRegister",
 	"namespaces": [
 		{
 			"id": 1230,
