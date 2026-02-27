@@ -135,6 +135,9 @@ class IIIFSMW2CanvasItems {
 				//"description" => IIIFUtils::getArrayPath( [ "printouts", "description", 0 ], $result, "..." )
 			];
 			foreach( $result["printouts"] as $k => $printout ) {
+				if ( !array_key_exists( 0, $printout ) ) {
+					continue;
+				}
 				if( gettype( $printout[0] ) === "array" && isset( $printout[0]["fulltext"] ) ) {
 					// data type Page
 					// use "displaytitle" ?

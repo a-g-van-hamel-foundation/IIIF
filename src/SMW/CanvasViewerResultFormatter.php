@@ -57,7 +57,9 @@ class CanvasViewerResultFormatter extends ResultPrinter {
 	public function getResultText( QueryResult $queryResult, $outputMode ) {
 		$q = $queryResult->toArray();
 		$params = $this->params;
-		$template = $params["template"];
+		$template = array_key_exists( "template", $params )
+			? $params["template"]
+			: null;
 		$valueSep = $params["valuesep"] ?? ";";
 
 		// Transform result
