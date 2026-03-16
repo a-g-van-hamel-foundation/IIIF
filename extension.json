@@ -191,6 +191,7 @@
 			"dependencies": [
 				"openseadragon",
 				"ext.iiif.lib.annotorious.osd",
+				"ext.iiif.lib.vuedraggableplus",
 				"@wikimedia/codex",
 				"mediawiki.language.names"
 			],
@@ -264,6 +265,7 @@
 			"es6": true,
 			"packageFiles": ["lib-photoswipe/photoswipe.umd.min.js"]
 		},
+
 		"ext.iiif.draggable": {
 			"es6": true,
 			"packageFiles": ["ext.iiif.draggable.js"],
@@ -274,7 +276,9 @@
 				"components/index-draggable.js",
 				"components/Draggable.vue"
 			],
-			"dependencies": ["ext.iiif.lib.draggable"]
+			"dependencies": [
+				"ext.iiif.lib.draggable"
+			]
 		},
 		"ext.iiif.lib.draggable": {
 			"es6": true,
@@ -286,18 +290,50 @@
 			"packageFiles": ["lib-sortable/Sortable.min.js"]
 		},
 
-		"ext.iiif.draggableplus": {
-			"es6": true,
-			"packageFiles": ["ext.iiif.draggableplus.js"],
-			"dependencies": ["ext.iiif.draggableplus.components", "vue", "vuex"]
-		},
-		"ext.iiif.draggableplus.components": {
+		"ext.iiif.toc": {
 			"es6": true,
 			"packageFiles": [
-				"components/index-draggable-plus.js",
-				"components/DraggablePlus.vue"
+				"ext.iiif.toc.js"
 			],
-			"dependencies": ["ext.iiif.lib.vuedraggableplus"]
+			"dependencies": [
+				"ext.iiif.toc.components",
+				"vue",
+				"vuex"
+			]
+		},
+		"ext.iiif.toc.components": {
+			"es6": true,
+			"packageFiles": [
+				"components/index-toc.js",
+				"components/TOC.vue",
+				"components/TOCForm.vue",
+				"components/DynamicFormField.vue",
+				"components/FieldLookup.vue",
+				"components/FieldRangeSlider.vue",
+				"components/FieldTextArea.vue",
+				"components/FieldTextEditor.vue",
+				"components/FieldXmlEditor.vue",
+				"components/MultiselectLookup.vue",
+				{
+					"name": "components/icons.json",
+					"callback": "MediaWiki\\ResourceLoader\\CodexModule::getIcons",
+					"callbackParam": [ "cdxIconAdd", "cdxIconClose", "cdxIconTrash", "cdxIconDraggable", "cdxIconCheck", "cdxIconEllipsis", "cdxIconTableAddRowAfter", "cdxIconCollapse", "cdxIconExpand", "cdxIconCheck" ]
+				}
+			],
+			"dependencies": [
+				"ext.iiif.lib.vuedraggableplus",
+				"@wikimedia/codex",
+				"ext.iiif.lib.quill",
+				"ext.iiif.lib.ace",
+				"ext.iiif.lib.ace.utils"
+			],
+			"codexComponents": [
+				"CdxButton",
+				"CdxIcon",
+				"CdxTextArea",
+				"CdxTextInput",
+				"CdxMultiselectLookup"
+			]
 		},
 		"ext.iiif.lib.vuedraggableplus": {
 			"es6": true,

@@ -1,27 +1,9 @@
 <template>
+<div class="lookup-field">
 	<!-- @load-more="onLoadMore" -->
-	<cdx-lookup
-		v-model:selected="selection"
-		:initial-input-value="selectionLabel"
-		:menu-items="menuItems"
-		:menu-config="menuConfig"
-		aria-label="Lookup..."
-		@input="onInput"
-		:placeholder="placeholder"
-	></cdx-lookup>
-	<div class="lookup-chips">
-		<!-- one only currently-->
-		<template
-			ref="lookup-input"
-			v-if="selection !== null && selectionLabel !== null">
-			<!--
-			<div class="lookup-chip">
-				{{ selectionLabel ?? "..." }} <small class="lookup-chip-identifier">({{ selection }})</small>
-			</div>
-			-->
-		</template>
+	<div ref="el" class="lookup-chips">
 		<!-- single or multiple -->
-		<div v-for="(item, index) in selectedItems" :key="item.value">
+		<template v-for="(item,index) in selectedItems" :index="index" :key="item.value || getRandomNumber()">
 			<div v-if="item.value" class="lookup-chip">
 				{{ item.label || "" }} (<code>{{ item.value }}</code>)
 				<input
@@ -29,17 +11,32 @@
 					:name="name"
 					:value="item.value"
 				></input>
-				<button class="dismiss" @click.prevent="onDismissChip(item)">✕</button>
+				<button class="dismiss" @click.prevent="handleDismissChip(item,index)">✕</button>
 			</div>
-		</div>
-		<!--Dev only:
-		<code>Selection: {{ selection }} / Default items: {{ defaultItems }} / Selected: {{ selectedItems }}</code>-->
+		</template>
 	</div>
+	<cdx-lookup
+		v-model:selected="currentSelection"
+		:initial-input-value="currentSelectionLabel"
+		:menu-items="menuItems"
+		:menu-config="menuConfig"
+		aria-label="Lookup..."
+		@input="onInput"
+		:placeholder="placeholder"
+	></cdx-lookup>
+</div>
 </template>
 
 <script>
-const { defineComponent, ref, computed } = require( "vue" );
+/**
+ * The lookup field has an input that accepts a single value ('currentSelection'), along with a 'currentSelectionLabel' - representing the most recent selection in the input.
+ * Selected values (multiple or single) are stored, with labels, in 'selectedItems' and should be represented by chips.
+ * Wikimedia Codex now also offers MultiselectLookup, which may be a good alternative
+ */
+
+const { defineComponent, ref, reactive, computed } = require( "vue" );
 const { CdxLookup, CdxIcon } = require( '@wikimedia/codex' );
+const { useDraggable } = VueDraggableLib.VueDraggable;
 
 module.exports = defineComponent( {
 	name: "FieldLookup",
@@ -47,87 +44,190 @@ module.exports = defineComponent( {
 	props: {
 		name: { type: String },
 		placeholder: { type: String, default: "" },
-		selected: { type: String },
-		defaultItems: { type: [String, Array ], default: null },
-		inputValue: { type: String },
+		selected: { type: [Array,String], default: [] },
+		// Not implemented
+		defaultItems: { type: [String, Array ], default: [] },
 		multiple: { type: Boolean, default: false },
-		apiType: { type: String },
-		apiUrl: { type: String }
+		// Either API
+		apiType: { type: String, default: null },
+		apiUrl: { type: String, default: null },
+		// ...or options
+		options: { type: Array, default: [] }
 	},
 	watch: {
+		selectedItems: {
+			handler(n,o) {
+				this.debugLog( "FieldLookup, selectedItems", n );
+				// @todo these nulls should not happen but may be caused somewhere else
+				let filtered = n.filter((t) => t.value != null );
+				this.$emit('update:selected', filtered.map(item => item.value ) );
+    		},
+			// Important!
+			deep: true
+  		},
 		defaultItems: function(n,o) {
-			//console.log( "FieldLookup - defaultItems has changed",n);
+			//debugLog( "defaultItems has changed",n);
 			//this.selectedItems = n;
 		},
 		selected: function(n,o) {
-			//console.log( "FieldLookup - selected has changed",n );
+			//debugLog( "FieldLookup, selected: previous values", o );
+			//debugLog( "FieldLookup, selected: new value", n );
 		},
-		selection: function(n,o) {
-			//console.log( "FieldLookup - selection changed", n );
+		currentSelection: function(n,o) {
+			//debugLog( "FieldLookup - selection changed", n );
 			this.$emit( "emit-lookup-value", n );
-			this.updateCurrentSelectionLabel();
-		},
-		selectionLabel: function(n,o) {
-			//console.log( "FieldLookup: selectionLabel changed", n );
-			if ( this.multiple ) {
-				this.selectedItems.push( { value: this.selection, label: n } );
+			if ( this.dataSourceType == "options" ) {
+				this.updateCurrentSelectionLabelForOptions();
 			} else {
-				this.selectedItems = [{ value: this.selection, label: n }];
+				this.updateCurrentSelectionLabelForAPI();
+			}
+		},
+		currentSelectionLabel: function(n,o) {
+			//debugLog( "FieldLookup: currentSelectionLabel changed", n );
+			if ( this.multiple ) {
+				this.selectedItems.push( { value: this.currentSelection, label: n } );
+			} else {
+				this.selectedItems = [{ value: this.currentSelection, label: n }];
 			}
 		}
 	},
-	setup(props) {
-		const selection = ref( props.selected || null );
-		const selectionLabel = ref( null );
+	emits: ['update:selected'],
+	setup(props, {emit} ) {
+		// Data
+		const dataSourceType = props.apiType != null ? "api" : "options";
+		// [ { label: ..., value: ... },{ label: ..., value: ... } ]
 		const selectedItems = ref( [] );
-		const menuItems = ref( [] );
+		if ( dataSourceType == "api" ) {
+			initSetSelectedItemsForAPI( props.multiple, props.selected );
+		} else {
+			initSetSelectedItemsForOptions( props.selected );
+		}
+
+		// Unused
+		function getValuesFromSelectedItems( selected ) {
+			if ( selected == null || selected == undefined ) {
+				return [];
+			}
+			const valuesOnly = [];
+			selectedItems.value.forEach( (item) => {
+				valuesOnly.push(item.value);
+			});
+			return valuesOnly;
+		}
+
+		/* BEING REVISED
+		const selection = ref( props.selected || null );
+		if ( typeof selection == "string" ) {
+			selection.value = [ selection ];
+		}
+		*/
+
+		// Interaction
+		const currentSelection = ref();
+		const currentSelectionLabel = ref();
 		const currentSearchTerm = ref( props.selected || "" );
+		// menuItems = list of items actually shown,
+		// mutations responsive to search term
+		const menuItems = ref( [] );
 
 		// Update selected items once labels have been fetched
-		if (props.multiple && props.defaultItems !== null) {
-			// Attempt rescue if 'multiple' was changed to true
-			var newDefaultItems = ( typeof props.defaultItem == "string" )
-				? [ props.defaultItems ]
-				: props.defaultItems ?? [];
-			for ( const defaultItem of newDefaultItems ) {
-				fetchLabelAndUpdateSelectedItems( defaultItem );
+		function initSetSelectedItemsForAPI( multiple, selected ) {
+			if ( selected == null ) {
+				return;
 			}
-		} else if(!props.multiple && props.defaultItems !== null ) {
-			// Attempt rescue in the event 'multiple' was
-			// changed to false. If so, get first item only.
-			// @todo Consider warning if > 1
-			fetchLabelAndUpdateSelectedItems(
-				( typeof props.defaultItem === "array" ) ? props.defaultItems[0] : props.defaultItems
-			);
+			if ( multiple ) {
+				// Attempt rescue if 'multiple' was changed to true
+				var newDefaultItems = ( typeof selected == "string" )
+					? [ selected ]
+					: ( selected ?? [] );
+				for ( const defaultItem of newDefaultItems ) {
+					fetchLabelAndUpdateSelectedItems( defaultItem );
+				}
+			} else {
+				// Attempt rescue in the event 'multiple' was
+				// changed to false. If so, get first item only.
+				// @todo Consider warning if > 1
+				fetchLabelAndUpdateSelectedItems(
+					( typeof selected == "array" ) ? selected[0] : selected
+				);
+			}
+		}
+
+		function initSetSelectedItemsForOptions( selected ) {
+			if ( selected == null || props.options == [] ) {
+				return;
+			}
+			const selectedProxy = rescueSelection( selected, "array" );
+			for ( const item of selectedProxy ) {
+				if ( item == null || item == "" ) {
+					continue;
+				}
+				if ( selectedItems.value == null || typeof selectedItems.value == "undefined" ) {
+					selectedItems.value = [];
+				}
+				//item
+				const found = props.options.find( (res) => res.value == item );
+				debugLog( "...Found option", found );
+				addItem( { 
+					value: item, 
+					label: ( found != undefined ? found.label : item )
+				} );
+			}
+		}
+
+		// If we switched from string to array, etc.,
+		// attempt to rescue
+		// targetFormat = multple
+		function rescueSelection( v, targetDatatype ) {
+			if ( typeof v == "string" ) {
+				return targetDatatype == "array" ? [ v ] : v;
+			} else {
+				// proper delimiter unknown
+				return targetDatatype == "string" ? v.join( ",")  : v;
+			}
+			return v;
 		}
 
 		// Add selected items once we have retrieved 
 		// matching labels from the API
 		function fetchLabelAndUpdateSelectedItems( item ) {
-			//console.log( "running fetchLabelAndUpdateSelectedItems for item", item );
+			if ( item == null || item == "" ) {
+				return;
+			}
+			if ( selectedItems.value == null || typeof selectedItems.value == "undefined" ) {
+				//debugLog( "selectedItems is null/undefined" );
+				selectedItems.value = [];
+			}
+			//debugLog( "running fetchLabelAndUpdateSelectedItems for item", item );
 			fetchResults( item )
 			.then( (data) => {
 				if ( props.apiType == "wikibase" ) {
 					// likely the first item (data.search[0]) but look for it anyway
 					const found = data.search.find( (res) => res.id == item );
 					if ( props.multiple && found !== undefined ) {
-						selectedItems.value.push({ value: item, label: found.label ?? item });
+						//selectedItems.value.push({ value: item, label: found.label ?? item });
+						addItem( { value: item, label: found.label ?? item } );
 					} else if( found !== undefined ) {
-						selectedItems.value = [{ value: item, label: found.label ?? item }];
+						setItem({ value: item, label: found.label ?? item });
+						//selectedItems.value = [{ value: item, label: found.label ?? item }];
 					} else {
-						console.log( "Lookup could not find an item in the Wikibase database.", item  );
-						selectedItems.value = [{ value: item, label: item + " (?)" }];
+						debugLog( "Lookup could not find an item in the Wikibase database.", item  );
+						setItem({ value: item, label: item + " (?)" });
+						//selectedItems.value = [{ value: item, label: item + " (?)" }];
 					}
 				} else if( props.apiType == "reconciliation" ) {
 					const found = data.result.find( (res) => res.id == item );
 					// add (multiple) or replace
 					if ( props.multiple && found !== undefined ) {
-						selectedItems.value.push({ value: item, label: found.name ?? item });
+						addItem( { value: item, label: found.label ?? item } );
+						//selectedItems.value.push({ value: item, label: found.name ?? item });
 					} else if( found !== undefined ) {
-						selectedItems.value = [{ value: item, label: found.name ?? item }];
+						setItem({ value: item, label: found.label ?? item });
+						//selectedItems.value = [{ value: item, label: found.name ?? item }];
 					} else {
-						console.log( "Lookup could not find an item in the reconciliation API. Perhaps the query changed or the page was deleted?", item  );
-						selectedItems.value = [{ value: item, label: item + " (?)" }];
+						debugLog( "Lookup could not find an item in the reconciliation API. Perhaps the query changed or the page was deleted?", item  );
+						setItem({ value: item, label: item + " (?)" });
+						//selectedItems.value = [{ value: item, label: item + " (?)" }];
 					}
 				}
 			});
@@ -135,9 +235,9 @@ module.exports = defineComponent( {
 
 		// @todo Flesh this out! Retrieving label should not usually 
 		// follow this route
-		function updateCurrentSelectionLabel() {
-			//console.log( "updateCurrentSelectionLabel");
-			fetchResults( selection.value )
+		function updateCurrentSelectionLabelForAPI() {
+			//debugLog( "updateCurrentSelectionLabel");
+			fetchResults( currentSelection.value )
 			.then( ( data ) => {
 				if ( props.apiType == "wikibase" ) {
 					var dataResult = data.search;
@@ -148,32 +248,54 @@ module.exports = defineComponent( {
 				} else {
 					return;
 				}
-				const found = dataResult.find( (res) => res.id == selection.value );
-				if ( found !== undefined ) {
-					selectionLabel.value = found[labelName];
+				const found = dataResult.find( (res) => res.id == currentSelection.value );
+				if ( found != undefined && found[labelName] != undefined ) {
+					currentSelectionLabel.value = found[labelName];
+					// changes watched to currentSelectionLabel will do the rest
 				} else {
-					console.log( "No label retrieved for selection.value", selection.value );
-					console.log( "because dataResult is this", dataResult );
+					debugLog( "No label retrieved for selection.value", currentSelection.value );
+					debugLog( "because dataResult is this", dataResult );
 				}
 			});
 		}
 
+		function updateCurrentSelectionLabelForOptions() {
+			const found = props.options.find( (res) => res.value == currentSelection.value );
+			if ( found != undefined && found["label"] != undefined ) {
+				currentSelectionLabel.value = found["label"];
+				// changes watched to currentSelectionLabel will do the rest
+			}
+		}
+
+		function setItem(item) {
+			selectedItems.value = [ item ];
+		}
+		// Adding
+		function addItem(newItem) {
+			selectedItems.value = [...selectedItems.value, newItem];
+		}
+
 		// Remove selected item
-		function onDismissChip(item) {
-			selectedItems.value = selectedItems.value.filter( 
-				(t) => t !== item
+		function handleDismissChip(item,index) {
+			selectedItems.value = selectedItems.value.filter(
+				// nulls should not happen
+				//(t) => t.value != item.value && t.value != null
+				(t,i) => i !== index
 			);
+			debugLog( "removed item, new selectedItems.value", selectedItems.value );
+			// alternative selectedItems.value = selectedItems.value.filter((_, i) => i !== index)
 			// Reset to allow value being watched to be selected again
-			if( item.value === selection.value ) {
-				selection.value = selectionLabel.value = null;
-				currentSearchTerm.value = "";				
+			if( item.value === currentSelection.value ) {
+				// @todo undefined?
+				currentSelection.value = currentSelectionLabel.value = undefined;
+				currentSearchTerm.value = "";
 			}
 		}
 
 		// Fetch results from API
 		function fetchResults( searchTerm, offset ) {
-			// console.log( "searchTerm", searchTerm );
-			if ( props.apiType == "wikibase" ) {	
+			// debugLog( "searchTerm", searchTerm );
+			if ( props.apiType == "wikibase" ) {
 				const params = new URLSearchParams( {
 					origin: '*',
 					action: 'wbsearchentities',
@@ -206,21 +328,28 @@ module.exports = defineComponent( {
 			return fetch( api ).then( ( response ) => response.json() );
 		}
 
+		// On input, show results in dropdown menu
 		function onInput( value ) {
 			// Internally track the current search term.
 			currentSearchTerm.value = value;
 			// Do nothing if we have no input.
+			
+			// Options
+			if ( dataSourceType == "options" ) {
+				onInputWithOptions(value);
+				return;
+			}
+			// API
 			if ( !value ) {
 				menuItems.value = [];
 				return;
 			}
-
 			fetchResults( value )
 			.then( ( data ) => {
-				// console.log( "onInput: fetchResults, data", data);
+				// debugLog( "onInput: fetchResults, data", data);
 				// Make sure this data is still relevant first.
 				if ( currentSearchTerm.value !== value ) {
-					// console.log( "currentSearchTerm is not equal to value", currentSearchTerm.value, value );
+					// debugLog( "currentSearchTerm is not equal to value", currentSearchTerm.value, value );
 					return;
 				}
 				if ( props.apiType == "wikibase" ) {
@@ -232,7 +361,7 @@ module.exports = defineComponent( {
 				}
 				// Reset the menu items if there are no results.
 				if ( !dataResult || dataResult === undefined || dataResult.length === 0 ) {
-					//console.log( "No results" );
+					//debugLog( "No results" );
 					menuItems.value = [];
 					return;
 				}
@@ -242,7 +371,7 @@ module.exports = defineComponent( {
 					label: res[labelName] ?? res.id,
 					description: res.description ?? ""
 				} ) );
-				// console.log( "new menu results ",newMenuRes );
+				// debugLog( "new menu results ",newMenuRes );
 				// Update menuItems.
 				menuItems.value = newMenuRes;
 			} )
@@ -250,6 +379,14 @@ module.exports = defineComponent( {
 				// On error, set results to empty.
 				menuItems.value = [];
 			} );
+		}
+
+		function onInputWithOptions(value) {
+			if ( value && value != "" ) {
+				menuItems.value = props.options.filter( ( item ) => item.label.includes( value ) );
+			} else {
+				menuItems.value = props.options;
+			}
 		}
 
 		function deduplicateResults( results ) {
@@ -286,18 +423,67 @@ module.exports = defineComponent( {
 			visibleItemLimit: 6
 		};
 
+		// Draggable
+		const el = ref();
+		useDraggable( el, selectedItems, {
+				immediate: true,
+				animation: 150,
+				//group: props.name + getRandomNumber() + "-items",
+				onStart() {
+					debugLog('start dragging item');
+				},
+				onUpdate() {
+					debugLog('update draggable, selectedItems:', selectedItems.value); 
+				},
+				filter: 'input,form,fieldset',
+				preventOnFilter: false
+		});
+		/*
+		const chipGroup = ref();
+		const els = [ chipGroup ];
+		els.forEach( (el, index) => {
+			useDraggable( el, selectedItems.value[index], {
+				immediate: false,
+				animation: 150,
+				group: props.name + "-items",
+				onStart() { 
+					debugLog('start dragging item');
+				},
+				onUpdate() {
+					debugLog('update draggable, selectedItems:', selectedItems.value); 
+				},
+				filter: 'input,form,fieldset',
+				preventOnFilter: false
+			});
+		});
+		*/
+
+		function getRandomNumber() {
+			// 7 digits
+			return Math.floor(1000000 + Math.random() * 9000000)
+		}
+
+		function debugLog( msg, res ) {
+			//console.log( "FieldLookup: " + msg, res || "" );
+		}
+
 		return {
+			dataSourceType,
 			selectedItems,
-			selection,
-			selectionLabel,
+			currentSelection,
+			currentSelectionLabel,
 			menuItems,
 			menuConfig,
 			// Methods
 			fetchResults,
 			onInput,
 			onLoadMore,
-			updateCurrentSelectionLabel,
-			onDismissChip
+			updateCurrentSelectionLabelForAPI,
+			updateCurrentSelectionLabelForOptions,
+			handleDismissChip,
+			el,
+			getRandomNumber,
+			debugLog
 		};
 	}
 } );
@@ -305,6 +491,23 @@ module.exports = defineComponent( {
 </script>
 
 <style>
+.lookup-field {
+	background-color: var(--background-color-base, #fff);
+	border-radius: 2px;
+	border: 1px solid var(--border-color-base,#a2a9b1);
+	min-height: 32px;
+	box-shadow: inset 0 0 0 1px var(--box-shadow-color-transparent,transparent);
+	padding: 4px 8px;
+}
+
+.lookup-field .cdx-text-input__input:enabled {
+	width:4rem;
+}
+.lookup-field .cdx-text-input__input:enabled:focus,
+.lookup-field .cdx-text-input__input.cdx-text-input__input--has-value:enabled {
+	width:100%;
+}
+
 .lookup-chips {
 	display:flex;
 	flex-wrap:wrap;
@@ -317,6 +520,7 @@ module.exports = defineComponent( {
 	border-radius:.4rem;
 	border:1px solid #a2a9b1;
 	line-height: 1rem;
+	cursor: grab;
 }
 .lookup-chip .dismiss {
   background:none;

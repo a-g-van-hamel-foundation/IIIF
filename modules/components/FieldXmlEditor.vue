@@ -96,9 +96,14 @@ module.exports = defineComponent( {
 			//console.log( "content being watched changed", n );
 		}
 	},
-	setup(props) {
-		const content = ref( props.inputValue );
-		const val = ref( content);
+	emits: ['update:inputValue'],
+	setup(props, { emit }) {
+		// const content = ref( props.inputValue );
+		const content = computed({
+			get() { return props.inputValue },
+			set(val) { emit('update:inputValue', val) }
+		});
+		//const val = ref( content );
 		const aceEditor = ref( null );
 		/*
 		const textareaClasses = computed( () => ( {
@@ -107,8 +112,8 @@ module.exports = defineComponent( {
 		  */
 		return {
 			aceEditor,
-			content,
-			val
+			content
+			//val
 		}
 	}
 });

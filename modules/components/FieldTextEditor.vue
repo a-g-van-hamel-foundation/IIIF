@@ -1,6 +1,6 @@
 <template>
 	<textarea
-		style="display: none"
+		style="display:none"
 		:name="name"
 		v-model="storableContent"
 	></textarea>
@@ -30,9 +30,15 @@ module.exports = defineComponent({
 		inputValue: { type: String, default: "hello..." },
 	},
 	watch: {},
-	setup(props) {
+	emits: ['update:inputValue'],
+	setup(props, { emit } ) {
 		const content = ref(props.inputValue);
-		const storableContent = ref(props.inputValue);
+
+		//const storableContent = ref(props.inputValue);
+		const storableContent = computed({
+			get() { return props.inputValue },
+			set(val) { emit('update:inputValue', val) }
+		});
 
 		function handleUpdatedContent(str) {
 			content.value = sanitiseContent(str);

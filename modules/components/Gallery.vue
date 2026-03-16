@@ -36,7 +36,7 @@ const { CdxIcon } = require( "@wikimedia/codex" );
 const { cdxIconImage, cdxIconZoomIn } = require( "./icons.json" );
 const PhotoSwipeLightbox = require( "ext.iiif.lib.photoswipe.lightbox" );
 const PhotoSwipe = require( "ext.iiif.lib.photoswipe" );
-console.log( "PhotoSwipe", PhotoSwipe );
+//console.log( "PhotoSwipe", PhotoSwipe );
 
 module.exports = defineComponent( {
 	name: "Gallery",

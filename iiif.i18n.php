@@ -16,6 +16,6 @@ $magicWords["en"] = [
 	"iiif-annotator" => [ 0, "iiif-annotator" ],
 	"iiif-annotator-data" => [ 0, "iiif-annotator-data" ],
 	"iiif-tify" => [ 0, "iiif-tify", "tify" ],
-	"iiif-draggable" => [ 0, "iiif-draggable" ],
+	"iiif-toc" => [ 0, "iiif-toc", "iiif-draggable" ],
 	"iiif-manifest-from-smwquery" => [ 0, "iiif-manifest-from-smwquery" ]
 ];

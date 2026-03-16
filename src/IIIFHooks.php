@@ -19,7 +19,7 @@ use IIIF\ParserFunctions\IIIFGetCanvases;
 use IIIF\ParserFunctions\IIIFAnnotator;
 use IIIF\ParserFunctions\IIIFAnnotatorData;
 use IIIF\ParserFunctions\IIIFTify;
-use IIIF\ParserFunctions\IIIFDraggable;
+use IIIF\ParserFunctions\IIIFTOC;
 use IIIF\ParserFunctions\IIIFManifestFromSMWQuery;
 
 class IIIFHooks implements
@@ -74,17 +74,17 @@ class IIIFHooks implements
 			$flags
 		);
 		$parser->setFunctionHook(
-			"iiif-draggable",
+			"iiif-manifest-from-smwquery",
 			function( Parser $parser, PPFrame $frame, array $args ) {
-				$pf = new IIIFDraggable;
+				$pf = new IIIFManifestFromSMWQuery;
 				return $pf->run( $parser, $frame, $args );
 			},
 			$flags
 		);
 		$parser->setFunctionHook(
-			"iiif-manifest-from-smwquery",
+			"iiif-toc",
 			function( Parser $parser, PPFrame $frame, array $args ) {
-				$pf = new IIIFManifestFromSMWQuery;
+				$pf = new IIIFTOC;
 				return $pf->run( $parser, $frame, $args );
 			},
 			$flags
@@ -100,8 +100,10 @@ class IIIFHooks implements
 		return true;
 	}
 
-	/** Register change tag with both ListDefinedTags hook
+	/**
+	 * Register change tag with both ListDefinedTags hook
 	 * and activate it with ChangeTagsListActive hook
+	 * Previously, 'onRegisterTags'
 	 */
 	public function onListDefinedTags( &$tags ) {
 		$tags[] = "iiif-annotator-edit";

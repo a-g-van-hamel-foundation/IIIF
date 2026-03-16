@@ -22,7 +22,7 @@ class IIIFWikiAPI extends \ApiBase {
 		$pageID = $params['id'] ?? "";
 		// MediaWikiServices::getInstance();
 		// do checks first if it exists and contains JSON!
-		$content = IIIFUtils::getRawContentFromPageID( $pageID );
+		$content = IIIFUtils::getRawContentFromPageID( $pageID, $params['slot'] );
 		if ( IIIFUtils::isJson( $content ) ) {
 			$jsonArr = json_decode( $content, true );
 		} else {
@@ -44,6 +44,11 @@ class IIIFWikiAPI extends \ApiBase {
 			"id" => [
 				ParamValidator::PARAM_TYPE => "string",
 				ParamValidator::PARAM_REQUIRED => true
+			],
+			"slot" => [
+				ParamValidator::PARAM_TYPE => "string",
+				ParamValidator::PARAM_REQUIRED => false,
+				ParamValidator::PARAM_DEFAULT => "main"
 			],
 			"format" => [
 				ParamValidator::PARAM_TYPE => "string",

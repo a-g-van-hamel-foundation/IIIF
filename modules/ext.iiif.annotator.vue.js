@@ -4,10 +4,11 @@
 	// Require Vue.js v3
 	const Vue = require("vue");
 	const Vuex = require("vuex");
+	const isAnon = mw.user.isAnon();
 
 	function fetchManifestDataAndMountApp( Vue, Vuex, App, item, configProps ) {
 		const actionApiBaseUrl = mw.config.get("wgServer") + (mw.config.get("wgScriptPath") || "") + "/api.php";
-		const actionApi = new mw.ForeignApi( actionApiBaseUrl, { anonymous: true } );
+		const actionApi = new mw.ForeignApi( actionApiBaseUrl, { anonymous: isAnon } );
 		const manifest = ( typeof configProps.manifest !== "undefined" ) ? configProps.manifest : null;
 		if ( manifest === null ) {
 			return;
