@@ -45,6 +45,7 @@
 		"CodeEditorGetPageLanguage": "main",
 		"AdminLinks": "main"
 	},
+	"ForeignResourcesDir": "modules/lib",
 	"ResourceFileModulePaths": {
 		"localBasePath": "modules",
 		"remoteExtPath": "IIIF/modules"

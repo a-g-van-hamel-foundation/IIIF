@@ -1,0 +1,51 @@
+ace:
+  version: 1.24.2?
+  license: BSD
+  homepage: https://github.com/ajaxorg/ace-builds
+  authors: Ace authors
+  comment: "Ace editor for XML; taken, with minor modifications, from CodeEditor."
+annotorious-openseadragon:
+  version: 1.4.1
+  license: BSD-3-Clause
+  homepage: https://github.com/annotorious/annotorious
+  authors: "Rainer Simon, with minor modifications by DG. The sequencemode plugin was rewritten for this extension and is available as plugin-sequencemode-es5.js"
+iiif-parser:
+  homepage: https://github.com/IIIF-Commons/parser
+  version: ?
+  license: MIT
+  authors: Stephen Fraser (stephenwf), IIIF Commons
+openseadragon:
+  homepage: https://openseadragon.github.io/
+  authors: OpenSeadragon team
+  version: 5.0.1
+  license: BSD-3-Clause
+photoswipe:
+  homepage: https://github.com/dimsemenov/photoswipe
+  license: MIT
+  version: 5.4.4
+  authors: Dmitry Semenov
+quill:
+  homepage: https://github.com/slab/quill
+  license: BSD-3-Clause
+  comment: "Dependency of VueQuill?"
+  version: ?
+sortablejs:
+  homepage: https://github.com/SortableJS/Sortable
+  authors: RubaXa and others
+  license: MIT
+  version: 1.10.2
+  comment: See VueDraggablePlus
+tify:
+  homepage: https://github.com/tify-iiif-viewer/tify
+  version: 0.33.0
+  license: AGPL-3.0
+  authors: t11r (Göttingen State and University Library)
+vue-draggable-plus:
+  version: 0.6.1?
+  license: MIT
+  homepage: https://github.com/Alfred-Skyblue/vue-draggable-plus
+  authors: Alfred Skyblue and the sortableJs authors
+vue-quill:
+  version: 1.2.0
+  license: MIT
+  homepage: https://vueup.github.io/vue-quill/
