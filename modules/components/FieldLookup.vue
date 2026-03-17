@@ -219,10 +219,10 @@ module.exports = defineComponent( {
 					const found = data.result.find( (res) => res.id == item );
 					// add (multiple) or replace
 					if ( props.multiple && found !== undefined ) {
-						addItem( { value: item, label: found.label ?? item } );
+						addItem( { value: item, label: found.name ?? item } );
 						//selectedItems.value.push({ value: item, label: found.name ?? item });
 					} else if( found !== undefined ) {
-						setItem({ value: item, label: found.label ?? item });
+						setItem({ value: item, label: found.name ?? item });
 						//selectedItems.value = [{ value: item, label: found.name ?? item }];
 					} else {
 						debugLog( "Lookup could not find an item in the reconciliation API. Perhaps the query changed or the page was deleted?", item  );
