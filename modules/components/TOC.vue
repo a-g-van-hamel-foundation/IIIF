@@ -142,7 +142,9 @@ module.exports = defineComponent( {
 
 		// Main data list
 		const list1 = ref( [] );
-		list1.value = props.valueData.items;
+		list1.value = props.valueData !== undefined
+			? ( props.valueData.items ?? [] )
+			: [];
 		// Previously tested but no current need for this
 		// list2, list3, etc., could be used to turn this into a kanban board
 		const list2 = ref( [] );
