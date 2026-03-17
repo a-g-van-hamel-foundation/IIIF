@@ -71,14 +71,16 @@ module.exports = defineComponent( {
 		formFields.value = props.formProfileSchema.properties;
 		// Additional field(s) on top of the
 		debugLog( "props.canvases", props.canvases);
-		formFields.value = [{
-			name: "canvas",
-			label: "IIIF canvas",
-			inputType: "lookup",
-			options: props.canvases,
-			multiple: true,
-			required: false
-		}, ...formFields.value];
+		if ( props.canvases.length !== 0 ) {
+			formFields.value = [{
+				name: "canvas",
+				label: "IIIF canvas",
+				inputType: "lookup",
+				options: props.canvases,
+				multiple: true,
+				required: false
+			}, ...formFields.value];
+		}
 		debugLog( "TOCForm, props.formProfileSchema", props.formProfileSchema );
 		debugLog( "TOCForm, formFields", formFields );
 

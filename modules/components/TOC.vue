@@ -128,7 +128,7 @@ module.exports = defineComponent( {
 		targetPageId: { type: String, default: "0" },
 		targetSlot: { type: String, default: "main" },
 		iiifManifest: { type: String, default: null },
-		canvasIdentifiers: { type: Array }
+		canvasIdentifiers: { type: Array, default: [] }
 	},
 	setup(props, context) {
 		// form
@@ -360,6 +360,7 @@ module.exports = defineComponent( {
 	display:flex;
 	gap: 1rem;
 	justify-content: space-between;
+	cursor: pointer;
 	.toc-item-header .handle-expand,
 	.toc-item-header:hover .handle-collapse {
 		color: #5f7470;
