@@ -12,12 +12,12 @@ It is recommended to come up with a consistent naming pattern for pages that sto
 ### Input types
 The properties section is where you select and configure the inputs you want from the available options. Current options for `inputType` are:
 
-- "textarea"
-- "text"
-- "select" - enables a dropdown with selectable options
-- "lookup" - see below
-- "texteditor" - a minimal text editor
-- "xmleditor"
+- "textarea" - textarea input.
+- "text" - text input.
+- "select" - enables a dropdown with selectable options from a predefined list. Accepts single values only.
+- "lookup" - enables a Select2-like dropdown, with selectable options from either an API query or a predefined list. It allows for both single and multiple values to be stored. See below.
+- "texteditor" - a minimal text editor.
+- "xmleditor" - a simple XML editor, which may be useful if for instance, you create a transcription directly in TEI XML.
 - "hidden" - the hidden input is useful only in conjunction with a value for `defaultValue`.
 
 ### Example
@@ -109,8 +109,27 @@ This fictional example, which does not have any particular scenario in mind, con
 }
 ```
 
-### input: `lookup`
+### Styling
+Two additional parameters let you change the default classes
+- `wrapperClass` applies to the container element, which includes the label and input elements.w
+- `class` currently applies only to a text input's class attribute.
+
+### input: `lookup` with the API
 The `lookup` input can be used to fetch and select data from an API using a typeahead/autocompletion field. As demonstrated in the example, it currently supports two API endpoint types which must be set in `apiType`, along with an appropriate URL to be set in `apiUrl`:
 
 - `wikibase` : used for any site that offers the [Wikibase API](https://www.mediawiki.org/wiki/Wikibase/API). In the case of Wikidata, the URL in `apiURL` would be `'https://www.wikidata.org/w/api.php'`. 
 - `reconciliation` : used for any database that offers the 'Suggest entity' service from a [Reconciliation API](https://www.w3.org/community/reports/reconciliation/CG-FINAL-specs-0.2-20230410/) (v0.2). Using the [ReconciliationAPI extension](https://www.mediawiki.org/wiki/Extension:ReconciliationAPI), a MediaWiki site can enable and configure one or multiple endpoints.
+
+### input: `lookup` with a list of options
+The 'lookup' input can also be used with a list of predefined options. Instead of adding values to `apiURL` and `apiType`, you would use the `options` parameter with either an array of single values or an array of objects with `value` and `label` keys.
+
+Example with single values:
+```
+{
+	"label": "Painting techniques",
+	"name": "techniques",
+	"inputType": "lookup",
+	"multiple": true,
+	"options": [ "blending", "glazing", "dry brushing", "impasto", "sfumato" ]
+}
+```
