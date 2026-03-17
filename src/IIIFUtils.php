@@ -2,11 +2,12 @@
 
 namespace IIIF;
 
-use Parser;
-use Title;
+use MediaWiki\Parser\Parser;
+use MediaWiki\Title\Title;
 use MediaWiki\MediaWikiServices;
-use ParserOptions;
-use RequestContext;
+use Article;
+use MediaWiki\Parser\ParserOptions;
+use MediaWiki\Context\RequestContext;
 use MediaWiki\Revision\SlotRecord;
 //use WSSlots\WSSlots;
 use IIIF\IIIFParsers\IIIFAnnotationParsers;
@@ -104,10 +105,17 @@ class IIIFUtils {
 		return $titleObj->getFullText();
 	}
 
+	/**
+	 * @param mixed $id
+	 * @param string $slotName
+	 * @return string - empty string if no valid page is returned
+	 */
 	public static function getRawContentFromPageID( $id, $slotName = "main" ) {
 		$titleObj = Title::newFromID( $id, 0 );
-		$res = self::getRawContentFromTitleObj( $titleObj, $slotName );
-		return $res;
+		if ( $titleObj === null ) {
+			return "";
+		}
+		return self::getRawContentFromTitleObj( $titleObj, $slotName );
 	}
 
 	public static function getRawContentFromPageName( $fullpagename, $slotName = "main" ) {
@@ -120,7 +128,7 @@ class IIIFUtils {
 	 * Largely reproduced from CODECS Resources extension 2023
 	 */
 	public static function getRawContentFromTitleObj( $titleObj, string $slotName = "main" ) {
-		$article = new \Article( $titleObj );
+		$article = new Article( $titleObj );
 		$title = $article->getTitle();
 
         $revRecord = MediaWikiServices::getInstance()
