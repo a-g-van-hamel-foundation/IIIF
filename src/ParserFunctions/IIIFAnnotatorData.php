@@ -2,8 +2,8 @@
 
 namespace IIIF\ParserFunctions;
 
-use Parser;
-use Title;
+use MediaWiki\Parser\Parser;
+use MediaWiki\Title\Title;
 use IIIF\IIIFUtils;
 use IIIF\ParserFunctions\IIIFParserFunctionUtils;
 use IIIF\IIIFParsers\IIIFAnnotoriousParsers;
@@ -99,7 +99,7 @@ class IIIFAnnotatorData {
 
 	/**
 	 * @todo Deprecated???
-	 * @param \Parser $parser
+	 * @param Parser $parser
 	 * @param mixed $page
 	 * @param mixed $title
 	 * @param mixed $text

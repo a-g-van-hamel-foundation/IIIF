@@ -2,7 +2,7 @@
 
 namespace IIIF\Config;
 
-use JsonContent;
+use MediaWiki\Content\JsonContent;
 
 class IIIFJsonContent extends JsonContent {
 

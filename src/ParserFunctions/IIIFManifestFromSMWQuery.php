@@ -7,8 +7,8 @@
 
 namespace IIIF\ParserFunctions;
 
-use Parser;
-use PPFrame;
+use MediaWiki\Parser\Parser;
+use MediaWiki\Parser\PPFrame;
 use IIIF\ParserFunctions\IIIFParserFunctionUtils;
 use IIIF\IIIFUtils;
 

@@ -2,11 +2,10 @@
 
 namespace IIIF\ParserFunctions;
 
-//use MediaWiki\MediaWikiServices;
+use MediaWiki\Parser\Parser;
+use MediaWiki\Registration\ExtensionRegistry;
+use MediaWiki\Html\Html;
 use IIIF\ParserFunctions\IIIFParserFunctionUtils;
-use ExtensionRegistry;
-//use Parser;
-//use html
 
 class IIIFAnnotator {
 
@@ -51,7 +50,7 @@ class IIIFAnnotator {
 			$attribs["data-target-slot"] = $targetSlot;
 		}
 
-		$res = \Html::rawElement(
+		$res = Html::rawElement(
 			"div",
 			$attribs,
 			"<div class='iiif-loader'></div>"

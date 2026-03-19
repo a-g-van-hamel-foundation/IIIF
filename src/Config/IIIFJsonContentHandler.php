@@ -2,14 +2,14 @@
 
 namespace IIIF\Config;
 
-use JsonContentHandler;
-use Content;
+use MediaWiki\Content\JsonContentHandler;
+use MediaWiki\Content\Content;
 use MediaWiki\Content\Renderer\ContentParseParams;
 use MediaWiki\Content\Transform\PreSaveTransformParams;
 use MediaWiki\Content\ValidationParams;
-use Title;
-use RequestContext;
-use ParserOutput;
+use MediaWiki\Title\Title;
+use MediaWiki\Context\RequestContext;
+use MediaWiki\Parser\ParserOutput;
 use IIIF\Config\IIIFJsonContent;
 use IIIF\Config\IIIFConfig;
 
