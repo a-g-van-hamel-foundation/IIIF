@@ -66,6 +66,10 @@
 		const targetSlot = configData.targetSlot;
 		const iiifManifest = configData.iiifManifest ?? null;
 		const canvasIdentifiers = getCanvasIdentifiers(manifestData);
+		let customOptions = null;
+		if ( configData.customOptions ) {
+			customOptions = JSON.parse( configData.customOptions );
+		}
 		const createdApp = Vue.createMwApp( App, {
 			formProfileData,
 			valueData,
@@ -73,7 +77,8 @@
 			targetPageId,
 			targetSlot,
 			iiifManifest,
-			canvasIdentifiers
+			canvasIdentifiers,
+			customOptions
 		});
 		createdApp.use(Vuex);
 		createdApp.mount(item);

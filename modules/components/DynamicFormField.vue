@@ -85,6 +85,7 @@
 				:api-type="apiType"
 				:api-url="apiUrl"
 				:options="menuItems"
+				:custom-options="customOptions"
 				@update:selected="updateSelected"
 				@emit-lookup-value="getLookupValue"
 			></field-lookup>
@@ -159,7 +160,8 @@ module.exports = defineComponent( {
 		placeholder: { type: String, default: "" },
 		options: { type: Array, default: [] },
 		defaultValue: { type: String, default: "" },
-		wrapperClass: { type: String, default: "anno-field" }
+		wrapperClass: { type: String, default: "anno-field" },
+		customOptions: { type: Object, default: {} }
 	},
 	watch: {
 		selection: function(n,o) {

@@ -28,6 +28,17 @@ class IIIFTOC {
 		];
 		[ $lib, $formId, $form, $targetPage, $targetPageId, $targetSlot, $manifest ] = array_values( IIIFParserFunctionUtils::extractParams( $frame, $params, $paramsAllowed ) );
 
+		// Parameters starting with @...
+		$customOptions = [];
+		foreach( $params as $param ) {
+			$paramExpanded = $frame->expand( $param );
+			$keyValPair = explode('=', $paramExpanded, 2);
+			$paramName = trim( $keyValPair[0] );
+			if ( substr( $paramName, 0, 1 ) === '@' && array_key_exists( 1, $keyValPair ) ) {
+				$customOptions[$paramName] = trim( $keyValPair[1] );
+			}
+		}
+
 		if ( $formId === "" && $form !== "" ) {
 			$formId = Title::newFromText( $form )->getId();
 		}
@@ -38,6 +49,7 @@ class IIIFTOC {
 			$targetPage = Title::newFromId( $targetPageId )->getPrefixedText();
 		}
 
+		$parser->getOutput()->addModuleStyles( [ "ext.iiif.styles" ] );
 		if ( $lib === "vue-draggable-plus" ) {
 			$parser->getOutput()->addModules( [ "ext.iiif.toc" ] );
 		} else {
@@ -55,8 +67,12 @@ class IIIFTOC {
 		if ( $manifest !== "" ) {
 			$attributes["data-iiif-manifest"] = $manifest;
 		}
+		if( !empty( $customOptions ) ) {
+			$attributes["data-custom-options"] = json_encode( $customOptions, JSON_INVALID_UTF8_SUBSTITUTE );
+		}
 
-		$res = Html::rawElement( "div", $attributes, "..." );
+		$res = Html::rawElement( "div", $attributes, "<div class='iiif-loader'></div>" );
 		return $res;
 	}
+
 }

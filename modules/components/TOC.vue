@@ -73,6 +73,7 @@
 							:form-profile-schema="formProfileSchema"
 							v-model:value-data="item"
 							:canvases="canvasIdentifiers"
+							:custom-options="customOptions"
 						></toc-form>
 						<pre>{{ item }}</pre>
 
@@ -128,7 +129,8 @@ module.exports = defineComponent( {
 		targetPageId: { type: String, default: "0" },
 		targetSlot: { type: String, default: "main" },
 		iiifManifest: { type: String, default: null },
-		canvasIdentifiers: { type: Array, default: [] }
+		canvasIdentifiers: { type: Array, default: [] },
+		customOptions: { type: Object, default: null }
 	},
 	setup(props, context) {
 		// form

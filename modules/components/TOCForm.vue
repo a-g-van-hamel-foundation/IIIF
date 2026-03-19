@@ -25,6 +25,7 @@
 					@emit-update-value="updateValue"
 					@update-field="onUpdateField"
 					:wrapper-class="field.wrapperClass || `form-field`"
+					:custom-options="customOptions"
 				></dynamic-form-field>
 			</template>
 		</fieldset>
@@ -54,7 +55,8 @@ module.exports = defineComponent( {
 		isEnabled: { type: Boolean, default: false },
 		formProfileSchema: { type: Object, default: {} },
 		valueData: { type: Object, default: {} },
-		canvases: { type: Array, default: [] }
+		canvases: { type: Array, default: [] },
+		customOptions: { type: Object, default: {} }
 	},
 	emits: [ 'emit-update:valueData', 'update-field' ],
 	setup(props, { emit } ) {

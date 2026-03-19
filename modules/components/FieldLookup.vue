@@ -52,7 +52,8 @@ module.exports = defineComponent( {
 		apiType: { type: String, default: null },
 		apiUrl: { type: String, default: null },
 		// ...or options
-		options: { type: Array, default: [] }
+		options: { type: Array, default: [] },
+		customOptions: { type: Object, default: {} }
 	},
 	watch: {
 		selectedItems: {
@@ -312,8 +313,13 @@ module.exports = defineComponent( {
 				//https://www.wikidata.org/w/api.php?action=wbsearchentities&origin=*&format=json&limit=10&props=url&language=en&search=certain
 				//https://www.wikidata.org/w/api.php
 				var api = props.apiUrl + `?${ params.toString() }`;
+			} else if( props.apiType == "reconciliation" && props.apiUrl.substring(0,1) == "@" ) {
+				// See #iiif-toc parser function
+				// here apiUrl is not a url but a keyed reference 
+				// to one in the customOptions object
+				var api = props.customOptions[props.apiUrl] + encodeURI( searchTerm );
 			} else if( props.apiType == "reconciliation" ) {
-				// @todo unused; no support for offset
+				// @todo offset ?
 				const paramsLocal = new URLSearchParams({
 					origin: '*',
 					action: 'recon-suggest-entity',
