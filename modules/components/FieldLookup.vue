@@ -16,14 +16,17 @@
 		</template>
 	</div>
 	<cdx-lookup
+		:key="name"
 		v-model:selected="currentSelection"
 		:initial-input-value="currentSelectionLabel"
 		:menu-items="menuItems"
 		:menu-config="menuConfig"
 		aria-label="Lookup..."
 		@input="onInput"
+		@focus="onFocus"
 		:placeholder="placeholder"
 	></cdx-lookup>
+	
 </div>
 </template>
 
@@ -90,6 +93,9 @@ module.exports = defineComponent( {
 			} else {
 				this.selectedItems = [{ value: this.currentSelection, label: n }];
 			}
+		},
+		menuItems: function(n,o) {
+			// debugLog( "menuItems changed to", n );
 		}
 	},
 	emits: ['update:selected'],
@@ -200,7 +206,7 @@ module.exports = defineComponent( {
 				selectedItems.value = [];
 			}
 			//debugLog( "running fetchLabelAndUpdateSelectedItems for item", item );
-			fetchResults( item )
+			requestAPIResults( item )
 			.then( (data) => {
 				if ( props.apiType == "wikibase" ) {
 					// likely the first item (data.search[0]) but look for it anyway
@@ -238,7 +244,7 @@ module.exports = defineComponent( {
 		// follow this route
 		function updateCurrentSelectionLabelForAPI() {
 			//debugLog( "updateCurrentSelectionLabel");
-			fetchResults( currentSelection.value )
+			requestAPIResults( currentSelection.value )
 			.then( ( data ) => {
 				if ( props.apiType == "wikibase" ) {
 					var dataResult = data.search;
@@ -294,7 +300,7 @@ module.exports = defineComponent( {
 		}
 
 		// Fetch results from API
-		function fetchResults( searchTerm, offset ) {
+		function requestAPIResults( searchTerm, offset ) {
 			// debugLog( "searchTerm", searchTerm );
 			if ( props.apiType == "wikibase" ) {
 				const params = new URLSearchParams( {
@@ -330,32 +336,58 @@ module.exports = defineComponent( {
 				});
 				//const api = "https://codecs.vanhamel.nl/api.php?action=recon-suggest-entity&format=json&source=smw&profile=69866&offset=0&limit=25&substr=" + ....
 				var api = props.apiUrl + encodeURI( searchTerm );
+			} else {
+				return null;
 			}
 			return fetch( api ).then( ( response ) => response.json() );
+		}
+
+		function onFocus(e) {
+			// If value is empty and type=options or 
+			// reconciliation, make sure that menu
+			// is populated with initial suggestions
+			// (if any - API may not return anything).
+			// List should be visible on subsequent keydown.
+			if ( ( e.target.value == "" )
+				&& ( props.apiType == "reconciliation" )
+			) {
+				fetchAPIResultsAndSetMenu("");
+			} else if( e.target.value == "" && dataSourceType == "options" ) {
+				onInputWithOptions("");
+			}
 		}
 
 		// On input, show results in dropdown menu
 		function onInput( value ) {
 			// Internally track the current search term.
 			currentSearchTerm.value = value;
-			// Do nothing if we have no input.
 			
-			// Options
+			// (1) Options
 			if ( dataSourceType == "options" ) {
 				onInputWithOptions(value);
 				return;
 			}
-			// API
-			if ( !value ) {
+
+			// Do nothing if we have no input.
+			if ( !value || value == "" ) {
 				menuItems.value = [];
 				return;
 			}
-			fetchResults( value )
+
+			// (2) API
+			fetchAPIResultsAndSetMenu(value);
+		}
+
+		function fetchAPIResultsAndSetMenu(value) {
+			// Internally track the current search term.
+			currentSearchTerm.value = value;
+
+			requestAPIResults( value )
 			.then( ( data ) => {
-				// debugLog( "onInput: fetchResults, data", data);
+				// debugLog( "onInput: fetchAPIResultsAndSetMenu, data", data);
 				// Make sure this data is still relevant first.
 				if ( currentSearchTerm.value !== value ) {
-					// debugLog( "currentSearchTerm is not equal to value", currentSearchTerm.value, value );
+					debugLog( "currentSearchTerm is not equal to value", currentSearchTerm.value, value );
 					return;
 				}
 				if ( props.apiType == "wikibase" ) {
@@ -367,7 +399,6 @@ module.exports = defineComponent( {
 				}
 				// Reset the menu items if there are no results.
 				if ( !dataResult || dataResult === undefined || dataResult.length === 0 ) {
-					//debugLog( "No results" );
 					menuItems.value = [];
 					return;
 				}
@@ -406,7 +437,7 @@ module.exports = defineComponent( {
 				return;
 			}
 
-			fetchResults( currentSearchTerm.value, menuItems.value.length )
+			requestAPIResults( currentSearchTerm.value, menuItems.value.length )
 				.then( ( data ) => {
 					// Wikidata has data.search
 					if ( !data.search || data.search.length === 0 ) {
@@ -481,7 +512,9 @@ module.exports = defineComponent( {
 			menuItems,
 			menuConfig,
 			// Methods
-			fetchResults,
+			//requestAPIResults,
+			onFocus,
+			onFocus,
 			onInput,
 			onLoadMore,
 			updateCurrentSelectionLabelForAPI,
