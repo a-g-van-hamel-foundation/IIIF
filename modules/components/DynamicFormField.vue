@@ -82,6 +82,7 @@
 				v-model:selected="selection"
 				:default-items="inputValue"
 				:multiple="multiple"
+				:show-value="showValue"
 				:api-type="apiType"
 				:api-url="apiUrl"
 				:options="menuItems"
@@ -155,6 +156,8 @@ module.exports = defineComponent( {
 		inputType: { type: String, default: "text" },
 		inputValue: { type: String, default: null },
 		multiple: { type: Boolean, default: false },
+		// Lookup: whether to show value after label, between brackets
+		showValue: { type: Boolean, default: false },
 		apiType: { type: String, default: "wikibase" },
 		apiUrl: { type: String, default: "https://www.wikidata.org/w/api.php" },
 		placeholder: { type: String, default: "" },

@@ -39,6 +39,7 @@
 					@emit-update-value="updateValue"
 					:placeholder="field.placeholder"
 					:multiple="field.multiple || false"
+					:showValue="field.showValue || false"
 					:api-type="field.apiType || null"
 					:api-url="field.apiUrl || null"
 				></dynamic-form-field>

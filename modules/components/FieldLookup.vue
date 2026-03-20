@@ -5,7 +5,8 @@
 		<!-- single or multiple -->
 		<template v-for="(item,index) in selectedItems" :index="index" :key="item.value || getRandomNumber()">
 			<div v-if="item.value" class="lookup-chip">
-				{{ item.label || "" }} (<code>{{ item.value }}</code>)
+				{{ item.label || "" }} 
+				<template v-if="showValue">(<code>{{ item.value }}</code>)</template>
 				<input
 					type="hidden"
 					:name="name"
@@ -51,6 +52,8 @@ module.exports = defineComponent( {
 		// Not implemented
 		defaultItems: { type: [String, Array ], default: [] },
 		multiple: { type: Boolean, default: false },
+		// whether to show value after label, between brackets
+		showValue: { type: Boolean, default: false },
 		// Either API
 		apiType: { type: String, default: null },
 		apiUrl: { type: String, default: null },

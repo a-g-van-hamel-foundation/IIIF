@@ -17,6 +17,7 @@
 					:input-type="field.inputType || `text`"
 					:label="field.label"
 					:multiple="field.multiple || false"
+					:show-value="field.showValue || false"
 					:api-type="field.apiType || null"
 					:api-url="field.apiUrl || null"
 					:options="standardiseOptions(field.options) || []"
@@ -80,6 +81,7 @@ module.exports = defineComponent( {
 				inputType: "lookup",
 				options: props.canvases,
 				multiple: true,
+				showValue: true,
 				required: false
 			}, ...formFields.value];
 		}
