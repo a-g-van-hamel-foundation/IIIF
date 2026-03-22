@@ -15,11 +15,12 @@
 
 namespace IIIF\API;
 
+use MediaWiki\Api\ApiBase;
 use Wikimedia\ParamValidator\ParamValidator;
 use IIIF\IIIFUtils;
 use IIIF\IIIFParsers\IIIFParserUtils;
 
-class IIIFManifestAPI extends \ApiBase {
+class IIIFManifestAPI extends ApiBase {
 
 	public function __construct( $query, $moduleName ) {
 		parent::__construct( $query, $moduleName );

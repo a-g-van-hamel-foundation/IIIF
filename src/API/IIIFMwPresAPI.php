@@ -2,16 +2,10 @@
 
 namespace IIIF\API;
 
-use MediaWiki\MediaWikiServices;
-use Title;
-use LocalFile;
-//use MediaWiki\Revision\RevisionStore;
-//use MediaWiki\Revision\RevisionRecord;
-//use SMW\DIWikiPage;
+use MediaWiki\Api\ApiBase;
 use Wikimedia\ParamValidator\ParamValidator;
 use IIIF\IIIFMwRemote;
 use IIIF\IIIFUtils;
-// use IIIF\API\IIIFMwImgAPI;
 use IIIF\IIIFParsers\IIIFMwImageUtils;
 use IIIF\IIIFParsers\IIIFParserUtils;
 use IIIF\IIIFParsers\IIIFCanvasParsers;
@@ -38,7 +32,7 @@ use IIIF\SMW\IIIFSMW;
  * 
  */
 
-class IIIFMWPresAPI extends \ApiBase {
+class IIIFMWPresAPI extends ApiBase {
 
 	private $metaErrors = [];
 

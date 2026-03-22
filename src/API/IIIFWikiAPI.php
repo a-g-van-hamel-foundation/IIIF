@@ -7,11 +7,12 @@
 
 namespace IIIF\API;
 
+use MediaWiki\Api\ApiBase;
 use MediaWiki\MediaWikiServices;
 use Wikimedia\ParamValidator\ParamValidator;
 use IIIF\IIIFUtils;
 
-class IIIFWikiAPI extends \ApiBase {
+class IIIFWikiAPI extends ApiBase {
 
 	public function __construct( $query, $moduleName ) {
 		parent::__construct( $query, $moduleName );

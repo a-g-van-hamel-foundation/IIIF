@@ -9,6 +9,7 @@
 
 namespace IIIF\API;
 
+use MediaWiki\Api\ApiBase;
 use MediaWiki\MediaWikiServices;
 use SMW\DIWikiPage;
 use Wikimedia\ParamValidator\ParamValidator;
@@ -16,7 +17,7 @@ use IIIF\IIIFUtils;
 use IIIF\Config\IIIFConfig;
 use IIIF\SMW\IIIFSMW;
 
-class IIIFCollectionAPI extends \ApiBase {
+class IIIFCollectionAPI extends ApiBase {
 
 	public static $smwConfigProps = [];
 

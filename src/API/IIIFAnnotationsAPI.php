@@ -12,7 +12,7 @@
 
 namespace IIIF\API;
 
-use ApiBase;
+use MediaWiki\Api\ApiBase;
 use MediaWiki\MediaWikiServices;
 use SMW\DIWikiPage;
 use Wikimedia\ParamValidator\ParamValidator;

@@ -32,8 +32,9 @@
 
 namespace IIIF\API;
 
+use MediaWiki\Api\ApiBase;
 use MediaWiki\MediaWikiServices;
-use Title;
+use MediaWiki\Title\Title;
 use LocalFile;
 use MediaWiki\Revision\RevisionStore;
 use MediaWiki\Revision\RevisionRecord;
@@ -41,7 +42,7 @@ use Wikimedia\ParamValidator\ParamValidator;
 use IIIF\IIIFUtils;
 use IIIF\IIIFMwRemote;
 
-class IIIFMwImgAPI extends \ApiBase {
+class IIIFMwImgAPI extends ApiBase {
 
 	//THUMB_TEMPLATE = "https://upload.wikimedia.org/wikipedia/commons/thumb/{0}/{1}/{2}/{3}px-{2}"
 	//FULL_TEMPLATE = "https://upload.wikimedia.org/wikipedia/commons/{0}/{1}/{2}"

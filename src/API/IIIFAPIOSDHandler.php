@@ -9,7 +9,7 @@
 
 namespace IIIF\API;
 
-use ApiBase;
+use MediaWiki\Api\ApiBase;
 use Wikimedia\ParamValidator\ParamValidator;
 use IIIF\IIIFUtils;
 use IIIF\IIIFParsers\IIIFCanvasParsers;
