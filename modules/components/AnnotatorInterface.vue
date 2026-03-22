@@ -527,8 +527,8 @@ module.exports = defineComponent( {
 			]
 		};
 		const customOptions = ref( {} );
-		if ( props.configProps.customOptions ) {
-			customOptions.value = JSON.parse( configProps.props.customOptions );
+		if (props.configProps.customOptions) {
+			customOptions.value = JSON.parse(props.configProps.customOptions);
 		}
 		var formProfileSchema = ref(
 			props.formProfile ?? formProfileDefault
