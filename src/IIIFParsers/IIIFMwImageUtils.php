@@ -6,7 +6,7 @@
 
 namespace IIIF\IIIFParsers;
 
-use Title;
+use MediaWiki\Title\Title;
 use MediaWiki\MediaWikiServices;
 use IIIF\IIIFUtils;
 use File;

@@ -3,8 +3,8 @@
 namespace IIIF\Special;
 
 use MediaWiki\MediaWikiServices;
-use Title;
-use RedirectSpecialPage;
+use MediaWiki\Title\Title;
+use MediaWiki\SpecialPage\RedirectSpecialPage;
 use File;
 use IIIF\IIIFUtils;
 use IIIF\IIIFMwRemote;

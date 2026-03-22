@@ -14,9 +14,10 @@ namespace IIIF\Special;
 
 use \Parsedown;
 use MediaWiki\MediaWikiServices;
+use MediaWiki\SpecialPage\SpecialPage;
 use IIIF\IIIFUtils;
 
-class IIIFSpecial extends \SpecialPage {
+class IIIFSpecial extends SpecialPage {
 
 	private $extensionPath;
 	private $toc = [];
