@@ -7,7 +7,7 @@
 	"description": "API services and other tools for working with IIIF, such as integrating annotations, creating collections and using MediaWiki image files.",
 	"license-name": "GPL-2.0-or-later",
 	"requires": {
-		"MediaWiki": ">= 1.39.0",
+		"MediaWiki": ">= 1.43.0",
 		"extensions": {}
 	},
 	"MessagesDirs": {
