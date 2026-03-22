@@ -42,6 +42,7 @@
 						@emit-updated-annotation="updateAnnotation"
 						:profile-schema="formProfileSchema"
 						:show-icon="iconStatus"
+						:custom-options="customOptions"
 					></annotator-form>
 				</template>
 				<template #dataset v-if="isViewerMode">
@@ -525,6 +526,10 @@ module.exports = defineComponent( {
 				}
 			]
 		};
+		const customOptions = ref( {} );
+		if ( props.configProps.customOptions ) {
+			customOptions.value = JSON.parse( configProps.props.customOptions );
+		}
 		var formProfileSchema = ref(
 			props.formProfile ?? formProfileDefault
 		);
@@ -597,6 +602,7 @@ module.exports = defineComponent( {
 			// Form
 			isFormEnabled,
 			showForm,
+			customOptions,
 			formProfileSchema,
 			iconStatus,
 			showStatusIcon,

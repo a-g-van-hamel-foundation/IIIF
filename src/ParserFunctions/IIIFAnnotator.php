@@ -27,6 +27,17 @@ class IIIFAnnotator {
 		list( $manifest, $profile, $profileId, $target, $targetSlot, $canvasIndex, $mode ) = array_values( IIIFParserFunctionUtils::extractParams( $frame, $params, $paramsAllowed ) );
 		$contentModel = $target !== null && str_starts_with( $target, "IIIF:" ) ? "iiifjson" : "json";
 
+		// Parameters starting with @...
+		$customOptions = [];
+		foreach( $params as $param ) {
+			$paramExpanded = $frame->expand( $param );
+			$keyValPair = explode('=', $paramExpanded, 2);
+			$paramName = trim( $keyValPair[0] );
+			if ( substr( $paramName, 0, 1 ) === '@' && array_key_exists( 1, $keyValPair ) ) {
+				$customOptions[$paramName] = trim( $keyValPair[1] );
+			}
+		}
+
 		$outputPage = $parser->getOutput();
 		$outputPage->addModules( [ "ext.iiif.annotator" ] );
 		$outputPage->addModuleStyles( [ "ext.iiif.styles" ] );
@@ -42,6 +53,9 @@ class IIIFAnnotator {
 			"data-canvas-index" => $canvasIndex,
 			"data-mode" => $mode
 		];
+		if( !empty( $customOptions ) ) {
+			$attribs["data-custom-options"] = json_encode( $customOptions, JSON_INVALID_UTF8_SUBSTITUTE );
+		}
 
 		// MCR
 		if ( $targetSlot !== null && $targetSlot !== ""

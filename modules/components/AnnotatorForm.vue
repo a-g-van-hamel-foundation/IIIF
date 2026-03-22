@@ -42,6 +42,7 @@
 					:showValue="field.showValue || false"
 					:api-type="field.apiType || null"
 					:api-url="field.apiUrl || null"
+					:custom-options="customOptions"
 				></dynamic-form-field>
 			</template>
 
@@ -73,7 +74,8 @@ module.exports = defineComponent( {
 				properties: []
 			}
 		},
-		showIcon: { type: "String", default: "" }
+		showIcon: { type: "String", default: "" },
+		customOptions: { type: "Object", default: {} }
 	},
 	methods: {
 		// @todo maybe remove
