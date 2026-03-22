@@ -1,34 +1,31 @@
 <template>
-<div class="lookup-field">
-	<!-- @load-more="onLoadMore" -->
-	<div ref="el" class="lookup-chips">
-		<!-- single or multiple -->
-		<template v-for="(item,index) in selectedItems" :index="index" :key="item.value || getRandomNumber()">
-			<div v-if="item.value" class="lookup-chip">
-				{{ item.label || "" }} 
-				<template v-if="showValue">(<code>{{ item.value }}</code>)</template>
-				<input
-					type="hidden"
-					:name="name"
-					:value="item.value"
-				></input>
-				<button class="dismiss" @click.prevent="handleDismissChip(item,index)">✕</button>
-			</div>
-		</template>
+	<div class="lookup-field">
+		<div ref="el" class="lookup-chips">
+			<template v-for="item in selectedItems" :key="`${item.value}-${dragKey}`" >
+				<div  class="lookup-chip">
+					{{ item.label || "" }} 
+					<template v-if="showValue">(<code>{{ item.value }}</code>)</template>
+					<input type="hidden"
+						:name="name"
+						:value="item.value"
+					></input>
+					<button class="dismiss no-drag" @mousedown.stop @click.prevent="handleDismissChip(item)">✕</button>
+				</div>
+			</template>
+		</div>
+		<cdx-lookup
+			:key="name"
+			v-model:selected="currentSelection"
+			:initial-input-value="currentSelectionLabel"
+			:menu-items="menuItems"
+			:menu-config="menuConfig"
+			aria-label="Lookup..."
+			@input="onInput"
+			@focus="onFocus"
+			:placeholder="placeholder"
+		></cdx-lookup>
+		<!--dev only: <pre>{{ selectedItems || {} }}</pre> -->
 	</div>
-	<cdx-lookup
-		:key="name"
-		v-model:selected="currentSelection"
-		:initial-input-value="currentSelectionLabel"
-		:menu-items="menuItems"
-		:menu-config="menuConfig"
-		aria-label="Lookup..."
-		@input="onInput"
-		@focus="onFocus"
-		:placeholder="placeholder"
-	></cdx-lookup>
-	
-</div>
 </template>
 
 <script>
@@ -50,7 +47,7 @@ module.exports = defineComponent( {
 		placeholder: { type: String, default: "" },
 		selected: { type: [Array,String], default: [] },
 		// Not implemented
-		defaultItems: { type: [String, Array ], default: [] },
+		//defaultItems: { type: [String, Array ], default: [] },
 		multiple: { type: Boolean, default: false },
 		// whether to show value after label, between brackets
 		showValue: { type: Boolean, default: false },
@@ -72,30 +69,31 @@ module.exports = defineComponent( {
 			// Important!
 			deep: true
   		},
-		defaultItems: function(n,o) {
+		//defaultItems: function(n,o) {
 			//debugLog( "defaultItems has changed",n);
 			//this.selectedItems = n;
-		},
+		//},
 		selected: function(n,o) {
 			//debugLog( "FieldLookup, selected: previous values", o );
 			//debugLog( "FieldLookup, selected: new value", n );
 		},
-		currentSelection: function(n,o) {
-			//debugLog( "FieldLookup - selection changed", n );
-			this.$emit( "emit-lookup-value", n );
-			if ( this.dataSourceType == "options" ) {
-				this.updateCurrentSelectionLabelForOptions();
-			} else {
-				this.updateCurrentSelectionLabelForAPI();
-			}
-		},
-		currentSelectionLabel: function(n,o) {
-			//debugLog( "FieldLookup: currentSelectionLabel changed", n );
-			if ( this.multiple ) {
-				this.selectedItems.push( { value: this.currentSelection, label: n } );
-			} else {
-				this.selectedItems = [{ value: this.currentSelection, label: n }];
-			}
+		currentSelection: {
+			handler(n,o) {
+				this.$emit( "emit-lookup-value", n );
+				if ( n == "" || n == null ) {
+					if ( this.apiType == "reconciliation" ) {
+						// re-populate menu with initial suggestions
+						this.fetchAPIResultsAndSetMenu("");
+					}
+					//return;
+				}				
+				if ( this.dataSourceType == "options" ) {
+					this.updateCurrentSelectionLabelForOptions();
+				} else {
+					this.updateCurrentSelectionLabelForAPI();
+				}
+			},
+			deep: true
 		},
 		menuItems: function(n,o) {
 			// debugLog( "menuItems changed to", n );
@@ -103,10 +101,16 @@ module.exports = defineComponent( {
 	},
 	emits: ['update:selected'],
 	setup(props, {emit} ) {
+		const dragKey = ref(0);
+
 		// Data
 		const dataSourceType = props.apiType != null ? "api" : "options";
+		// selectedItems: array of objects in the format
 		// [ { label: ..., value: ... },{ label: ..., value: ... } ]
 		const selectedItems = ref( [] );
+		// @dev try this instead in the event of out-of-sync issues
+		// const validSelectedItems = computed(() => selectedItems.value.filter(item => item?.value));
+
 		if ( dataSourceType == "api" ) {
 			initSetSelectedItemsForAPI( props.multiple, props.selected );
 		} else {
@@ -178,7 +182,7 @@ module.exports = defineComponent( {
 				//item
 				const found = props.options.find( (res) => res.value == item );
 				debugLog( "...Found option", found );
-				addItem( { 
+				addToSelectedItems( { 
 					value: item, 
 					label: ( found != undefined ? found.label : item )
 				} );
@@ -211,33 +215,31 @@ module.exports = defineComponent( {
 			//debugLog( "running fetchLabelAndUpdateSelectedItems for item", item );
 			requestAPIResults( item )
 			.then( (data) => {
+				if ( data == undefined ) {
+					// ?menuItems.value = [];
+					return;
+				}
 				if ( props.apiType == "wikibase" ) {
 					// likely the first item (data.search[0]) but look for it anyway
 					const found = data.search.find( (res) => res.id == item );
 					if ( props.multiple && found !== undefined ) {
-						//selectedItems.value.push({ value: item, label: found.label ?? item });
-						addItem( { value: item, label: found.label ?? item } );
+						addToSelectedItems( { value: item, label: found.label ?? item } );
 					} else if( found !== undefined ) {
 						setItem({ value: item, label: found.label ?? item });
-						//selectedItems.value = [{ value: item, label: found.label ?? item }];
 					} else {
 						debugLog( "Lookup could not find an item in the Wikibase database.", item  );
 						setItem({ value: item, label: item + " (?)" });
-						//selectedItems.value = [{ value: item, label: item + " (?)" }];
 					}
 				} else if( props.apiType == "reconciliation" ) {
 					const found = data.result.find( (res) => res.id == item );
 					// add (multiple) or replace
 					if ( props.multiple && found !== undefined ) {
-						addItem( { value: item, label: found.name ?? item } );
-						//selectedItems.value.push({ value: item, label: found.name ?? item });
+						addToSelectedItems( { value: item, label: found.name ?? item } );
 					} else if( found !== undefined ) {
 						setItem({ value: item, label: found.name ?? item });
-						//selectedItems.value = [{ value: item, label: found.name ?? item }];
 					} else {
 						debugLog( "Lookup could not find an item in the reconciliation API. Perhaps the query changed or the page was deleted?", item  );
 						setItem({ value: item, label: item + " (?)" });
-						//selectedItems.value = [{ value: item, label: item + " (?)" }];
 					}
 				}
 			});
@@ -246,7 +248,6 @@ module.exports = defineComponent( {
 		// @todo Flesh this out! Retrieving label should not usually 
 		// follow this route
 		function updateCurrentSelectionLabelForAPI() {
-			//debugLog( "updateCurrentSelectionLabel");
 			requestAPIResults( currentSelection.value )
 			.then( ( data ) => {
 				if ( props.apiType == "wikibase" ) {
@@ -258,10 +259,13 @@ module.exports = defineComponent( {
 				} else {
 					return;
 				}
+				if ( dataResult == undefined ) {
+					return;
+				}
 				const found = dataResult.find( (res) => res.id == currentSelection.value );
 				if ( found != undefined && found[labelName] != undefined ) {
 					currentSelectionLabel.value = found[labelName];
-					// changes watched to currentSelectionLabel will do the rest
+					addCurrentSelectionToSelectedItems( currentSelectionLabel.value );
 				} else {
 					debugLog( "No label retrieved for selection.value", currentSelection.value );
 					debugLog( "because dataResult is this", dataResult );
@@ -273,33 +277,50 @@ module.exports = defineComponent( {
 			const found = props.options.find( (res) => res.value == currentSelection.value );
 			if ( found != undefined && found["label"] != undefined ) {
 				currentSelectionLabel.value = found["label"];
-				// changes watched to currentSelectionLabel will do the rest
+				addCurrentSelectionToSelectedItems( currentSelectionLabel.value );
 			}
+		}
+
+		function addCurrentSelectionToSelectedItems(label) {
+			//debugLog( "FieldLookup: currentSelectionLabel changed", n );
+			if ( props.multiple ) {
+				// Adds to selectedItems
+				addToSelectedItems({ value: currentSelection.value, label: label });
+			} else {
+				selectedItems.value = [{ value: currentSelection.value, label: label }];
+			}
+			currentSelection.value = "";
 		}
 
 		function setItem(item) {
 			selectedItems.value = [ item ];
 		}
-		// Adding
-		function addItem(newItem) {
+
+		function addToSelectedItems(newItem) {
+			const alreadyExists = selectedItems.value.some(item => item.value === newItem.value);
+			if ( alreadyExists ) {
+				return;
+			}
 			selectedItems.value = [...selectedItems.value, newItem];
 		}
 
 		// Remove selected item
-		function handleDismissChip(item,index) {
+		function handleDismissChip(item) {
 			selectedItems.value = selectedItems.value.filter(
-				// nulls should not happen
-				//(t) => t.value != item.value && t.value != null
-				(t,i) => i !== index
+				t => t.value !== item.value
 			);
 			debugLog( "removed item, new selectedItems.value", selectedItems.value );
-			// alternative selectedItems.value = selectedItems.value.filter((_, i) => i !== index)
-			// Reset to allow value being watched to be selected again
+
+			// Reset to allow value being watched to be selected again? No longer needed?
+			/*
 			if( item.value === currentSelection.value ) {
 				// @todo undefined?
-				currentSelection.value = currentSelectionLabel.value = undefined;
+				currentSelection.value = "";
+				currentSelectionLabel.value = "";
+				//addCurrentSelectionToSelectedItems( currentSelectionLabel.value );
 				currentSearchTerm.value = "";
 			}
+			*/
 		}
 
 		// Fetch results from API
@@ -340,7 +361,7 @@ module.exports = defineComponent( {
 				//const api = "https://codecs.vanhamel.nl/api.php?action=recon-suggest-entity&format=json&source=smw&profile=69866&offset=0&limit=25&substr=" + ....
 				var api = props.apiUrl + encodeURI( searchTerm );
 			} else {
-				return null;
+				//
 			}
 			return fetch( api ).then( ( response ) => response.json() );
 		}
@@ -370,14 +391,12 @@ module.exports = defineComponent( {
 				onInputWithOptions(value);
 				return;
 			}
-
-			// Do nothing if we have no input.
+			// Reset and return if we have no input
 			if ( !value || value == "" ) {
 				menuItems.value = [];
 				return;
 			}
-
-			// (2) API
+			// or (2) API
 			fetchAPIResultsAndSetMenu(value);
 		}
 
@@ -387,6 +406,10 @@ module.exports = defineComponent( {
 
 			requestAPIResults( value )
 			.then( ( data ) => {
+				if ( data == undefined ) {
+					menuItems.value = [];
+					return;
+				}
 				// debugLog( "onInput: fetchAPIResultsAndSetMenu, data", data);
 				// Make sure this data is still relevant first.
 				if ( currentSearchTerm.value !== value ) {
@@ -441,22 +464,22 @@ module.exports = defineComponent( {
 			}
 
 			requestAPIResults( currentSearchTerm.value, menuItems.value.length )
-				.then( ( data ) => {
-					// Wikidata has data.search
-					if ( !data.search || data.search.length === 0 ) {
-						return;
-					}
+			.then( ( data ) => {
+				// Wikidata has data.search
+				if ( !data || !data.search || data.search.length === 0 ) {
+					return;
+				}
 
-					const results = data.search.map( ( result ) => ( {
-						label: result.label,
-						value: result.id,
-						description: result.description
-					} ) );
+				const results = data.search.map( ( result ) => ( {
+					label: result.label,
+					value: result.id,
+					description: result.description
+				} ) );
 
-					// Update menuItems.
-					const deduplicatedResults = deduplicateResults( results );
-					menuItems.value.push( ...deduplicatedResults );
-				} );
+				// Update menuItems.
+				const deduplicatedResults = deduplicateResults( results );
+				menuItems.value.push( ...deduplicatedResults );
+			} );
 		}
 
 		const menuConfig = {
@@ -465,42 +488,25 @@ module.exports = defineComponent( {
 
 		// Draggable
 		const el = ref();
+
 		useDraggable( el, selectedItems, {
-				immediate: true,
-				animation: 150,
-				//group: props.name + getRandomNumber() + "-items",
-				onStart() {
-					debugLog('start dragging item');
-				},
-				onUpdate() {
-					debugLog('update draggable, selectedItems:', selectedItems.value); 
-				},
-				filter: 'input,form,fieldset',
-				preventOnFilter: false
+			immediate: true,
+			animation: 150,
+			//group: props.name + getRandomNumber() + "-items",
+			onStart() {},
+			onUpdate() {},
+			onEnd() {
+				// Force Vue to re-sync its vDOM with a fresh array reference
+				selectedItems.value = [...selectedItems.value];
+				dragKey.value++;
+			},
+			filter: 'input,form,fieldset,button,.no-drag',
+			preventOnFilter: true
 		});
-		/*
-		const chipGroup = ref();
-		const els = [ chipGroup ];
-		els.forEach( (el, index) => {
-			useDraggable( el, selectedItems.value[index], {
-				immediate: false,
-				animation: 150,
-				group: props.name + "-items",
-				onStart() { 
-					debugLog('start dragging item');
-				},
-				onUpdate() {
-					debugLog('update draggable, selectedItems:', selectedItems.value); 
-				},
-				filter: 'input,form,fieldset',
-				preventOnFilter: false
-			});
-		});
-		*/
 
 		function getRandomNumber() {
 			// 7 digits
-			return Math.floor(1000000 + Math.random() * 9000000)
+			return Math.floor(1000000 + Math.random() * 9000000);
 		}
 
 		function debugLog( msg, res ) {
@@ -508,8 +514,11 @@ module.exports = defineComponent( {
 		}
 
 		return {
+			el,
+			dragKey,
 			dataSourceType,
 			selectedItems,
+			//validSelectedItems,
 			currentSelection,
 			currentSelectionLabel,
 			menuItems,
@@ -517,13 +526,15 @@ module.exports = defineComponent( {
 			// Methods
 			//requestAPIResults,
 			onFocus,
-			onFocus,
 			onInput,
 			onLoadMore,
+			fetchAPIResultsAndSetMenu,
 			updateCurrentSelectionLabelForAPI,
 			updateCurrentSelectionLabelForOptions,
 			handleDismissChip,
-			el,
+			addCurrentSelectionToSelectedItems,
+			addToSelectedItems,
+			deduplicateResults,
 			getRandomNumber,
 			debugLog
 		};

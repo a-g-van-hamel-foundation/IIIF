@@ -80,15 +80,13 @@
 			<field-lookup
 				:name="name"
 				v-model:selected="selection"
-				:default-items="inputValue"
 				:multiple="multiple"
 				:show-value="showValue"
 				:api-type="apiType"
 				:api-url="apiUrl"
 				:options="menuItems"
 				:custom-options="customOptions"
-				@update:selected="updateSelected"
-				@emit-lookup-value="getLookupValue"
+				@emit-lookup-value="updateLookupValue"
 			></field-lookup>
 		</section>
 	</template>
@@ -208,17 +206,15 @@ module.exports = defineComponent( {
 		*/
 
 		// 'lookup'
-		function getLookupValue(n) {
-			debugLog("DFF, getLookupValue: ",n );
-			debugLog("DFF, getLookupValue, current selection: ", selection.value );
-			if ( n == null ) {
-				// ????
-				//return;
-			}
-			//selection.value = n;
-			if ( typeof selection.value == "array" ) {
-				selection.value.push( n );
-			} else {
+		function updateLookupValue(n) {
+			debugLog("DFF, updateLookupValue: ",n );
+			debugLog("DFF, updateLookupValue, current selection: ", selection.value );
+			if ( Array.isArray(selection.value) && n != null ) {
+				const alreadyExists = selection.value.some(item => item.value === n.value);
+				if ( !alreadyExists ) {
+					selection.value = [ ...selection.value, n ];
+				}
+			} else if( n != null ) {
 				selection.value = [ n ];
 			}
 			emit( "emit-update-value", n );
@@ -263,8 +259,8 @@ module.exports = defineComponent( {
 			emit,
 			selection,
 			selections,
-			getLookupValue,
 			updateValue,
+			updateLookupValue,
 			updateSelected,
 			menuItems,
 
