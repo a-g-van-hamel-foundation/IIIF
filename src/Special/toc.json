@@ -166,6 +166,13 @@
 		"pagetitle": "Parser function: <code>#iiif-tify</code>",
 		"type": "markdown"
 	},
+	"pf-iiif-toc": {
+		"subpage": "pf-iiif-toc",
+		"file": "src/Special/pf-iiif-toc.md",
+		"menutitle": "<code>#iiif-toc</code> (TOC creator)",
+		"pagetitle": "Parser function: <code>#iiif-toc</code>",
+		"type": "markdown"
+	},
 	"pf-iiif-manifest-from-smwquery": {
 		"subpage": "pf-iiif-manifest-from-smwquery",
 		"file": "src/Special/pf-iiif-manifest-from-smwquery.md",
