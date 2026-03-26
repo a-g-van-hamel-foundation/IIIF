@@ -76,7 +76,7 @@ module.exports = defineComponent( {
 		debugLog( "props.canvases", props.canvases);
 		if ( props.canvases.length !== 0 ) {
 			formFields.value = [{
-				name: "canvas",
+				name: "canvasids",
 				label: "IIIF canvas",
 				inputType: "lookup",
 				options: props.canvases,

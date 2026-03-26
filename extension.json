@@ -1,6 +1,6 @@
 {
 	"name": "IIIF",
-	"version": "0.9",
+	"version": "1.0-alpha",
 	"type": "api",
 	"author": ["[https://codecs.vanhamel.nl Dennis Groenewegen]"],
 	"url": "https://codecs.vanhamel.nl/Show:Lab/IIIF",
@@ -349,7 +349,8 @@
 		"iiif-mw-img": "IIIF\\API\\IIIFMwImgAPI",
 		"iiif-mw-pres": "IIIF\\API\\IIIFMwPresAPI",
 		"iiif-wiki": "IIIF\\API\\IIIFWikiAPI",
-		"iiif-osd": "IIIF\\API\\IIIFAPIOSDHandler"
+		"iiif-osd": "IIIF\\API\\IIIFAPIOSDHandler",
+		"iiif-range": "IIIF\\API\\IIIFRangeAPI"
 	},
 	"SpecialPages": {
 		"IIIF": "IIIF\\Special\\IIIFSpecial",

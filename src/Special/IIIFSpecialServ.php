@@ -58,7 +58,8 @@ class IIIFSpecialServ extends RedirectSpecialPage {
 			"purpose" => $urlParts[0],
 			// local, commons, etc.
 			"repo" => array_key_exists( 1, $urlParts ) ? $urlParts[1] : "",
-			"identifier" => array_key_exists( 2, $urlParts ) ? $urlParts[2] : ""
+			"identifier" => array_key_exists( 2, $urlParts ) ? $urlParts[2] : "",
+			"identifier2" => array_key_exists( 3, $urlParts ) ? $urlParts[3] : ""
 		];
 
 		if ( $request["purpose"] === "image" ) {
@@ -97,6 +98,12 @@ class IIIFSpecialServ extends RedirectSpecialPage {
 			$this->getOutput()->redirect( $apiUrl );
 		} elseif ( $request["purpose"] === "manifest" && $request["repo"] == "smwconfig" ) {
 			$apiUrl = self::getManifestApiUri( $urlParts );
+			$this->getOutput()->redirect( $apiUrl );
+		} elseif( $request["purpose"] === "manifest" && $request["repo"] === "mergerange" ) {
+			$apiUrl = self::getMergeRangeIntoManifestUrl(
+				$request["identifier"],
+				$request["identifier2"] !== "" ? $request["identifier2"] : "main"
+			);
 			$this->getOutput()->redirect( $apiUrl );
 		} else {
 			$this->showNoRedirectPage();
@@ -254,6 +261,20 @@ class IIIFSpecialServ extends RedirectSpecialPage {
 		$manifest = implode( "/", array_slice( $urlParts, 4 ) );
 		$uri = IIIFUtils::getUrlBase() .  "/api.php?action=iiif-manifest&smwconfig={$smwConfig}&obj={$obj}&format=json&formatversion=2&manifest={$manifest}";
 		return $uri;
+	}
+
+	/*
+	 * Special:IIIFServ/manifest/mergerange/{pageid}/{slot}
+	 */
+	public static function getMergeRangeIntoManifestUrl( $pageId, $slot = "main" ) {
+		$parts = [
+			"action" => "iiif-range",
+			"sourcepageid" => $pageId,
+			"sourceslot" => $slot,
+			"format" => "json",
+			"formatversion" => "2"
+		];
+		return IIIFUtils::getUrlBase() . "/api.php?" . http_build_query( $parts, "", "&" );
 	}
 
 	/**
