@@ -330,6 +330,7 @@
 			],
 			"codexComponents": [
 				"CdxButton",
+				"CdxMenuButton",
 				"CdxIcon",
 				"CdxTextArea",
 				"CdxTextInput",

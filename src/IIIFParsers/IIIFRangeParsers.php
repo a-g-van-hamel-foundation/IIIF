@@ -239,7 +239,7 @@ class IIIFRangeParsers {
 		// latest number sequence
 		$latest = [];
 		foreach( $ranges as $range ) {
-			$level = $range["indentLevel"];
+			$level = $range["indentLevel"] ?? 0;
 			// increment
 			++$latest[$level];
 			// and reset everything that comes after

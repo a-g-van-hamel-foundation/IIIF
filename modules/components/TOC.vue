@@ -1,6 +1,13 @@
 <template><div class="iiif-toc">
 
 	<div class="iiif-toc-tools--top">
+		<cdx-menu-button
+			v-if="iiifManifest"
+			v-model:selected="toolMenuItemSelected" :menu-items="toolMenuItems"
+			@update:selected="onSelectToolMenuItem"
+		>
+			<cdx-icon :icon="cdxIconEllipsis"></cdx-icon>
+		</cdx-menu-button>
 		<div v-if="iconStatus == 'success' ">
 			<cdx-icon :icon="cdxIconCheck" class="iiif-edit-success"></cdx-icon>
 		</div>
@@ -43,7 +50,7 @@
 							</div>
 							
 							<div class="handle-right">
-								<input name="indentlevel" v-model="item.indentLevel" type="number" min="0" max="2" class="form-control" style="width:4rem;"></input>
+								<input name="indentlevel" v-model="item.indentLevel" type="number" min="0" max="5" class="form-control" style="width:4rem;"></input>
 								<span @click.prevent="handleAddAfter(index)" class="action-icon" title="Add item directly below">
 									<cdx-icon :icon="cdxIconTableAddRowAfter" aria-label="Add new item below"></cdx-icon>
 								</span>
@@ -109,17 +116,18 @@
 </div></template>
 
 <script>
-const { defineComponent, defineExpose, computed, ref, reactive, onMounted } = require("vue");
+const { defineComponent, defineExpose, computed, ref } = require("vue");
 const { useDraggable } = VueDraggableLib.VueDraggable;
 const TOCForm = require( "./TOCForm.vue" );
-const { CdxButton, CdxIcon } = require( "@wikimedia/codex" );
-const { cdxIconAdd, cdxIconTableAddRowAfter, cdxIconClose, cdxIconTrash, cdxIconDraggable, cdxIconExpand, cdxIconCollapse, cdxIconCheck } = require( './icons.json' );
+const { CdxButton, CdxMenuButton, CdxIcon } = require( "@wikimedia/codex" );
+const { cdxIconAdd, cdxIconTableAddRowAfter, cdxIconClose, cdxIconTrash, cdxIconDraggable, cdxIconExpand, cdxIconCollapse, cdxIconEllipsis, cdxIconCheck } = require( './icons.json' );
 
 module.exports = defineComponent( {
 	name: "TOC",
 	components: {
 		CdxButton,
 		CdxIcon,
+		CdxMenuButton,
 		"toc-form": TOCForm
 	},
 	props: {
@@ -197,6 +205,25 @@ module.exports = defineComponent( {
 			list1.value.splice( index, 1 );
 		}
 
+		// Top menu
+		const toolMenuItems = [
+			{ value: "Visit API", label: `Visit API endpoint (Special:IIIFServ/manifest/mergerange/${props.targetPageId}/${props.targetSlot})` },
+			{ value: "Copy API", label: "Copy API endpoint" }
+		];
+		const toolMenuItemSelected = ref( null );
+		function onSelectToolMenuItem( newSelection ) {
+			toolMenuItemSelected.value = newSelection;
+			var apiUrl = "https:" + mw.config.get("wgServer")  + `/Special:IIIFServ/manifest/mergerange/${props.targetPageId}/${props.targetSlot}`;
+			switch( newSelection ) {
+				case "Visit API":
+					window.open(apiUrl, '_blank').focus();
+					break;
+				case "Copy API":
+					navigator.clipboard.writeText(apiUrl);
+					break;
+			}
+		}
+
 		// Edit target page using WSSlots
 		function editTargetPage(targetPageId, targetSlot, content) {
 			// Requires WSSlots!
@@ -247,6 +274,9 @@ module.exports = defineComponent( {
 			el2,
 			list1,
 			list2,
+			toolMenuItems,
+			toolMenuItemSelected,
+			onSelectToolMenuItem,
 			editTargetPage,
 			iconStatus,
 			showStatusIcon,
@@ -260,6 +290,7 @@ module.exports = defineComponent( {
 			cdxIconDraggable,
 			cdxIconExpand,
 			cdxIconCollapse,
+			cdxIconEllipsis,
 			cdxIconCheck,
 			debugLog
 		}
@@ -294,6 +325,15 @@ module.exports = defineComponent( {
 		}
 		&.toc-level-2 {
 			border-left: 1rem solid #d2cfcf;
+		}
+		&.toc-level-3 {
+			border-left: 1.5rem solid #d2cfcf;
+		}
+		&.toc-level-4 {
+			border-left: 2rem solid #d2cfcf;
+		}
+		&.toc-level-5 {
+			border-left: 2.5rem solid #d2cfcf;
 		}
 	}
 	.toc-item > * {
@@ -334,6 +374,7 @@ module.exports = defineComponent( {
 .iiif-toc-tools--top {
 	background-color: #edfaf5;
 	display:flex;
+	gap:1rem;
 	justify-content: flex-end;
 	align-items: start;
 	padding:.6rem;
