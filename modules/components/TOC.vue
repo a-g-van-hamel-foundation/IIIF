@@ -200,6 +200,10 @@ module.exports = defineComponent( {
 		// Edit target page using WSSlots
 		function editTargetPage(targetPageId, targetSlot, content) {
 			// Requires WSSlots!
+			var text = { "items": content };
+			if ( props.iiifManifest !== null && props.iiifManifest !== "" ) {
+				text["manifest"] = props.iiifManifest;
+			}
 			var editParams = {
 				action: "editslot",
 				format: "json",
@@ -207,7 +211,7 @@ module.exports = defineComponent( {
 				// title: targetPage,
 				pageid: targetPageId,
 				slot: targetSlot,
-				text: JSON.stringify( { "items": content } ),
+				text: JSON.stringify( text ),
 				contentformat: "application/json",
 				contentmodel: "json",
 				summary: `Saved changes in slot (${targetSlot}) with the IIIF TOC Creator`
