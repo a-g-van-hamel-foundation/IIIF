@@ -5,8 +5,44 @@
 		class="toc-form"
 		:disabled="isFormDisabled"
 	>
-		<fieldset ref="tocfieldset" v-if="isEnabled" class="toc-fieldset">
+		<div v-if="hasAlternativeForm" class="select-forms-menu">
+			<cdx-button @click.prevent="selectForm('Main')" size="small">Main</cdx-button>			
+			<div :key="`menu-` + config.name" v-for="config in alternativeFormConfigs">
+				<cdx-button @click.prevent="selectForm(config.name)" size="small">{{ config.name }}</cdx-button>
+			</div>
+		</div>
 
+		<template v-for="config in alternativeFormConfigs"	
+			:key="`form-` + config.name"
+		>
+			<fieldset ref="alt-tocfieldset" v-if="selectedForm == config.name" class="toc-fieldset">
+				<template
+					v-for="field in alternativeFormFields"	
+					:key="`alt-` + field.name"
+				>
+					{{ field.name }}
+					<dynamic-form-field
+						:ref="field.name"
+						:name="field.name"
+						:input-type="field.inputType || `text`"
+						:label="field.label"
+						:multiple="field.multiple || false"
+						:show-value="field.showValue || false"
+						:api-type="field.apiType || null"
+						:api-url="field.apiUrl || null"
+						:options="standardiseOptions(field.options) || []"
+						v-model:input-value="itemData[field.name]"
+						:default-value="field.defaultValue"
+						@emit-update-value="updateValue"
+						@update-field="onUpdateField"
+						:wrapper-class="field.wrapperClass || `form-field`"
+						:custom-options="customOptions"
+					></dynamic-form-field>
+				</template>
+			</fieldset>
+		</template>
+
+		<fieldset ref="tocfieldset" v-if="isEnabled && isMainFormEnabled" class="toc-fieldset">
 			<template
 				v-for="field in formFields"	
 				:key="field.name"
@@ -38,7 +74,7 @@
   -->
 
 <script>
-const { defineComponent, ref, watch, computed, defineModel } = require( "vue" );
+const { defineComponent, ref, reactive, watch, computed, defineModel, toRaw } = require( "vue" );
 //const store = require("ext.iiif.annotator.store");
 const { CdxTextArea, CdxTextInput, CdxButton, CdxIcon } = require( '@wikimedia/codex' );
 //const { cdxIconCheck, cdxIconClose, cdxIconEllipsis } = require( "./icons.json" );
@@ -59,20 +95,20 @@ module.exports = defineComponent( {
 		canvases: { type: Array, default: [] },
 		customOptions: { type: Object, default: {} }
 	},
-	emits: [ 'emit-update:valueData', 'update-field' ],
+	emits: [ 'update:value-data', 'update-field' ],
 	setup(props, { emit } ) {
-		
+
 		// Data
-		const itemData = computed({
-			get: () => props.valueData,
-			set: (value) => emit('emit-update:valueData', value)
-		});
+		const itemData = reactive( props.valueData );
+		watch( itemData, (n) => {
+			emit('update:value-data', n );
+		}, { deep: true } );
 
 		// Form
 		const uniqueId = ref( Math.floor(Math.random() * 1000000 ) );
 		const formFields = ref( {} );
 		formFields.value = props.formProfileSchema.properties;
-		// Additional field(s) on top of the
+		// Additional field(s) on top of the profileSchema
 		debugLog( "props.canvases", props.canvases);
 		if ( props.canvases.length !== 0 ) {
 			formFields.value = [{
@@ -87,6 +123,30 @@ module.exports = defineComponent( {
 		}
 		debugLog( "TOCForm, props.formProfileSchema", props.formProfileSchema );
 		debugLog( "TOCForm, formFields", formFields );
+
+		const selectedForm = ref( props.valueData.Select ?? "Main" );
+		const hasAlternativeForm = ref( false );
+		const alternativeFormConfigs = ref( [] );
+		const alternativeFormFields = ref( [] );
+		if ( props.formProfileSchema.hasOwnProperty("alternatives") ) {
+			hasAlternativeForm.value = true;
+			// Going to support only one first
+			props.formProfileSchema.alternatives.forEach( (alt) => {
+				alternativeFormConfigs.value = [ alt, ...alternativeFormConfigs.value ];
+				alternativeFormFields.value = alt.properties;
+				alternativeFormFields.value = [{
+						name: "Select",
+						inputType: "hidden",
+						value: selectedForm ?? "Main"
+					},
+					...alternativeFormFields.value];
+			} );
+		}
+		const isMainFormEnabled = ref( selectedForm.value == "Main" );
+		function selectForm( formName ) {
+			selectedForm.value = itemData["Select"] = formName;
+			isMainFormEnabled.value = ( formName == "Main" );
+		}
 
 		const isFormDisabled = ref( computed( () => {
 			return props.isEnabled ? "" : "disabled";
@@ -115,7 +175,7 @@ module.exports = defineComponent( {
 		// Are we still using using this?
 		function onUpdateField(payload) {
 			debugLog( "TOCForm, onUpdateField: payload", payload );
-			emit('update-field', payload.key, payload.value)
+			emit('update-field', payload.key, payload.value);
 		}
 		
 		function debugLog(msg, res) {
@@ -125,7 +185,13 @@ module.exports = defineComponent( {
 		return {
 			itemData,
 			uniqueId,
+			selectedForm,
 			formFields,
+			hasAlternativeForm,
+			isMainFormEnabled,
+			selectForm,
+			alternativeFormConfigs,
+			alternativeFormFields,
 			isFormDisabled,
 			standardiseOptions,
 			onUpdateField,
@@ -136,3 +202,10 @@ module.exports = defineComponent( {
 
 } );
 </script>
+<style>
+.select-forms-menu {
+	display: flex;
+	justify-content: flex-end;
+	gap: 0.5rem;
+}
+</style>
