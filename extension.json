@@ -308,6 +308,7 @@
 				"components/index-toc.js",
 				"components/TOC.vue",
 				"components/TOCForm.vue",
+				"components/ResizableWindows.vue",
 				"components/DynamicFormField.vue",
 				"components/FieldLookup.vue",
 				"components/FieldRangeSlider.vue",
@@ -315,6 +316,7 @@
 				"components/FieldTextEditor.vue",
 				"components/FieldXmlEditor.vue",
 				"components/MultiselectLookup.vue",
+				"components/Tify.vue",
 				{
 					"name": "components/icons.json",
 					"callback": "MediaWiki\\ResourceLoader\\CodexModule::getIcons",
@@ -326,10 +328,12 @@
 				"@wikimedia/codex",
 				"ext.iiif.lib.quill",
 				"ext.iiif.lib.ace",
-				"ext.iiif.lib.ace.utils"
+				"ext.iiif.lib.ace.utils",
+				"ext.iiif.lib.tify"
 			],
 			"codexComponents": [
 				"CdxButton",
+				"cdxToggleButton",
 				"CdxMenuButton",
 				"CdxIcon",
 				"CdxTextArea",

@@ -16,17 +16,23 @@ use IIIF\ParserFunctions\IIIFParserFunctionUtils;
 class IIIFTOC {
 	public function run( Parser $parser, PPFrame $frame, $params ) {
 		$paramsAllowed = [
-			"lib" => "vue-draggable-plus",
+			// standalone or windows
+			"mode" => "standalone",
 			// use either formid or form
 			"formid" => "",
 			"form" => "",
-			// page to save data to
+			// page and slot to save data to
 			"targetpage" => "",
 			"targetpageid" => "0", //todo
 			"targetslot" => "main",
+			// IIIF manifest and viewer to use
 			"manifest" => "",
+			"iiifviewer" => "tify",
+			// if in 'windows' mode, allow styling of wrapper element
+			"wrapperclass" => "",
+			"wrapperstyle" => ""
 		];
-		[ $lib, $formId, $form, $targetPage, $targetPageId, $targetSlot, $manifest ] = array_values( IIIFParserFunctionUtils::extractParams( $frame, $params, $paramsAllowed ) );
+		[ $mode, $formId, $form, $targetPage, $targetPageId, $targetSlot, $manifest, $iiifViewer, $wrapperClass, $wrapperStyle ] = array_values( IIIFParserFunctionUtils::extractParams( $frame, $params, $paramsAllowed ) );
 
 		// Parameters starting with @...
 		$customOptions = [];
@@ -50,22 +56,28 @@ class IIIFTOC {
 		}
 
 		$parser->getOutput()->addModuleStyles( [ "ext.iiif.styles" ] );
-		if ( $lib === "vue-draggable-plus" ) {
-			$parser->getOutput()->addModules( [ "ext.iiif.toc" ] );
-		} else {
-            // deprecated
-			$parser->getOutput()->addModules( [ "ext.iiif.draggable" ] );
-		}
+		$parser->getOutput()->addModules( [ "ext.iiif.toc" ] );
 
 		$attributes = [
 			"class" => "iiif-toc-widget",
+			"data-mode" => $mode,
 			"data-form-id" => $formId,
 			"data-target-page" => $targetPage,
 			"data-target-page-id" => $targetPageId,
-			"data-target-slot" => $targetSlot
+			"data-target-slot" => $targetSlot,
+			"data-iiif-viewer" => "false"
 		];
 		if ( $manifest !== "" ) {
 			$attributes["data-iiif-manifest"] = $manifest;
+		}
+		if ( $iiifViewer !== "" ) {
+			$attributes["data-iiif-viewer"] = $iiifViewer;
+		}
+		if ( $wrapperClass !== "" ) {
+			$attributes["data-wrapper-class"] = $wrapperClass;
+		}
+		if ( $wrapperStyle !== "" ) {
+			$attributes["data-wrapper-style"] = $wrapperStyle;
 		}
 		if( !empty( $customOptions ) ) {
 			$attributes["data-custom-options"] = json_encode( $customOptions, JSON_INVALID_UTF8_SUBSTITUTE );

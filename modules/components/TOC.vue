@@ -1,124 +1,147 @@
-<template><div class="iiif-toc">
+<template>
 
-	<div class="iiif-toc-tools--top">
-		<cdx-menu-button
-			v-if="iiifManifest"
-			v-model:selected="toolMenuItemSelected" :menu-items="toolMenuItems"
-			@update:selected="onSelectToolMenuItem"
-		>
-			<cdx-icon :icon="cdxIconEllipsis"></cdx-icon>
-		</cdx-menu-button>
-		<div v-if="iconStatus == 'success' ">
-			<cdx-icon :icon="cdxIconCheck" class="iiif-edit-success"></cdx-icon>
-		</div>
-		<div v-if="iconStatus == 'fail' "><span class="iiif-edit-fail">Failed</span></div>
-		<cdx-button @click="editTargetPage(targetPageId, targetSlot, list1)">Save</cdx-button>
-	</div>
+	<resizable-windows
+		:wrapper-class="wrapperClass"
+		:wrapper-style="wrapperStyle"
+		:resizer-width="10"
+		:is-enabled="isResizableWindowsEnabled"
+	>
+		<template v-slot:window1>
+			<template v-if="iiifManifest && iiifViewer == 'tify'">
+				<tify :manifest="iiifManifest" :wrapper-class="iiifViewerClass"></tify>
+			</template>
+		</template>
 
-	<div class="iiif-toc-lists">
+		<template v-slot:window2>
 
-		<div class="iiif-toc-list-1">
-			<section
-				id="list-container"
-				ref="el1"
-				class="toc-item-group" style="min-height:100px"
-			>
-				<div
-					v-for="(item, index) in list1"
-					:key="item.id"
-					:class="`toc-item toc-level-` + ( item.indentLevel ?? '0' )"
-				>
-					<div class="handle-left cursor-move">
-						<cdx-icon :icon="cdxIconDraggable" title="Drag this item to a new position"></cdx-icon>
+			<div class="iiif-toc">
+
+				<div class="iiif-toc-tools--top">
+					<cdx-menu-button
+						v-if="iiifManifest"
+						v-model:selected="toolMenuItemSelected" :menu-items="toolMenuItems"
+						@update:selected="onSelectToolMenuItem"
+					>
+						<cdx-icon :icon="cdxIconEllipsis"></cdx-icon>
+					</cdx-menu-button>
+					<div v-if="iconStatus == 'success' ">
+						<cdx-icon :icon="cdxIconCheck" class="iiif-edit-success"></cdx-icon>
 					</div>
-					<details class="toc-item-details">
-						<summary class="toc-item-header">
-							<div class="toc-item-header-main">
-								<cdx-icon :icon="cdxIconExpand" class="handle-expand" title="Expand to view form"></cdx-icon>
-								<cdx-icon :icon="cdxIconCollapse" class="handle-collapse" title="Collapse to hide form"></cdx-icon>
-								<input 
-									type="text"
-									name="name"
-									v-model="item.name"
-									placeholder="name"
-									class="header-name-input form-control"
-								/>
-								<!-- @todo - change canvas in viewer panel -->
-								<template v-if="item.canvas == 'lalalalal'">
-									<button :data-canvas="item.canvas" data-canvas-window="mirador-window-1" class="btn-change-canvas btn btn-outline-dark btn-sm" data-scroll="true">View</button>
-								</template>
-							</div>
-							
-							<div class="handle-right">
-								<input name="indentlevel" v-model="item.indentLevel" type="number" min="0" max="5" class="form-control" style="width:4rem;"></input>
-								<span @click.prevent="handleAddAfter(index)" class="action-icon" title="Add item directly below">
-									<cdx-icon :icon="cdxIconTableAddRowAfter" aria-label="Add new item below"></cdx-icon>
-								</span>
-								<details class="toc-item-close">
-									<summary>
-										<cdx-icon :icon="cdxIconClose" class="cdx-icon-warning" title="Remove item"></cdx-icon> </summary>
-									<button @click="handleRemove(index)"
-										class="cdx-button cdx-button--action-destructive cdx-button--size-small" aria-label="Remove this item"
-										>Remove?
-									</button>
-								</details>
-							</div>
-
-						</summary>
-
-						<input
-							type="hidden"
-							name="id"
-							v-model="item.id"
-							placeholder="id"
-							class="form-control"
-						/>
-
-						<toc-form
-							:key="`form-` + item.id"
-							:is-enabled=true
-							:form-profile-schema="formProfileSchema"
-							v-model:value-data="item"
-							:canvases="canvasIdentifiers"
-							:custom-options="customOptions"
-						></toc-form>
-						<pre>{{ item }}</pre>
-
-					</details>
-					
+					<div v-if="iconStatus == 'fail' "><span class="iiif-edit-fail">Failed</span></div>
+					<cdx-button @click="editTargetPage(targetPageId, targetSlot, list1)">Save</cdx-button>
 				</div>
-			</section>
 
-			<section class="iiif-toc-tools--bottom">
-				<cdx-button @click="handleAddToBottom" title="Add new item" aria-label="Add new item">Add item</cdx-button>
-			</section>
-		</div>
+				<div class="iiif-toc-lists">
 
-		<!-- second list/column currently unused -->
-		<div class="iiif-toc-list-2" style="display:none;">
-			<section
-				ref="el2"
-				class="toc-item-group" style="min-height:100px"
-			>
-				<div
-					v-for="item in list2"
-					:key="item.id"
-					class="toc-item cursor-move"
-				>
-					{{ item.name }}
-				</div>	
-			</section>
-		</div>
+					<div class="iiif-toc-list-1">
+						<section
+							id="list-container"
+							ref="el1"
+							class="toc-item-group" style="min-height:100px"
+						>
+							<div
+								v-for="(item, index) in list1"
+								:key="item.id"
+								:class="`toc-item toc-level-` + ( item.indentLevel ?? '0' )"
+							>
+								<div class="handle-left cursor-move">
+									<cdx-icon :icon="cdxIconDraggable" title="Drag this item to a new position"></cdx-icon>
+								</div>
+								<details class="toc-item-details">
+									<summary class="toc-item-header">
+										<div class="toc-item-header-main">
+											<cdx-icon :icon="cdxIconExpand" class="handle-expand" title="Expand to view form"></cdx-icon>
+											<cdx-icon :icon="cdxIconCollapse" class="handle-collapse" title="Collapse to hide form"></cdx-icon>
+											<input 
+												type="text"
+												name="name"
+												v-model="item.name"
+												placeholder="name"
+												class="header-name-input form-control"
+											/>
+											<!-- @todo - change canvas in viewer panel -->
+											<template v-if="item.canvas == 'lalalalal'">
+												<button :data-canvas="item.canvas" data-canvas-window="mirador-window-1" class="btn-change-canvas btn btn-outline-dark btn-sm" data-scroll="true">View</button>
+											</template>
+										</div>
+										
+										<div class="handle-right">
+											<input name="indentlevel" v-model="item.indentLevel" type="number" min="0" max="5" class="form-control" style="width:4rem;"></input>
+											<span @click.prevent="handleAddAfter(index)" class="action-icon" title="Add item directly below">
+												<cdx-icon :icon="cdxIconTableAddRowAfter" aria-label="Add new item below"></cdx-icon>
+											</span>
+											<details class="toc-item-close">
+												<summary>
+													<cdx-icon :icon="cdxIconClose" class="cdx-icon-warning" title="Remove item"></cdx-icon> </summary>
+												<button @click="handleRemove(index)"
+													class="cdx-button cdx-button--action-destructive cdx-button--size-small" aria-label="Remove this item"
+													>Remove?
+												</button>
+											</details>
+										</div>
 
-	</div>
+									</summary>
 
-	<!-- dev only: <pre>{{ list1 }}</pre> -->
-</div></template>
+									<input
+										type="hidden"
+										name="id"
+										v-model="item.id"
+										placeholder="id"
+										class="form-control"
+									/>
+
+									<toc-form
+										:key="`form-` + item.id"
+										:is-enabled=true
+										:form-profile-schema="formProfileSchema"
+										v-model:value-data="item"
+										:canvases="canvasIdentifiers"
+										:custom-options="customOptions"
+									></toc-form>
+									<pre>{{ item }}</pre>
+
+								</details>
+								
+							</div>
+						</section>
+
+						<section class="iiif-toc-tools--bottom">
+							<cdx-button @click="handleAddToBottom" title="Add new item" aria-label="Add new item">Add item</cdx-button>
+						</section>
+					</div>
+
+					<!-- second list/column currently unused -->
+					<div class="iiif-toc-list-2" style="display:none;">
+						<section
+							ref="el2"
+							class="toc-item-group" style="min-height:100px"
+						>
+							<div
+								v-for="item in list2"
+								:key="item.id"
+								class="toc-item cursor-move"
+							>
+								{{ item.name }}
+							</div>	
+						</section>
+					</div>
+
+				</div>
+
+				<!-- dev only: <pre>{{ list1 }}</pre> -->
+			</div>
+
+		</template>
+	</resizable-windows>
+		
+</template>
 
 <script>
 const { defineComponent, defineExpose, computed, ref } = require("vue");
 const { useDraggable } = VueDraggableLib.VueDraggable;
 const TOCForm = require( "./TOCForm.vue" );
+const Tify = require( "./Tify.vue" );
+const ResizableWindows = require( "./ResizableWindows.vue" );
 const { CdxButton, CdxMenuButton, CdxIcon } = require( "@wikimedia/codex" );
 const { cdxIconAdd, cdxIconTableAddRowAfter, cdxIconClose, cdxIconTrash, cdxIconDraggable, cdxIconExpand, cdxIconCollapse, cdxIconEllipsis, cdxIconCheck } = require( './icons.json' );
 
@@ -128,7 +151,9 @@ module.exports = defineComponent( {
 		CdxButton,
 		CdxIcon,
 		CdxMenuButton,
-		"toc-form": TOCForm
+		"toc-form": TOCForm,
+		Tify,
+		"resizable-windows": ResizableWindows
 	},
 	props: {
 		formProfileData: { type: Object, default: {} },
@@ -138,7 +163,8 @@ module.exports = defineComponent( {
 		targetSlot: { type: String, default: "main" },
 		iiifManifest: { type: String, default: null },
 		canvasIdentifiers: { type: Array, default: [] },
-		customOptions: { type: Object, default: null }
+		customOptions: { type: Object, default: null },
+		configData: { type: Object, default: null }
 	},
 	setup(props, context) {
 		// form
@@ -206,15 +232,28 @@ module.exports = defineComponent( {
 		}
 
 		// Top menu
-		const toolMenuItems = [
-			{ value: "Visit API", label: `Visit API endpoint (Special:IIIFServ/manifest/mergerange/${props.targetPageId}/${props.targetSlot})` },
-			{ value: "Copy API", label: "Copy API endpoint" }
+		const toolMenuItems = ref();
+		toolMenuItems.value = [
+			{ value: "View data", label: "View data" },
+			{ value: "Visit API", label: `View in API module` },
+			{ value: "Copy API", label: `Copy URL (Special:IIIFServ/manifest/mergerange/${props.targetPageId}/${props.targetSlot})` }
 		];
+		if ( props.iiifManifest !== null ) {
+			toolMenuItems.value.push( { value: "View manifest", label: "View manifest" } );
+		}
+
 		const toolMenuItemSelected = ref( null );
 		function onSelectToolMenuItem( newSelection ) {
 			toolMenuItemSelected.value = newSelection;
-			var apiUrl = "https:" + mw.config.get("wgServer")  + `/Special:IIIFServ/manifest/mergerange/${props.targetPageId}/${props.targetSlot}`;
+			var baseUrl = "https:" + mw.config.get("wgServer");
+			var apiUrl = baseUrl + `/Special:IIIFServ/manifest/mergerange/${props.targetPageId}/${props.targetSlot}`;
 			switch( newSelection ) {
+				case "View data":
+					window.open(baseUrl + `/Special:Redirect/page/` + props.targetPageId, '_blank').focus();
+					break;
+				case "View manifest":
+					window.open(props.iiifManifest).focus();
+					break;
 				case "Visit API":
 					window.open(apiUrl, '_blank').focus();
 					break;
@@ -264,6 +303,17 @@ module.exports = defineComponent( {
 			}, 2500 );
 		}
 
+		// standalone or windows
+		const isResizableWindowsEnabled = computed( () => {
+			return props.configData?.mode === "windows";
+		} );
+		const iiifViewerClass = ref( "" );
+		iiifViewerClass.value = "iiif-" + ( props.configData.iiifViewer ?? "x") + "-viewer-for-toc" + ( props.configData?.mode === "standalone" ? "--fh" : "" );
+
+		const wrapperClass = ref( props.configData?.wrapperClass ?? undefined );
+		const wrapperStyle = ref( props.configData?.wrapperStyle ?? undefined );
+		const iiifViewer = ref( props.configData?.iiifViewer ?? undefined );
+
 		function debugLog(msg, res) {
 			//console.log( "TOCForm: " + msg, res || "" );
 		}
@@ -283,6 +333,13 @@ module.exports = defineComponent( {
 			handleAddToBottom,
 			handleAddAfter,
 			handleRemove,
+
+			iiifViewer,
+			iiifViewerClass,
+
+			isResizableWindowsEnabled,
+			wrapperClass,
+			wrapperStyle,
 			cdxIconClose,
 			cdxIconTrash,
 			cdxIconAdd,
@@ -292,6 +349,7 @@ module.exports = defineComponent( {
 			cdxIconCollapse,
 			cdxIconEllipsis,
 			cdxIconCheck,
+
 			debugLog
 		}
     }
@@ -316,6 +374,7 @@ module.exports = defineComponent( {
   		background-color: #fff;
   		border: 1px solid rgba(0,0,0,0.125);
 		display:flex;
+		box-sizing: border-box;
 		width:100%;
 		gap:1rem;
 		animation: announceItem 2s ease-in-out;

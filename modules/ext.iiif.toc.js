@@ -78,7 +78,9 @@
 			targetSlot,
 			iiifManifest,
 			canvasIdentifiers,
-			customOptions
+			customOptions,
+			// Any other config data that might be needed in the app
+			configData
 		});
 		createdApp.use(Vuex);
 		createdApp.mount(item);

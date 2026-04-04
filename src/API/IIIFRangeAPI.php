@@ -44,7 +44,7 @@ class IIIFRangeAPI extends ApiBase {
 			}
 		}
 		$manifestArr = $manifest !== null
-			? IIIFUtils::getArrayFromJsonUrl( $manifest ) 
+			? IIIFUtils::getArrayFromJsonUrl( $manifest )
 			: null;
 		if ( $manifestArr == null && !IIIFUtils::isJson( $manifestArr ) ) {
 			return;
@@ -54,7 +54,7 @@ class IIIFRangeAPI extends ApiBase {
 		if ( $version == "2" ) {
 			// move @context to top position
 			$manifestArr = array_splice(
-				$manifestArr, 
+				$manifestArr,
 				array_search( '@context', array_keys($manifestArr)),1 ) + $manifestArr;
 		}
 		$IIIFRangeParser = new IIIFRangeParsers;

@@ -42,15 +42,15 @@ class IIIFUtils {
 			return null;
 		}
 		if ( $useCurl ) {
-			$json = self::getFileContentsByCURL( $url );			
+			$json = self::getFileContentsByCURL( $url );
 		} else {
 			// Recommended to use stream_context_create($options);
 			$json = file_get_contents( $url, false );
 		}
-		if ( $json === "" ) {
-			return null;	
+		if ( $json === "" || gettype( $json ) !== "string" ) {
+			return null;
 		}
-		$arr = json_decode( $json, true );
+		$arr = json_decode( trim($json), true );
 		if ( json_last_error() === JSON_ERROR_NONE ) {
 			// JSON is valid
 			return $arr;
