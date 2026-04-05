@@ -18,11 +18,10 @@
 
 				<div class="iiif-toc-tools--top">
 					<cdx-menu-button
-						v-if="iiifManifest"
 						v-model:selected="toolMenuItemSelected" :menu-items="toolMenuItems"
 						@update:selected="onSelectToolMenuItem"
 					>
-						<cdx-icon :icon="cdxIconEllipsis"></cdx-icon>
+						<cdx-icon :icon="cdxIconEllipsis" aria-label="Advanced options"></cdx-icon>
 					</cdx-menu-button>
 					<div v-if="iconStatus == 'success' ">
 						<cdx-icon :icon="cdxIconCheck" class="iiif-edit-success"></cdx-icon>
@@ -143,7 +142,7 @@ const TOCForm = require( "./TOCForm.vue" );
 const Tify = require( "./Tify.vue" );
 const ResizableWindows = require( "./ResizableWindows.vue" );
 const { CdxButton, CdxMenuButton, CdxIcon } = require( "@wikimedia/codex" );
-const { cdxIconAdd, cdxIconTableAddRowAfter, cdxIconClose, cdxIconTrash, cdxIconDraggable, cdxIconExpand, cdxIconCollapse, cdxIconEllipsis, cdxIconCheck } = require( './icons.json' );
+const { cdxIconAdd, cdxIconTableAddRowAfter, cdxIconClose, cdxIconTrash, cdxIconDraggable, cdxIconExpand, cdxIconCollapse, cdxIconEllipsis, cdxIconCheck, cdxIconNewWindow, cdxIconCopy } = require( './icons.json' );
 
 module.exports = defineComponent( {
 	name: "TOC",
@@ -232,15 +231,26 @@ module.exports = defineComponent( {
 		}
 
 		// Top menu
-		const toolMenuItems = ref();
-		toolMenuItems.value = [
-			{ value: "View data", label: "View data" },
-			{ value: "Visit API", label: `View in API module` },
-			{ value: "Copy API", label: `Copy URL (Special:IIIFServ/manifest/mergerange/${props.targetPageId}/${props.targetSlot})` }
-		];
+		const toolMenuItems = ref( [] );
+		
 		if ( props.iiifManifest !== null ) {
-			toolMenuItems.value.push( { value: "View manifest", label: "View manifest" } );
+			const apiMenuItemsGroup = [
+				{ value: "view-api", label: `IIIF manifest in Range API module`, description: "View new Manifest with Ranges", icon: cdxIconNewWindow },
+				// @todo generate Ranges even if no IIIF manifest is provided
+				{ value: "copy-api", label: "Copy URL shorthand", description: `Special:IIIFServ/manifest/mergerange/${props.targetPageId}/${props.targetSlot}`, icon: cdxIconCopy },
+				{ value: "view-manifest", label: "Original manifest", description: `${props.iiifManifest}`, icon: cdxIconNewWindow }
+			];
+			toolMenuItems.value.push( ...apiMenuItemsGroup );
 		}
+		if ( props.configData?.formId ) {
+			toolMenuItems.value.push( { value: "view-form-profile", label: "Form profile", icon: cdxIconNewWindow } );
+		}
+		toolMenuItems.value.push( { 
+			value: "view-data",
+			label: props.targetSlot !== "main" ? `Data page (slot: ${props.targetSlot})` : `Data page`,
+			description: props.targetPage,
+			icon: cdxIconNewWindow
+		} );
 
 		const toolMenuItemSelected = ref( null );
 		function onSelectToolMenuItem( newSelection ) {
@@ -248,18 +258,20 @@ module.exports = defineComponent( {
 			var baseUrl = "https:" + mw.config.get("wgServer");
 			var apiUrl = baseUrl + `/Special:IIIFServ/manifest/mergerange/${props.targetPageId}/${props.targetSlot}`;
 			switch( newSelection ) {
-				case "View data":
+				case "view-data":
 					window.open(baseUrl + `/Special:Redirect/page/` + props.targetPageId, '_blank').focus();
 					break;
-				case "View manifest":
+				case "view-manifest":
 					window.open(props.iiifManifest).focus();
 					break;
-				case "Visit API":
+				case "view-api":
 					window.open(apiUrl, '_blank').focus();
 					break;
-				case "Copy API":
+				case "copy-api":
 					navigator.clipboard.writeText(apiUrl);
 					break;
+				case "view-form-profile":
+					window.open(baseUrl + `/Special:Redirect/page/` + props.configData.formId, '_blank').focus();
 			}
 		}
 
@@ -349,6 +361,8 @@ module.exports = defineComponent( {
 			cdxIconCollapse,
 			cdxIconEllipsis,
 			cdxIconCheck,
+			cdxIconNewWindow,
+			cdxIconCopy,
 
 			debugLog
 		}

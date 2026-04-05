@@ -320,7 +320,7 @@
 				{
 					"name": "components/icons.json",
 					"callback": "MediaWiki\\ResourceLoader\\CodexModule::getIcons",
-					"callbackParam": [ "cdxIconAdd", "cdxIconClose", "cdxIconTrash", "cdxIconDraggable", "cdxIconCheck", "cdxIconEllipsis", "cdxIconTableAddRowAfter", "cdxIconCollapse", "cdxIconExpand", "cdxIconCheck" ]
+					"callbackParam": [ "cdxIconAdd", "cdxIconClose", "cdxIconTrash", "cdxIconDraggable", "cdxIconCheck", "cdxIconEllipsis", "cdxIconTableAddRowAfter", "cdxIconCollapse", "cdxIconExpand", "cdxIconCheck", "cdxIconNewWindow", "cdxIconCopy" ]
 				}
 			],
 			"dependencies": [
