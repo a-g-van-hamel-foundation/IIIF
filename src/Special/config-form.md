@@ -1,11 +1,11 @@
-To design a form to be used with the image annotator, create a wiki page in the IIIF namespace and add your configuration as explained below. You can choose from a selection of different input types. 
+To design a form to be used with the image annotator (`#iiif-annotator`) or TOC creator (`#iiif-toc`), create a wiki page in the IIIF namespace and add your configuration as explained below. You can choose from a selection of different input types. 
 
 ## Naming pages
-It is recommended to come up with a consistent naming pattern for pages that store your configuration. For instance, you may want to start every page name with a phrase like `IIIF:AnnotatorForm/`. 
+It is recommended to come up with a consistent naming pattern for pages that store your configuration. For instance, you may want to start every page name with a phrase like `IIIF:Form/`. 
 
 ## Inputs
 
-- **type** - set this to "AnnotatorFormConfig".
+- **type** - set this to "FormConfig".
 - **description** - optional but a description may help to remind you or others of the purpose for which the form was designed.
 - **properties** - an array of configuration objects for your form inputs. Each object must have an `inputType` and `name` (unique) and except for hidden inputs, should have a `label`. Avoid names that are reserved as parameter names by the parser function `#iiif-annotation-data`, such as 'index', 'creator' and 'canvasid'. 
 
@@ -25,7 +25,7 @@ This fictional example, which does not have any particular scenario in mind, con
 
 ```
 {
-	"type": "AnnotatorFormConfig",
+	"type": "FormConfig",
 	"description": "Example of a config",
 	"properties": [
 		// textarea

@@ -9,7 +9,7 @@ A number of printout properties are required to provide the necessary data. In o
 - `canvasid` - the Canvas identifier (`id`/`@id`)
 - `xywh` - the xywh values of the image region
 - `tilesource` - tile source identifier (without `/info.json`)
-- `profileid` - required unless 'template' is used. Refers to the page ID of the profile that was used to configure the [annotation form]({urlBase}/Special:IIIF/iiif-annotator-form). See below.
+- `profileid` - required unless 'template' is used. Refers to the page ID of the profile that was used to configure the [annotation form]({urlBase}/Special:IIIF/config-form). See below.
 
 ## Formatting annotations
 The sidebar on the right is where data associated with your Annotation are presented. There are two ways in which you can use semantic properties to create appropriate content.
@@ -18,7 +18,7 @@ The sidebar on the right is where data associated with your Annotation are prese
 A wiki template offers a lot of flexibility and customisability.
 
 ### Option 2: use the profile/schema
-In addition to configuring forms, the [form profile]({urlBase}/Special:IIIF/iiif-annotator-form) can also serve as a reference model for presenting the data submitted. In fact, this is what the annotation tool already relies on when it goes into 'view only mode'.
+In addition to configuring forms, the [form profile]({urlBase}/Special:IIIF/config-form) can also serve as a reference model for presenting the data submitted. In fact, this is what the annotation tool already relies on when it goes into 'view only mode'.
 
 To adopt the same approach here is more difficult because (a) not every annotation returned by the query was created using the same form profile, and (b) because there is no easy to trace connection between a form profile and the semantic properties that end up recording the data. That said, there are some steps you can take to achieve the same thing.
 

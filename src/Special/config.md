@@ -26,11 +26,11 @@ $wgForeignFileRepos[] = [
 What’s especially important for our purposes is the 'name' (here `wikivoyage`) with which you have identified the repository. We will rely on this identifier to set up the API module.
 
 ## JSON schema in the IIIF namespace
-It is recommended to use the IIIF namespace to store your JSON configuration schemas and identify each schema with the appropriate `type`, such as 'SMWConfig' and 'AnnotatorFormConfig'.
+It is recommended to use the IIIF namespace to store your JSON configuration schemas and identify each schema with the appropriate `type`, such as 'SMWConfig' and 'FormConfig'.
 <!-- SemanticAnnotationsConfig should now be SMWConfig -->
 
 ### type: SMWConfig
 Schemas with type `SMWConfig` are used to provide the necessary ingredients for a semantic query, overriding the default configuration for Semantic MediaWiki. Their usage is explained in the usage guides on [building Collections]({urlBase}/Special:IIIF/case-collections) and [working with Annotations]({urlBase}/Special:IIIF/case-smw-annotations).
 
-### type: AnnotatorFormConfig
-Schemas with type `AnnotatorFormConfig` are used to create the form to be used with the [annotation tool]({urlBase}/Special:IIIF/iiif-annotator). See [Creating forms]({urlBase}/Special:IIIF/iiif-annotator-form).
+### type: FormConfig
+Schemas with type `FormConfig` are used to create the form to be used with the [annotation tool]({urlBase}/Special:IIIF/iiif-annotator). See [Creating forms]({urlBase}/Special:IIIF/config-form).

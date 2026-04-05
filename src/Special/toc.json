@@ -18,10 +18,17 @@
 		"type": "subheading"
 	},
 	"config": {
-		"subpage": "config",			
+		"subpage": "config",
 		"file": "src/Special/config.md",
 		"menutitle": "Configuration",
 		"pagetitle": "Configuration",
+		"type": "markdown"
+	},
+	"config-form": {
+		"subpage": "config-form",
+		"file": "src/Special/config-form.md",
+		"menutitle": "Creating forms",
+		"pagetitle": "Creating forms for the annotation and TOC tools",
 		"type": "markdown"
 	},
 	"headingAPIUsageGuides": {
@@ -95,6 +102,13 @@
 		"pagetitle": "API module: <code>iiif-wiki</code>",
 		"type": "markdown"
 	},
+	"iiif-range": {
+		"subpage": "iiif-range",
+		"file": "src/Special/api-iiif-range.md",
+		"menutitle": "iiif-range",
+		"pagetitle": "API module: <code>iiif-range</code>",
+		"type": "markdown"
+	},
 	"redirect": {
 		"subpage": "redirect",
 		"file": "src/Special/api-redirect.md",
@@ -118,13 +132,6 @@
 		"file": "src/Special/pf-iiif-annotator.md",
 		"menutitle": "<code>#iiif-annotator</code>",
 		"pagetitle": "Annotation tool: <code>#iiif-annotator</code>",
-		"type": "markdown"
-	},
-	"iiif-annotator-form": {
-		"subpage": "iiif-annotator-form",
-		"file": "src/Special/iiif-annotator-form.md",
-		"menutitle": "Creating forms",
-		"pagetitle": "Annotation tool: creating forms",
 		"type": "markdown"
 	},
 	"pf-iiif-annotator-data": {

@@ -11,7 +11,7 @@ It is recommended to let the name of each page start with `IIIF:SMWConfig/`.
 
 ### The image annotator
 Using the namespace with the image annotator serves two possible objectives:
-1. to store a schema for the input form to be used with the image annotator. Such a schema should be of `type: AnnotatorFormConfig`. It is recommended to let the name of each page start with something like `IIIF:AnnotatorForm/`.
+1. to store a schema for the input form to be used with the image annotator. Such a schema should be of `type: FormConfig`. It is recommended to let the name of each page start with something like `IIIF:Form/`.
 2. to let the image annotator store and retrieve annotations that are formatted as an array of `AnnotationPage`s. Using the IIIF namespace is not mandatory but may be a convenient and transparent way of storing content.
 
 ## Some features
