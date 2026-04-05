@@ -130,7 +130,8 @@
 			}
 			canvases.forEach( function(canvas) {
 				let lgKey = Object.keys(canvas["label"]);
-				const label = canvas["label"][lgKey];
+				// Though uncommon, multiple values per language key are allowed.
+				const label = canvas["label"][lgKey].join("; ");
 				newList.push( { "value": canvas["id"], "label": label } );
 			});
 		} else if( version == "2") {
