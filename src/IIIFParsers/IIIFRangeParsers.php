@@ -33,10 +33,10 @@ class IIIFRangeParsers {
 		if ( array_key_exists( "items", $sourceContent ) ) {
 			switch( $version ) {
 				case "3":
-					$newItems = $this->transformItemsToRangesV3($sourceContent["items"]);
+					$newItems = $this->transformItemsToRangesV3( $sourceContent["items"] );
 					break;
 				case "2":
-					$newItems = $this->transformItemsToRangesV2($sourceContent["items"]);
+					$newItems = $this->transformItemsToRangesV2( $sourceContent["items"] );
 					break;
 			}
 		}
@@ -104,9 +104,6 @@ class IIIFRangeParsers {
 		if ( array_key_exists( "label", $item ) ) {
 			// @todo: language!
 			$item["label"] = [ "none" => [ $item["label"] ] ];
-		} elseif( array_key_exists( "name", $item ) ) {
-			// @todo: language!
-			$item["label"] = [ "none" => [ $item["name"] ] ];
 		}
 		// set canvases
 		if ( array_key_exists( "canvasids", $item ) && !empty($item["canvasids"]) ) {
@@ -171,7 +168,7 @@ class IIIFRangeParsers {
 				$members[] = [
 					"@id" => "{$this->sourceId}/range/r" . $item["incremental"],
 					"@type" => "sc:Range",
-					"label" => $item["label"] ?? $item["name"]
+					"label" => $item["label"]
 				];
 				$ranges[] = "{$this->sourceId}/range/r" . $item["incremental"];
 			}
@@ -203,11 +200,6 @@ class IIIFRangeParsers {
 		}
 		// label
 		$item["@type"] = "sc:Range";
-		if ( array_key_exists( "label", $item ) ) {
-			// Keep as is
-		} elseif ( array_key_exists( "name", $item ) ) {
-			$item["label"] = $item["name"];
-		}
 		// canvases
 		if ( array_key_exists( "canvasids", $item ) && !empty($item["canvasids"]) ) {
 			// Note that IIIF viewers struggle with empty arrays
