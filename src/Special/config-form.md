@@ -12,13 +12,14 @@ It is recommended to come up with a consistent naming pattern for pages that sto
 ### Input types
 The properties section is where you select and configure the inputs you want from the available options. Current options for `inputType` are:
 
-- "textarea" - textarea input.
-- "text" - text input.
-- "select" - enables a dropdown with selectable options from a predefined list. Accepts single values only.
-- "lookup" - enables a Select2-like dropdown, with selectable options from either an API query or a predefined list. It allows for both single and multiple values to be stored. See below.
-- "texteditor" - a minimal text editor.
-- "xmleditor" - a simple XML editor, which may be useful if for instance, you create a transcription directly in TEI XML.
-- "hidden" - the hidden input is useful only in conjunction with a value for `defaultValue`.
+- **"textarea"** - textarea input.
+- **"text"** - text input.
+- **"select"** - enables a dropdown with selectable options from a predefined list. Accepts single values only.
+- **"lookup"** - enables a Select2-like dropdown, with selectable options from either an API query or a predefined list. It allows for both single and multiple values to be stored. See below.
+- **"texteditor"** - a minimal text editor.
+- **"xmleditor"** - a simple XML editor, which may be useful if for instance, you create a transcription directly in TEI XML.
+- **"hidden"** - the hidden input is useful only in conjunction with a value for `defaultValue`.
+- **"free"** - No input. Add free, unformatted text to `defaultValue`.
 
 ### Example
 This fictional example, which does not have any particular scenario in mind, contains illustrations for each input type.
@@ -99,7 +100,7 @@ This fictional example, which does not have any particular scenario in mind, con
 			"name": "transcription",
 			"placeholder": "Transcription"
 		}
-		// hidden @todo
+		// hidden
 		{
 			"inputType": "hidden",
 			"name": "category",
@@ -111,7 +112,7 @@ This fictional example, which does not have any particular scenario in mind, con
 
 ### Styling
 Two additional parameters let you change the default classes
-- `wrapperClass` applies to the container element, which includes the label and input elements.w
+- `wrapperClass` applies to the container element, which includes the label and input elements.
 - `class` currently applies only to a text input's class attribute.
 
 ### input: `lookup` with the API
@@ -133,3 +134,42 @@ Example with single values:
 	"options": [ "blending", "glazing", "dry brushing", "impasto", "sfumato" ]
 }
 ```
+
+### input: `lookup` with variables (Reconciliation API/`#iiif-toc` only)
+
+Form definitions are agnostic of the context in which they end up being used, but what if you need to tailor the available 'value' options to a specific subject that can change from one context to another? Say your form is applicable to logbooks, with entries written by different authors, and you want your users to be able to select from a list of relevant authors only, which is information you have recorded elsewhere. 
+
+Follow these two steps:
+
+1. To indicate in your form definition that we are dealing with a variable name rather than a value, prefix it with an at symbol (`@`). Example:
+
+```json
+{
+	"inputType": "lookup",
+	"label": "Authors",
+	"name": "authors",
+	"apiType": "reconciliation",
+	"apiUrl": "@authors",
+	"multiple": true
+}
+```
+
+The use of variables is currently limited to Reconciliation APIs.
+
+2. To make sure that the variable can be resolved, assign its value in the `#iiif-toc` parser function. The parameter name in the parser function must be identical to the variable name, which is `@authors` in our example. 
+
+In the following example, each logbook has a wiki page that records its authors using the semantic property `Has author`. For convenience, we will use a parser function from the Reconciliation API extension that returns an appropriate API URL on the basis of a semantic query, with one template variable ('Logbook'). The API should then return the people identified as authors of the relevant logbook.
+
+```
+{{#iiif-toc:
+...
+|@authors={{#recon-smwquery-url:query=[[Class::people]] [[-Has author::{{{Logbook|}}}]] }}
+}}
+```
+
+<!--
+Not yet documented: 
+- alternatives
+- classes available for use with class, wrapperClass, etc.
+
+-->

@@ -61,6 +61,13 @@
 	"apihelp-iiif-wiki-param-id": "page id",
 	"apihelp-iiif-wiki-param-format": "defaults to json",
 
+	"apihelp-iiif-range-summary": "Transforms data created with the TOC creator (#iiif-toc) to IIIF's Ranges and returns a new IIIF Manifest with those Ranges merged in",
+	"apihelp-iiif-range-param-action": "iiif-range",
+	"apihelp-iiif-range-param-manifest": "IIIF Manifest URL.",
+	"apihelp-iiif-range-param-sourcepage": "Name of the wiki page containing the data to be converted into Ranges.",
+	"apihelp-iiif-range-param-sourcepageid": "Page ID of the wiki page containing the data to be converted into Ranges. ",
+	"apihelp-iiif-range-param-sourceslot": "Slot name of the wiki page containing the data to be converted into Ranges.",
+
 	"iiif-annotator-save": "Save",
 	"iiif-annotator-save-all": "Save all annotations",
 	"iiif-annotator-tab-form": "Form",

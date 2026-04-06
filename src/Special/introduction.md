@@ -5,7 +5,10 @@ The IIIF extension is an extension to MediaWiki which offers a set of API servic
     - [using MediaWiki image files]({urlBase}/Special:IIIF/case-mw-images)
     - [integrating Annotations]({urlBase}/Special:IIIF/case-smw-annotations)
     - [creating Collections]({urlBase}/Special:IIIF/case-collections)
+    - and other conversions
 - [Annotation tool]({urlBase}/Special:IIIF/iiif-annotator)
+- [TOC creator]({urlBase}/Special:IIIF/pf-iiif-toc)
+- Various other parser functions
 
 ## Links
 - [IIIF extension on Github](https://github.com/a-g-van-hamel-foundation/IIIF)

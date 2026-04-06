@@ -17,7 +17,9 @@ The workflow is broadly similar to that intended for the annotation tool:
 - [WSSlots extension](https://github.com/Open-CSP/WSSlots)
 
 ### Define form fields
-A simple default form is available. To truly 'own', you might want to create your own form definitions. See the section about creating form definitions in your wiki.
+A simple default form is available. To truly 'own' your data, you might want to create your own field definitions in a form profile. See the section about creating form definitions in your wiki.
+
+The following field names are reserved and must not be used in your form definition: 'id', 'name', 'label', 'canvasids', 'indentLevel', 'Select'.
 
 ### The parser function `#iiif-toc`
 ```wiki
