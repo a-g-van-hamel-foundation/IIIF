@@ -112,7 +112,7 @@ module.exports = defineComponent( {
 	top: 0;
 	left: 0;
 	width: 100%;
-	height: 100%;
+	height: 100vh;
 	z-index: 5;
 	box-sizing: border-box;
 	background-color:#edfaf5;
@@ -122,7 +122,7 @@ module.exports = defineComponent( {
 	position:relative;
 	width: 100%;
 	max-width: 100%;
-	height: 100vh;
+	height: 100%;
 	box-sizing: border-box;
 }
 

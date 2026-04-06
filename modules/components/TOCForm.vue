@@ -1,12 +1,17 @@
 <template>
 
+<template v-if="!isEnabled">
+	<!-- Form disabled -->
+</template>
+<template v-else-if="isEnabled">
+
 	<form
 		ref="tocform"
 		class="toc-form"
 		:disabled="isFormDisabled"
 	>
 		<div v-if="hasAlternativeForm" class="select-forms-menu">
-			<cdx-button @click.prevent="selectForm('Main')" size="small">Main</cdx-button>			
+			<cdx-button @click.prevent="selectForm('Main')" size="small">Main</cdx-button>
 			<div :key="`menu-` + config.name" v-for="config in alternativeFormConfigs">
 				<cdx-button @click.prevent="selectForm(config.name)" size="small">{{ config.name }}</cdx-button>
 			</div>
@@ -20,7 +25,6 @@
 					v-for="field in alternativeFormFields"	
 					:key="`alt-` + field.name"
 				>
-					{{ field.name }}
 					<dynamic-form-field
 						:ref="field.name"
 						:name="field.name"
@@ -42,7 +46,7 @@
 			</fieldset>
 		</template>
 
-		<fieldset ref="tocfieldset" v-if="isEnabled && isMainFormEnabled" class="toc-fieldset">
+		<fieldset ref="tocfieldset" v-if="isMainFormEnabled" class="toc-fieldset">
 			<template
 				v-for="field in formFields"	
 				:key="field.name"
@@ -67,6 +71,8 @@
 			</template>
 		</fieldset>
 	</form>
+
+</template>
 </template>
 
 <!-- @submit.prevent="submitForm"

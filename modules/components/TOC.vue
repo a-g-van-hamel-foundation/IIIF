@@ -47,17 +47,14 @@
 									<cdx-icon :icon="cdxIconDraggable" title="Drag this item to a new position"></cdx-icon>
 								</div>
 								<details class="toc-item-details">
-									<summary class="toc-item-header">
+									<summary class="toc-item-header"  @click="enableForm(item.id)">
 										<div class="toc-item-header-main">
 											<cdx-icon :icon="cdxIconExpand" class="handle-expand" title="Expand to view form"></cdx-icon>
 											<cdx-icon :icon="cdxIconCollapse" class="handle-collapse" title="Collapse to hide form"></cdx-icon>
-											<input 
-												type="text"
-												name="name"
-												v-model="item.name"
-												placeholder="name"
-												class="header-name-input form-control"
-											/>
+											<cdx-text-input
+												name="label"
+												placeholder="label"
+												v-model="item.label"></cdx-text-input>
 											<!-- @todo - change canvas in viewer panel -->
 											<template v-if="item.canvas == 'lalalalal'">
 												<button :data-canvas="item.canvas" data-canvas-window="mirador-window-1" class="btn-change-canvas btn btn-outline-dark btn-sm" data-scroll="true">View</button>
@@ -65,14 +62,14 @@
 										</div>
 										
 										<div class="handle-right">
-											<input name="indentlevel" v-model="item.indentLevel" type="number" min="0" max="5" class="form-control" style="width:4rem;"></input>
+											<input name="indentlevel" v-model="item.indentLevel" type="number" min="0" max="5" class="cdx-text-input__input" style="width:4rem;"></input>
 											<span @click.prevent="handleAddAfter(index)" class="action-icon" title="Add item directly below">
 												<cdx-icon :icon="cdxIconTableAddRowAfter" aria-label="Add new item below"></cdx-icon>
 											</span>
 											<details class="toc-item-close">
 												<summary>
 													<cdx-icon :icon="cdxIconClose" class="cdx-icon-warning" title="Remove item"></cdx-icon> </summary>
-												<button @click="handleRemove(index)"
+												<button @click="handleRemove(index, item.id)"
 													class="cdx-button cdx-button--action-destructive cdx-button--size-small" aria-label="Remove this item"
 													>Remove?
 												</button>
@@ -91,13 +88,13 @@
 
 									<toc-form
 										:key="`form-` + item.id"
-										:is-enabled=true
+										:is-enabled="referenceListForEnabledForms[item.id]"
 										:form-profile-schema="formProfileSchema"
 										v-model:value-data="item"
 										:canvases="canvasIdentifiers"
 										:custom-options="customOptions"
 									></toc-form>
-									<pre>{{ item }}</pre>
+									<!-- dev only: <pre>{{ item }}</pre> -->
 
 								</details>
 								
@@ -120,7 +117,7 @@
 								:key="item.id"
 								class="toc-item cursor-move"
 							>
-								{{ item.name }}
+								{{ item.label }}
 							</div>	
 						</section>
 					</div>
@@ -136,12 +133,12 @@
 </template>
 
 <script>
-const { defineComponent, defineExpose, computed, ref } = require("vue");
+const { defineComponent, defineExpose, computed, ref, reactive } = require("vue");
 const { useDraggable } = VueDraggableLib.VueDraggable;
 const TOCForm = require( "./TOCForm.vue" );
 const Tify = require( "./Tify.vue" );
 const ResizableWindows = require( "./ResizableWindows.vue" );
-const { CdxButton, CdxMenuButton, CdxIcon } = require( "@wikimedia/codex" );
+const { CdxButton, CdxMenuButton, CdxIcon, CdxTextInput } = require( "@wikimedia/codex" );
 const { cdxIconAdd, cdxIconTableAddRowAfter, cdxIconClose, cdxIconTrash, cdxIconDraggable, cdxIconExpand, cdxIconCollapse, cdxIconEllipsis, cdxIconCheck, cdxIconNewWindow, cdxIconCopy } = require( './icons.json' );
 
 module.exports = defineComponent( {
@@ -149,6 +146,7 @@ module.exports = defineComponent( {
 	components: {
 		CdxButton,
 		CdxIcon,
+		CdxTextInput,
 		CdxMenuButton,
 		"toc-form": TOCForm,
 		Tify,
@@ -180,14 +178,21 @@ module.exports = defineComponent( {
 		list1.value = props.valueData !== undefined
 			? ( props.valueData.items ?? [] )
 			: [];
+		// Automatically set indentLevel to 0 if undefined
+		list1.value.forEach( item => {
+			if ( item.indentLevel === undefined ) {
+				item.indentLevel = 0;
+			}
+		} );
+
 		// Previously tested but no current need for this
 		// list2, list3, etc., could be used to turn this into a kanban board
 		const list2 = ref( [] );
 		/*
 		list2.value = [
-			{ name: "Prologue", id: '3' },
-			{ name: "Body", id: '4' },
-			{ name: "Epilogue", id: '5' }
+			{ label: "Prologue", id: '3' },
+			{ label: "Body", id: '4' },
+			{ label: "Epilogue", id: '5' }
 		];
 		*/
 		const lists = [ list1, list2 ];
@@ -204,6 +209,16 @@ module.exports = defineComponent( {
 			});
 		});
 
+		//reactive?
+		const referenceListForEnabledForms = reactive( {} );
+		list1.value.forEach( item => {
+			// Start with false
+			referenceListForEnabledForms[item.id] = false;
+		} );
+		function enableForm(itemId) {
+			referenceListForEnabledForms[itemId] = true;
+		}
+
 		function getRandomNumber() {
 			// 7 digits
 			return Math.floor(1000000 + Math.random() * 9000000)
@@ -212,27 +227,32 @@ module.exports = defineComponent( {
 		function handleAddToBottom() {
 			const random = getRandomNumber();
 			list1.value.push({
-				name: "",
-				id: `${random}`
+				label: "",
+				id: `${random}`,
+				indentLevel: 0
 			});
+			referenceListForEnabledForms[random] = false;
 		}
 
 		function handleAddAfter(index) {
 			const random = getRandomNumber();
 			const newItem = {
-				name: "",
-				id: `${random}`
+				label: "",
+				id: `${random}`,
+				indentLevel: 0
 			}
+			referenceListForEnabledForms[random] = false;
 			list1.value.splice( index + 1, 0, newItem );
 		}
 
-		function handleRemove(index) {
+		function handleRemove(index, itemId) {
+			referenceListForEnabledForms[itemId] = false;
 			list1.value.splice( index, 1 );
 		}
 
 		// Top menu
 		const toolMenuItems = ref( [] );
-		
+
 		if ( props.iiifManifest !== null ) {
 			const apiMenuItemsGroup = [
 				{ value: "view-api", label: `IIIF manifest in Range API module`, description: "View new Manifest with Ranges", icon: cdxIconNewWindow },
@@ -345,6 +365,9 @@ module.exports = defineComponent( {
 			handleAddToBottom,
 			handleAddAfter,
 			handleRemove,
+
+			referenceListForEnabledForms,
+			enableForm,
 
 			iiifViewer,
 			iiifViewerClass,
@@ -494,10 +517,15 @@ module.exports = defineComponent( {
 		gap: 1rem;
 		width: 100%;
 	}
+	.toc-item-header-main > .cdx-text-input {
+		/* overrides */
+		width: 100%;
+		min-width: 100px;
+	}
 }
 
 .toc-item .toc-item-details {
-	width:100%;
+	width: 100%;
 }
 
 .toc-item-close {

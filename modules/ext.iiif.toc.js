@@ -91,7 +91,7 @@
 			"properties": [
 				{
 					inputType: "textarea",
-					name: "Description",
+					name: "description",
 					label: "Descripion"
 				}
 			]

@@ -19,7 +19,7 @@ The workflow is broadly similar to that intended for the annotation tool:
 ### Define form fields
 A simple default form is available. To truly 'own' your data, you might want to create your own field definitions in a form profile. See the section about creating form definitions in your wiki.
 
-The following field names are reserved and must not be used in your form definition: 'id', 'name', 'label', 'canvasids', 'indentLevel', 'Select'.
+The following field names are reserved and must not be used in your form definition: 'id', 'label', 'canvasids', 'indentLevel', 'Select'.
 
 ### The parser function `#iiif-toc`
 ```wiki
@@ -35,7 +35,7 @@ The following field names are reserved and must not be used in your form definit
 |mode= // Either standalone (default) or windows. 
 |iiifviewer= // tify (default) enables the Tify viewer. To prevent the Tify viewer from loading, use an empty (or dummy) value.
 |wrapperclass= // resizable-layout--fixed (default), resizable-layout or a custom class, applicable only if mode=windows. 'resizable-layout--fixed' creates a fixed layout that claims maximum screen width.
-|wrapperstyle= // Style for the same HTML element, again applicable only if mode=windows. For instance, if your site has a fixed header, 50px in height, that should remain in sight and you are using 'resizable-layout--fixed', you may want to push the layout just below the fixed header. You can then style this by adding top:50px. 
+|wrapperstyle= // Style for the same HTML element, again applicable only if mode=windows. For instance, if your site has a fixed header, 50px in height, that should remain in sight and you are using 'resizable-layout--fixed', you may want to push the layout just below the fixed header. You can then style this by adding top:50px; height:calc(100vh - 50px). 
 }}
 ```
 
