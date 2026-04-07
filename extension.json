@@ -1,6 +1,6 @@
 {
 	"name": "IIIF",
-	"version": "1.0-alpha",
+	"version": "1.0",
 	"type": "api",
 	"author": ["[https://codecs.vanhamel.nl Dennis Groenewegen]"],
 	"url": "https://codecs.vanhamel.nl/Show:Lab/IIIF",
