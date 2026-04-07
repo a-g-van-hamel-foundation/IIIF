@@ -54,6 +54,18 @@ class IIIFSpecialServ extends RedirectSpecialPage {
 			return;
 		}
 		$urlParts = explode( "/", $subpage );
+		$apiUrl = $this->getRedirectUrl( $urlParts );
+		if ( $apiUrl === null ) {
+			$this->showNoRedirectPage();
+		}
+		$this->getOutput()->redirect( $apiUrl );		
+	}
+
+	/**
+	 * @param array $urlParts
+	 * @return bool|string|null
+	 */
+	public function getRedirectUrl( $urlParts ) {
 		$request = [
 			"purpose" => $urlParts[0],
 			// local, commons, etc.
@@ -75,53 +87,48 @@ class IIIFSpecialServ extends RedirectSpecialPage {
 				} else {
 					$thumbnail = IIIFMwRemote::getIIRImageRemotely( $urlParts );
 				}
-				$this->getOutput()->redirect( $thumbnail );
+				return $thumbnail;
 			} else {
 				// ?action=iiif-mw-img
 				// Assuming final item in $urlParts = "info.json"
 				// OR without "info.json" - not strictly necessary for level 0 though.
 				$apiUrl = self::getIIR( $urlParts );
-				$this->getOutput()->redirect( $apiUrl );
+				return $apiUrl;
 			}
 		} elseif ( str_starts_with( $request["purpose"], "presentation" ) ) {
 			// ?action=iiif-mw-pres
 			$apiVersion = $request["purpose"] === "presentation3" ? "3" : "2";
 			$apiUrl = self::getPresentationApiUri( $urlParts, $apiVersion );
-			$this->getOutput()->redirect( $apiUrl );
+			return $apiUrl;
 		} elseif ( $request["purpose"] === "collection" ) {
 			// ?action=iiif-collection
 			$apiUrl = self::getCollectionApiUri( $urlParts );
-			$this->getOutput()->redirect( $apiUrl );
+			return $apiUrl;
 		} elseif ( $request["purpose"] === "wiki" ) {
 			// ?action=iiif-wiki
 			$apiUrl = self::getWikiApiUri( $urlParts );
-			$this->getOutput()->redirect( $apiUrl );
+			return $apiUrl;
 		} elseif ( $request["purpose"] === "manifest" && $request["repo"] == "smwconfig" ) {
 			$apiUrl = self::getManifestApiUri( $urlParts );
-			$this->getOutput()->redirect( $apiUrl );
+			return $apiUrl;
 		} elseif( $request["purpose"] === "manifest" && $request["repo"] === "mergerange" ) {
 			$apiUrl = self::getMergeRangeIntoManifestUrl(
 				$request["identifier"],
 				$request["identifier2"] !== "" ? $request["identifier2"] : "main"
 			);
-			$this->getOutput()->redirect( $apiUrl );
-		} else {
-			$this->showNoRedirectPage();
+			return $apiUrl;
 		}
+		return null;
 		/*
 		if ( $redirect instanceof Title ) {
 			// Redirect to a page title with possible query parameters
 			$url = $redirect->getFullUrlForRedirect( $query );
-			$this->getOutput()->redirect( $url );
 		} elseif ( $redirect === true ) {
 			// Redirect to index.php with query parameters
 			$url = wfAppendQuery( wfScript( 'index' ), $query );
-			$this->getOutput()->redirect( $url );
-		} else {
-			$this->showNoRedirectPage();
 		}
+		return $url;
 		*/
-		
 	}
 
 	public function getRedirect( $par ) {

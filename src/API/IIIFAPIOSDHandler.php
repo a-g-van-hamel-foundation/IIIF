@@ -11,10 +11,13 @@ namespace IIIF\API;
 
 use MediaWiki\Api\ApiBase;
 use Wikimedia\ParamValidator\ParamValidator;
+use MediaWiki\Request\DerivativeRequest;
+use MediaWiki\Api\ApiMain;
 use IIIF\IIIFUtils;
 use IIIF\IIIFParsers\IIIFCanvasParsers;
 use IIIF\IIIFParsers\IIIFParserUtils;
 use IIIF\IIIFParsers\IIIFManifestParsers;
+use IIIF\Special\IIIFSpecialServ;
 
 class IIIFAPIOSDHandler extends ApiBase {
 
@@ -34,6 +37,7 @@ class IIIFAPIOSDHandler extends ApiBase {
 	public function execute() {
 		$params = $this->extractRequestParams();
 		$manifestUrl = $params["manifest"];
+
 		// https://iiif.io/api/image/3.0/#22-image-information-request-uri-syntax
 		// defaults
 		$req = "ImageInformationRequests";
@@ -42,11 +46,7 @@ class IIIFAPIOSDHandler extends ApiBase {
 		switch( $req ) {
 			case "ImageInformationRequests":
 				if ( $manifestUrl !== null ) {
-					$this->manifestArr = IIIFUtils::getArrayFromJsonUrl( $manifestUrl, true );
-					if ( $this->manifestArr === null ) {
-						// Fallback method
-						$this->manifestArr = IIIFUtils::getArrayFromJsonUrl( $manifestUrl, false );
-					}
+					$this->manifestArr = $this->getManifestContent( $manifestUrl );
 					if ( $this->manifestArr === null ) {
 						$this->metaMessages[] = "Invalid manifest";
 						break;
@@ -100,9 +100,55 @@ class IIIFAPIOSDHandler extends ApiBase {
 		}
 	}
 
+	/**
+	 * Summary of getManifestContent
+	 * @param string $manifestUrl
+	 */
+	public function getManifestContent( string $manifestUrl ) {
+		$urlBase = IIIFUtils::getUrlBase();
+		if ( str_starts_with( $manifestUrl, "{$urlBase}/Special:IIIFServ/" ) ) {
+			$urlParts = explode( "/", str_replace( "{$urlBase}/Special:IIIFServ/", "", $manifestUrl ) );
+			// Get destination URL
+			$iiifSpecialServ = new IIIFSpecialServ( "IIIFServ" );
+			$apiUrl = $iiifSpecialServ->getRedirectUrl( $urlParts );
+			return $this->getManifestContentInternally( $apiUrl );
+		} elseif( str_starts_with( $manifestUrl, $urlBase . "/api.php?action=" ) ) {
+			return $this->getManifestContentInternally( $manifestUrl );
+		} else {
+			// Regular for remote URLs
+			$manifestArr = IIIFUtils::getArrayFromJsonUrl( $manifestUrl, true );
+			if ( $manifestArr === null ) {
+				// Fallback method
+				$manifestArr = IIIFUtils::getArrayFromJsonUrl( $manifestUrl, false );
+			}
+			return $manifestArr;
+		}
+	}
+
+	public function getManifestContentInternally( string $url ) {
+		$urlComponents = parse_url( $url );
+		if ( $urlComponents == false ) {
+			return [];
+		}
+		parse_str( $urlComponents["query"], $apiParams);
+		$request = new DerivativeRequest(
+			$this->getRequest(),
+			$apiParams,
+			true
+		);
+		$api = new ApiMain( $request, true );
+		$api->execute();
+		return $api->getResult()->getResultData();
+	}
+
 	public function getAllowedParams() : array {
 		return [
 			"manifest" => [
+				ParamValidator::PARAM_TYPE => "string",
+				ParamValidator::PARAM_REQUIRED => false
+			],
+			//
+			"manifestaccess" => [
 				ParamValidator::PARAM_TYPE => "string",
 				ParamValidator::PARAM_REQUIRED => false
 			],
