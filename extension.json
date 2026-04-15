@@ -3,7 +3,7 @@
 	"version": "1.0",
 	"type": "api",
 	"author": ["[https://codecs.vanhamel.nl Dennis Groenewegen]"],
-	"url": "https://codecs.vanhamel.nl/Show:Lab/IIIF",
+	"url": "https://github.com/a-g-van-hamel-foundation/IIIF",
 	"description": "API services and other tools for working with IIIF, such as integrating annotations, creating collections and using MediaWiki image files.",
 	"license-name": "GPL-2.0-or-later",
 	"requires": {
@@ -402,6 +402,15 @@
 		"IIIFCollectionSortProp": {
 			"value": "For page",
 			"description": "The property used to sort multiple items in the collection API. Use a comma to separate multiple properties."
+		},
+		"IIIFForeignFileRepos": {
+			"value": [
+				{
+					"name": "commons",
+					"thumbsteps": [ 120, 250, 330, 500, 960, 1280, 1920, 3840 ]
+				}
+			],
+			"description": "List of file repos with a list of canonical thumbnail widths defined as possible scaling steps."
 		}
 	},
 	"ContentHandlers": {

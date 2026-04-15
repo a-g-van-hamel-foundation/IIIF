@@ -120,17 +120,30 @@ class IIIFSpecial extends SpecialPage {
 		$mainConfig = MediaWikiServices::getInstance()->getMainConfig();
 
 		$res = "";
-		foreach( $ext["config"] as $k => $v ) {			
+		foreach( $ext["config"] as $k => $v ) {
+			// descr
 			$descr = $v['description'] ?? "";
-			$val = $v['value'] ?? null;
 			$item = "<div style='font-size:smaller'>// $descr</div>";
-			$item .= gettype( $v['value'] ) === "boolean"
-				? "default: <code><nowiki>\$wg{$k} = " . ( $v['value'] ? "true" : "false" ) . ";</nowiki></code>\n"
-				: "default: <code><nowiki>\$wg{$k} = \"{$v['value']}\";</nowiki></code>\n";
+			// current
 			$currentSetting = $mainConfig->get( $k );
-			$item .= gettype( $currentSetting ) === "boolean"
-				? "current: <code><nowiki>\$wg{$k} = " . ( $currentSetting ? "true" : "false" ) . ";</nowiki></code>\n"
-				: "current: <code><nowiki>\$wg{$k} = \"$currentSetting\";</nowiki></code>\n";
+			switch( gettype( $currentSetting ) ) {
+				case "array": $printedCurrVal = print_r( $currentSetting, true );
+				break;
+				case "boolean": $printedCurrVal = $currentSetting ? "true" : "false";
+				break;
+				default: $printedCurrVal = "\"" . $currentSetting . "\"";
+			}
+			$item .=  "current: <code><nowiki>\$wg{$k} = {$printedCurrVal};</nowiki></code>\n";
+			// default
+			switch( gettype( $v['value'] ) ) {
+				case "array": $printedDefault = print_r( $v['value'], true );
+				break;
+				case "boolean": $printedDefault = ( $v['value'] ? "true" : "false" );
+				break;
+				default: $printedDefault = "\"" . $v['value'] . "\"";
+			}
+			$item .= "default: <code><nowiki>\$wg{$k} = {$printedDefault};</nowiki></code>\n";
+			// it's a wrap
 			$res .= "<div style='margin-bottom:1em;'>" . $item . "</div>";
 		}
 		return "<div>" . $res . "</div>";

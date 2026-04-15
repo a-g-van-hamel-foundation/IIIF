@@ -169,9 +169,27 @@ class IIIFMwRemote {
 	): array {
 		$baseUrl = IIIFUtils::getUrlBase();
 		$redirectId = "{$baseUrl}/Special:IIIFServ/image/{$repoName}/{$pageid}";
-		$scaleArr = IIIFMwImageUtils::calculateLevel0SizesFixed( $sourceWidth, $sourceHeight );
+		$thumbSteps = self::getThumbStepsForRepo( $repoName );
+		$scaleArr = IIIFMwImageUtils::calculateLevel0SizesFixed( $sourceWidth, $sourceHeight, $thumbSteps );
 		$service = IIIFCanvasParsers::formatImageService( $version, $redirectId, $sourceWidth, $sourceHeight, $scaleArr );
 		return $service;
+	}
+
+	/**
+	 * Get thumbnail steps from configuration or use a default list
+	 * @param string $repoName
+	 */
+	public static function getThumbStepsForRepo( string $repoName ): array {
+		// Default list is that of MediaWiki from 320 upwards
+		// In a future version of MW, we should be able to query this info from the API
+		$steps = [ 320, 640, 800, 1024, 1280, 2560 ];
+		$iiifForeignFileRepos = MediaWikiServices::getInstance()->getMainConfig()->get( "IIIFForeignFileRepos" );
+		foreach( $iiifForeignFileRepos as $repo ) {
+			if ( array_key_exists( "name", $repo ) && $repo["name"] === $repoName && array_key_exists( "thumbsteps", $repo ) ) {
+				$steps = $repo["thumbsteps"];
+			}
+		}
+		return $steps;
 	}
 
 	/**

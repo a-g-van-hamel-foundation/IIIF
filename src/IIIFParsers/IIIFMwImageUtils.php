@@ -103,7 +103,7 @@ class IIIFMwImageUtils {
 	 * @todo maybe check if we can make the requested thumbnail, and get transform parameters.
 	 * @link https://phabricator.wikimedia.org/source/mediawiki/browse/master/includes/api/ApiQueryImageInfo.php
 	 * @link https://phabricator.wikimedia.org/source/mediawiki/browse/REL1_39/includes/filerepo/file/File.php
-	 * note: createThumb: keeps aspect ratio and contrains
+	 * note: createThumb: keeps aspect ratio and constraints
 	 * 
 	 * @param File $img
 	 * @param int $width
@@ -204,19 +204,20 @@ class IIIFMwImageUtils {
 
 	/**
 	 * Variant that uses fixed sizes
-	 * @param int $fullWidth
-	 * @param int $fullHeight
+	 * @param int $sourceWidth
+	 * @param int $sourceHeight
+	 * @param array $thumbWidths
 	 * @return array
 	 */
 	public static function calculateLevel0SizesFixed(
 		int $sourceWidth,
-		int $sourceHeight
+		int $sourceHeight,
+		array $thumbWidths
 	) {
 		// $wgImageLimits
-		$thumbWidths = [ 320, 640, 800, 1024, 1280, 2560 ];
 		foreach( $thumbWidths as $thumbWidth ) {
 			if ( $thumbWidth >= $sourceWidth ) {
-				// Don't use scales larger than the original?
+				// Don't use scales larger than the original
 				break;
 			}
 			$thumbHeight = LocalFile::scaleHeight( $sourceWidth, $sourceHeight, $thumbWidth );

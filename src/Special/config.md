@@ -25,6 +25,20 @@ $wgForeignFileRepos[] = [
 
 What’s especially important for our purposes is the 'name' (here `wikivoyage`) with which you have identified the repository. We will rely on this identifier to set up the API module.
 
+#### $wgIIIFForeignFileRepos
+On top of `$wgForeignFileRepos`, which is native to MediaWiki, you MAY also need to set `$wgIIIFForeignFileRepos` to set a list of (canonical) thumbnail widths allowed by the wiki. For MediaWiki sites in general, this extension uses 320, 640, 800, 1024, 1280 and 2560 px as the default, which is taken from MediaWiki's default list (minus the smaller thumb sizes). Because Wikimedia Commons uses an alternative configuration (20, 40, 60, 120, 250, 330, 500, 960, 1280, 1920 and 3840 px, at the time of writing - April 2026) and no longer honours requests for non-canonical sizes, a wiki-specific default is set in `$wgIIIFForeignFileRepos` that overrides the general default:
+
+```php
+$wgIIIFForeignFileRepos = [
+	[
+		"name": "commons",
+		"thumbsteps": [ 120, 250, 330, 500, 960, 1280, 1920, 3840 ]
+	]
+]
+```
+
+If those values happen to become invalid for Wikimedia Commons (after all, maintainers may change their minds), just find the new set of values and change this entry in `$wgIIIFForeignFileRepos` accordingly. If you have added other services to `$wgForeignFileRepos`, such as 'wikivoyage' in our example above, add new entries in the same way and make sure each entry has a corresponding 'name'.
+
 ## JSON schema in the IIIF namespace
 It is recommended to use the IIIF namespace to store your JSON configuration schemas and identify each schema with the appropriate `type`, such as 'SMWConfig' and 'FormConfig'.
 <!-- SemanticAnnotationsConfig should now be SMWConfig -->
