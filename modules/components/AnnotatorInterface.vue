@@ -3,78 +3,93 @@
 	:id="containerId"
 	class="osdragon-widget"
 >
-	<div class="osd-viewer-container">
-		<template v-if="showOSDViewer">
-			<osd-viewer
-				ref="osdviewer"
-				@emit-osd-viewer="getOSDViewerFromChild"
-				@vue:mounted="initOSDAnnotator"
-				:id="id"
-				:container-id="containerId"
-				:prefix-url="prefixUrl"
-				:sequence-mode=sequenceMode
-				:tile-sources="tileSources"
-				:toc-menu-items="tocMenuItems"
-				:canvas-items="canvasItems"
-				:is-navigation-enabled="isNavigationEnabled"
-				:is-viewer-mode="isViewerMode"
-				@emit-annotation-toggle="toggleOSDDrawingTool"
-			></osd-viewer>
-		</template>
-		
-	</div>
+	<resizable-windows
+		:wrapper-class="resizableClass"
+		:wrapper-style="resizableStyle"
+		:resizer-width="10"
+		:is-enabled="isResizableEnabled"
+		:init-width-left="`70%`"
+		:init-width-right="`30%`"
+	>
 
-	<div class="annotator-sidebar">
-		<div class="anno-sidebar-form-container">
-			<nav-tabs
-				:items="navTabItems"
-				:initial-active-id="activeTabId"
-				:time="tabTime"
-			>
-				<template #form v-if="!isViewerMode">
-					<annotator-form
-						:timestamp="formKey"
-						ref="annotatorform"
-						class="annotation-form-container"
-						:is-enabled="isFormEnabled"
-						:current-annotation="currentAnnotation"
-						:current-canvas="currentCanvas"
-						@emit-updated-annotation="updateAnnotation"
-						:profile-schema="formProfileSchema"
-						:show-icon="iconStatus"
-						:custom-options="customOptions"
-					></annotator-form>
-				</template>
-				<template #dataset v-if="isViewerMode">
-					<annotator-dataset
-						ref="annotatordataset"
-						:current-annotation="currentAnnotation"
-						:current-canvas="currentCanvas"
-						:presentation-method="presentationMethod"
-						:profile-schema="formProfileSchema"
-					>testing viewer mode</annotator-dataset>
-				</template>
-
-				<template #annotations >
-					<div class="annotation-list">
-						<template v-for="(anno, index) in annotatedCanvasRefList">
-							<a v-if="anno !== undefined"
-								:key="`annot-list-` + index"
-								class="annot-list-btn"
-								@click="setCanvasFromPageIndex(anno.canvasIndex)"
-							>{{ anno.label }}</a>
-						</template>
-					</div>
-				</template>
-
-				<template #info >
-					<div v-html="summary"></div>
-				</template>
-
-			</nav-tabs>
+	<template v-slot:window1>
+		<div class="osd-viewer-container">
+			<template v-if="showOSDViewer">
+				<osd-viewer
+					ref="osdviewer"
+					@emit-osd-viewer="getOSDViewerFromChild"
+					@vue:mounted="initOSDAnnotator"
+					:id="id"
+					:container-id="containerId"
+					:prefix-url="prefixUrl"
+					:sequence-mode=sequenceMode
+					:tile-sources="tileSources"
+					:toc-menu-items="tocMenuItems"
+					:canvas-items="canvasItems"
+					:is-navigation-enabled="isNavigationEnabled"
+					:is-viewer-mode="isViewerMode"
+					@emit-annotation-toggle="toggleOSDDrawingTool"
+				></osd-viewer>
+			</template>
+			
 		</div>
+	</template>
 
-	</div>
+	<template v-slot:window2>
+		<div class="annotator-sidebar">
+			<div class="anno-sidebar-form-container">
+				<nav-tabs
+					:items="navTabItems"
+					:initial-active-id="activeTabId"
+					:time="tabTime"
+				>
+					<template #form v-if="!isViewerMode">
+						<annotator-form
+							:timestamp="formKey"
+							ref="annotatorform"
+							class="annotation-form-container"
+							:is-enabled="isFormEnabled"
+							:current-annotation="currentAnnotation"
+							:current-canvas="currentCanvas"
+							@emit-updated-annotation="updateAnnotation"
+							:profile-schema="formProfileSchema"
+							:show-icon="iconStatus"
+							:custom-options="customOptions"
+						></annotator-form>
+					</template>
+					<template #dataset v-if="isViewerMode">
+						<annotator-dataset
+							ref="annotatordataset"
+							:current-annotation="currentAnnotation"
+							:current-canvas="currentCanvas"
+							:presentation-method="presentationMethod"
+							:profile-schema="formProfileSchema"
+						>testing viewer mode</annotator-dataset>
+					</template>
+
+					<template #annotations >
+						<div class="annotation-list">
+							<template v-for="(anno, index) in annotatedCanvasRefList">
+								<a v-if="anno !== undefined"
+									:key="`annot-list-` + index"
+									class="annot-list-btn"
+									@click="setCanvasFromPageIndex(anno.canvasIndex)"
+								>{{ anno.label }}</a>
+							</template>
+						</div>
+					</template>
+
+					<template #info >
+						<div v-html="summary"></div>
+					</template>
+
+				</nav-tabs>
+			</div>
+
+		</div>
+	</template>
+
+	</resizable-windows>
 </div>
 </template>
 
@@ -88,6 +103,7 @@ const SequenceModePlugin = require( "ext.iiif.lib.annotorious.plugin.sequencemod
 const AnnotatorForm = require( "./AnnotatorForm.vue" );
 const AnnotatorDataset = require( "./AnnotatorDataset.vue" );
 const NavTabs = require( "./NavTabs.vue" );
+const ResizableWindows = require( "./ResizableWindows.vue" );
 const { CdxButton, CdxIcon } = require( "@wikimedia/codex" );
 
 module.exports = defineComponent( {
@@ -98,7 +114,8 @@ module.exports = defineComponent( {
 		"osd-viewer": OSDViewerModule,
 		"annotator-form": AnnotatorForm,
 		"annotator-dataset": AnnotatorDataset,
-		"nav-tabs": NavTabs
+		"nav-tabs": NavTabs,
+		ResizableWindows
 	},
 	props: {
 		configProps: {
@@ -548,6 +565,11 @@ module.exports = defineComponent( {
 			}, 2500 );
 		}
 
+		// Frame
+		const resizableClass = ref( "annotation-frame-resizable" );
+		const resizableStyle = ref( "" );
+		const isResizableEnabled = ref( true );
+
 		/**
 		 * Dev only
 		 * @param msg
@@ -607,6 +629,10 @@ module.exports = defineComponent( {
 			iconStatus,
 			showStatusIcon,
 
+			resizableClass,
+			resizableStyle,
+			isResizableEnabled,
+
 			// Other
 			debugLog
 			// Receiving emits
@@ -626,8 +652,8 @@ module.exports = defineComponent( {
 	width:100%;
 }
 .annotator-sidebar {
-	width:35%;
-	min-width:150px;
+	/*width:35%;
+	min-width:150px;*/
 }
 .annotation-form-container {
 	width:100%;
@@ -681,4 +707,9 @@ a.annot-list-btn:focus {
 .manifest-summary .iiif-manifest-urls { word-break: break-all; }
 .metadata-item { font-size: .9em; margin-bottom: .9em;  }
 .metadata-item .metadata-label { font-variant: all-petite-caps; margin-bottom:0.2em; }
+
+.annotation-frame-resizable {
+	width:100%;
+	max-width:100%;
+}
 </style>

@@ -40,11 +40,16 @@ module.exports = defineComponent( {
 		isEnabled: { type: Boolean, default: true },
 		wrapperClass: { type: String, default: "resizable-layout--fixed"},
 		wrapperStyle: { type: String, default: "" },
-		resizerWidth: { type: Number, default: 10 }
+		resizerWidth: { type: Number, default: 10 },
+		initWidthLeft: { type: String, default: "50%" },
+		initWidthRight: { type: String, default: "50%" }
 	},
 	setup( props ) {
 		const layoutClass = ref( props.wrapperClass );
-		const handleStyle = ref( { width: props.resizerWidth + "px" } );
+		const handleStyle = ref({
+			left: props.initWidthLeft,
+			width: props.resizerWidth + "px" 
+		});
 
 		function calcGridTemplateColumns(perc1, perc2) {
 			var resizerOffset = props.resizerWidth / 2;
@@ -54,7 +59,7 @@ module.exports = defineComponent( {
 			return res1;
 		}
 		const gridStyle = ref( {
-			gridTemplateColumns: calcGridTemplateColumns( "50%", "50%" )
+			gridTemplateColumns: calcGridTemplateColumns( props.initWidthLeft, props.initWidthRight )
 		} );
 
 		function onHandleMousedown(e) {
@@ -145,7 +150,7 @@ module.exports = defineComponent( {
 	position: absolute;
 	top: 0;
 	bottom: 0;
-	left: 50%;
+	/*left: 50%;*/
 	transform: translate(-50%, 0%);
 	/*width: 10px;*/
 	cursor: ew-resize;
@@ -154,7 +159,6 @@ module.exports = defineComponent( {
 	transition: background-color 0.2s ease-in;
 }
 .resizer-handle:hover {
-  background-color: #6c6c6c;
+	background-color: #6c6c6c;
 }
 </style>
-

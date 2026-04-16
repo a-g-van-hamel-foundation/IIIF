@@ -7,7 +7,7 @@ module.exports = {
 	OSDViewerNavigation: require("./OSDViewerNavigation.vue"),
 	OSDViewerTools: require("./OSDViewerTools.vue"),
 	NavTabs: require("./NavTabs.vue"),
-	
+
 	AnnotatorForm: require("./AnnotatorForm.vue"),
 	DynamicFormField: require("./DynamicFormField.vue"),
 	FieldLookup: require("./FieldLookup.vue"),
@@ -18,7 +18,8 @@ module.exports = {
 
 	AnnotatorDataset: require("./AnnotatorDataset.vue"),
 	AnnotatorDataLookup: require("./AnnotatorDataLookup.vue"),
-	AnnotatorDataSelect: require("./AnnotatorDataSelect.vue")
+	AnnotatorDataSelect: require("./AnnotatorDataSelect.vue"),
 
+	ResizableWindows: require("./ResizableWindows.vue")
 	//Gallery: require("./Gallery.vue")
 };

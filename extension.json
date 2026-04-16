@@ -166,6 +166,7 @@
 				"components/AnnotatorDataset.vue",
 				"components/AnnotatorDataLookup.vue",
 				"components/AnnotatorDataSelect.vue",
+				"components/ResizableWindows.vue",
 				"components/NavTabs.vue",
 				"components/Gallery.vue",
 				{
