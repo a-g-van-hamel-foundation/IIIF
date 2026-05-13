@@ -2,11 +2,10 @@
 
 	<div v-if="isEnabled" :class="layoutClass" :style="wrapperStyle">
 		<div class="resizable-container">
-
 			<div
 				class="resizer-handle"
 				:style="handleStyle"
-				@mousedown="onHandleMousedown"
+				@pointerdown="onHandlePointerdown"
 				role="separator"
 				aria-orientation="vertical"
 			></div>
@@ -62,11 +61,10 @@ module.exports = defineComponent( {
 			gridTemplateColumns: calcGridTemplateColumns( props.initWidthLeft, props.initWidthRight )
 		} );
 
-		function onHandleMousedown(e) {
+		function onHandlePointerdown(e) {
 			var parentRect = e.target.parentElement.getBoundingClientRect();
 			var parentRectLeft = parentRect.left;
 			var parentRectWidth = parentRect.width;
-
 			const dragHandle = (e) => {
 				function calcLeftPos(posX, width, minWidth = 0, maxWidth = 100) {
 					return Math.max(
@@ -87,19 +85,19 @@ module.exports = defineComponent( {
 			}
 			const stopDragHandle = (e) => {
 				//console.log( "stop drag handle" );
-				document.removeEventListener("mousemove", dragHandle);
-				document.removeEventListener("mouseup", stopDragHandle);
-				document.removeEventListener("mouseleave", stopDragHandle);
+				document.removeEventListener("pointermove", dragHandle);
+				document.removeEventListener("pointerup", stopDragHandle);
+				document.removeEventListener("pointerleave", stopDragHandle);
 			};
-			document.addEventListener( "mousemove", dragHandle );
-			document.addEventListener( "mouseup", stopDragHandle );
+			document.addEventListener( "pointermove", dragHandle );
+			document.addEventListener( "pointerup", stopDragHandle );
 		}
 
 		return {
 			layoutClass,
 			handleStyle,
 			gridStyle,
-			onHandleMousedown
+			onHandlePointerdown
 		}
 	}
 } );
@@ -157,6 +155,7 @@ module.exports = defineComponent( {
 	z-index: 5;
 	background-color: #acacac;
 	transition: background-color 0.2s ease-in;
+	touch-action: none;
 }
 .resizer-handle:hover {
 	background-color: #6c6c6c;
