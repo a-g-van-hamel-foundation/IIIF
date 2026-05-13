@@ -642,7 +642,7 @@ module.exports = defineComponent( {
 });
 </script>
 
-<style>
+<style lang="less">
 .osdragon-widget {
 	display:flex;
 	width:100%;
@@ -702,11 +702,7 @@ a.annot-list-btn:focus {
 	/*box-shadow: inset 0 3px 5px rgba(0,0,0,0.125),0 0 0 0.2rem rgba(119,137,133,0.5);*/
 }
 
-.manifest-summary { font-size: 1em; }
-.manifest-summary .item { margin-bottom: 1em; }
-.manifest-summary .iiif-manifest-urls { word-break: break-all; }
-.metadata-item { font-size: .9em; margin-bottom: .9em;  }
-.metadata-item .metadata-label { font-variant: all-petite-caps; margin-bottom:0.2em; }
+// Summary / metadata styling moved to ext.iiif.styles.less;
 
 .annotation-frame-resizable {
 	width:100%;
