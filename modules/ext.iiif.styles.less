@@ -160,3 +160,28 @@
 	margin: 1em 0;
 	display: block;
 }
+
+/* Metadata styling for AnnotatorInterface */
+
+.manifest-summary { 
+	font-size: 1em;
+	.item {
+		margin-bottom: 1em;
+		display: block;
+	}
+	.item.iiif-manifests-urls {
+		word-break: break-all;
+		list-style: none;
+		padding-left: 0;
+		margin: 0;
+		& > * {
+			display:block;
+			margin-bottom:.6rem;
+		}
+	}
+}
+
+.metadata-item {
+	font-size: .9em; margin-bottom: .9em;
+	.metadata-label { font-variant: all-petite-caps; margin-bottom:0.2em; }
+}
