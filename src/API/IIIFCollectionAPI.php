@@ -68,7 +68,7 @@ class IIIFCollectionAPI extends ApiBase {
 				"en" => [ $wgSitename ]
 			]
 		];
-		$logoImg = IIIFUtils::getUrlBase() . "/extensions/IIIF/assets/Looking-glass.png"; 
+		$logoImg = IIIFUtils::getExtensionPath() . "/assets/Looking-glass.png"; 
 		$logo = [
 			[
 				"id" => $logoImg,
@@ -120,7 +120,7 @@ class IIIFCollectionAPI extends ApiBase {
 		}
 
 		// @todo
-		$thumbnailUri = IIIFUtils::getUrlBase() . "/extensions/IIIF/assets/Looking-glass.png";
+		$thumbnailUri = IIIFUtils::getExtensionPath() . "/assets/Looking-glass.png";
 		$thumbnail = [
 			"id" => $thumbnailUri,
 			"type" => "Image",

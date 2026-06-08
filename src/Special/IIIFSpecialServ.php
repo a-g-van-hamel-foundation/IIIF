@@ -82,7 +82,7 @@ class IIIFSpecialServ extends RedirectSpecialPage {
 				if ( $request["repo"] === "local" || $request["repo"] === "" ) {
 					$thumbnail = IIIFMwImageUtils::getIIRImage( $urlParts );
 					if ( !$thumbnail && $thumbnail !== null ) {
-						$thumbnail = IIIFUtils::getUrlBase() . "/extensions/IIIF/assets/no-image-available.png";
+						$thumbnail = IIIFUtils::getExtensionPath() . "/assets/no-image-available.png";
 					}
 				} else {
 					$thumbnail = IIIFMwRemote::getIIRImageRemotely( $urlParts );

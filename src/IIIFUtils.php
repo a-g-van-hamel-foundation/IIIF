@@ -29,6 +29,13 @@ class IIIFUtils {
 		return $urlBase;
 	}
 
+	public static function getExtensionPath() {
+		$baseUrl = MediaWikiServices::getInstance()->getUrlUtils()->getServer( null );
+		$mainConfig = MediaWikiServices::getInstance()->getMainConfig();
+		$extAssets = $mainConfig->get( 'ExtensionAssetsPath' );
+		return $baseUrl . $extAssets . "/IIIF";
+	}
+
 	/**
 	 * Get JSON-encoded content from URL and return array
 	 * Disallows http: schemes
@@ -51,10 +58,18 @@ class IIIFUtils {
 			return null;
 		}
 		$arr = json_decode( trim($json), true );
+		if ( $arr == null || gettype($arr) !== "array" ) {
+			return null;
+		}
 		if ( json_last_error() === JSON_ERROR_NONE ) {
 			// JSON is valid
 			return $arr;
 		}
+		/*
+		if ( json_last_error() === JSON_THROW_ON_ERROR ) {
+			return null;
+		}
+		*/
 		return null;
 	}
 
@@ -65,9 +80,14 @@ class IIIFUtils {
 		// $urlBase = self::getUrlBase();
 		$options = [ 
 			"followRedirects" => true
+			//"userAgent" => "IIIF extension/0.0 ($urlBase)"
 		];
-		$res = $httpRequestFactory->get( $apiUrl, $options, __METHOD__ );
-		return $res;
+		// The get method may throw 500 error
+		// $res = $httpRequestFactory->get( $apiUrl, $options, __METHOD__ );
+		$guzzleHttpRequest = $httpRequestFactory->create( $apiUrl, $options, __METHOD__ );
+		$status = $guzzleHttpRequest->execute();
+		$content = $guzzleHttpRequest->getContent();
+		return $content ?? "";
 	}
 
 	/**
