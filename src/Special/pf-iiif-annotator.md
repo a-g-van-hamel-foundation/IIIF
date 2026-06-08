@@ -22,7 +22,7 @@ Example:
 ## Usage
 
 ### Example
-<p><img src="/extensions/IIIF/src/Special/ISOS-NLIG3-corvus.png" alt="example" style="width:100%;"/></p>
+<p><img src="{extensionPath}/src/Special/ISOS-NLIG3-corvus.png" alt="example" style="width:100%;"/></p>
 
 This example uses a digitised facsimile of an Irish manuscript in the National Library of Ireland, MS G 3, available from Irish Script on Screen (https://www.isos.dias.ie/NLI/NLI_MS_G_3.html).
 

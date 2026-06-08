@@ -4,13 +4,13 @@ Development began with a use case on [CODECS][codecs]. Its many descriptions of 
 
 An example of SMW data being used as referenced Annotations and loaded into Mirador:
 
-<p><img src="{urlBase}/extensions/IIIF/src/Special/ISOS-RIA-Dii1-annotations.png" alt="example" style="width:100%;"/></p>
+<p><img src="{extensionPath}/src/Special/ISOS-RIA-Dii1-annotations.png" alt="example" style="width:100%;"/></p>
 
 ## How it works
 
 ### Data structure
 - It is assumed that for every such item you want to include, a [subobject](https://www.semantic-mediawiki.org/wiki/Help:Adding_subobjects) is used to record it. The subobject should include 
-    - a property that records the Canvas's id - see `IIIFAnnotTargetProp` below. The Canvas's id is an identifier or URI assigned to a Canvas within a IIIF Manifest. This allows the canvas to be uniquely referenced.
+	- a property that records the Canvas's id - see `IIIFAnnotTargetProp` below. The Canvas's id is an identifier or URI assigned to a Canvas within a IIIF Manifest. This allows the canvas to be uniquely referenced.
 	- a property that links back to the parent page - see the query condition in `IIIFv3QueryArg` below.
 	- a property containing the text you want to show as your Annotation - see `IIIFAnnotTextProp` below.
 	- optionally, a property for sorting items - see  `IIIFAnnotSortProp`. This may be helpful if you need to display Annotations in a predefined order of appearance.

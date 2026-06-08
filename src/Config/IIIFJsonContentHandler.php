@@ -12,6 +12,7 @@ use MediaWiki\Context\RequestContext;
 use MediaWiki\Parser\ParserOutput;
 use IIIF\Config\IIIFJsonContent;
 use IIIF\Config\IIIFConfig;
+use IIIF\IIIFUtils;
 
 class IIIFJsonContentHandler extends JsonContentHandler {
 
@@ -109,7 +110,7 @@ class IIIFJsonContentHandler extends JsonContentHandler {
 		$urlName = urlencode( $pageName );
 
 		// @todo check if the file exists
-		$filePath = "/extensions/IIIF/assets/IIIF-logo.svg";
+		$filePath = IIIFUtils::getExtensionPath() . "/assets/IIIF-logo.svg";
 		$img = "<img src='$filePath' alt='IIIF logo' style='height:15px;'>";
 		//$btnClass = "cdx-button cdx-button--action-default";
 		$btnClass = "btn-iiif";

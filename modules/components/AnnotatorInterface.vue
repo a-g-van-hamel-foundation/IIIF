@@ -318,7 +318,7 @@ module.exports = defineComponent( {
 	},
 	setup(props, context) {
 		// context.emit, context.expose
-		var prefixUrl = ref( "/extensions/IIIF/modules/lib-openseadragon/images/" );
+		var prefixUrl = ref( mw.config.get("wgExtensionAssetsPath") + "/IIIF/modules/lib-openseadragon/images/" );
 		var manifestUrl = ref( props.configProps['manifest'] ?? null );
 		var tileSources = ref( props.tileSourcesFromManifest );
 

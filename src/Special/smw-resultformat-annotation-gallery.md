@@ -21,8 +21,8 @@ You can add captions to accompany each image at the bottom of the image overlay.
 ## Layout options
 - `layout` - defaults to a grid in which each gallery item has the same dimensions, creating evenly sized rows and columns. Within these size constraints, images are centred and clipped off around the edges. As an alternative, choose 'columns' to create a column layout in which every image is made to fit the width of the column. The aspect ratio is preserved either way.
     <div style="display:flex;gap:1em;">
-        <div style="width:50%;">Example of the default grid layout:<br><img src="{urlBase}/extensions/IIIF/src/Special/layout-default.jpg" alt="Example of the default layout" style="width:90%" /></div>
-        <div style="width:50%;">Example of the 'columns' layout:<br><img src="{urlBase}/extensions/IIIF/src/Special/layout-columns.jpg" alt="Example of the 'columns' layout" style="width:90%;" /></div>
+        <div style="width:50%;">Example of the default grid layout:<br><img src="{extensionPath}/src/Special/layout-default.jpg" alt="Example of the default layout" style="width:90%" /></div>
+        <div style="width:50%;">Example of the 'columns' layout:<br><img src="{extensionPath}/src/Special/layout-columns.jpg" alt="Example of the 'columns' layout" style="width:90%;" /></div>
     </div>
 - `columns` - number of grid columns (2, 3, 4, 5, 6, 8, or 12) on medium-size screens and up. Default: 4. The CSS classes used are responsive in such a way that the number of columns decreases below a viewport of 768px.
 
