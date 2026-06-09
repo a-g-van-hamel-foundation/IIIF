@@ -272,26 +272,29 @@ module.exports = defineComponent( {
 			icon: cdxIconNewWindow
 		} );
 
-		const toolMenuItemSelected = ref( null );
-		function onSelectToolMenuItem( newSelection ) {
+		const toolMenuItemSelected = ref(null);
+		function onSelectToolMenuItem(newSelection) {
 			toolMenuItemSelected.value = newSelection;
-			var baseUrl = "https:" + mw.config.get("wgServer");
-			var apiUrl = baseUrl + `/Special:IIIFServ/manifest/mergerange/${props.targetPageId}/${props.targetSlot}`;
+			let server = mw.config.get("wgServer");
+			let apiRedirectUrl = server + mw.util.getUrl(`Special:IIIFServ/manifest/mergerange/${props.targetPageId}/${props.targetSlot}`);
+
 			switch( newSelection ) {
 				case "view-data":
-					window.open(baseUrl + `/Special:Redirect/page/` + props.targetPageId, '_blank').focus();
+					let viewDataUrl = server + mw.util.getUrl(`Special:Redirect/page/` + props.targetPageId);
+					window.open(viewDataUrl, '_blank').focus();
 					break;
 				case "view-manifest":
 					window.open(props.iiifManifest).focus();
 					break;
 				case "view-api":
-					window.open(apiUrl, '_blank').focus();
+					window.open(apiRedirectUrl, '_blank').focus();
 					break;
 				case "copy-api":
-					navigator.clipboard.writeText(apiUrl);
+					navigator.clipboard.writeText(apiRedirectUrl);
 					break;
 				case "view-form-profile":
-					window.open(baseUrl + `/Special:Redirect/page/` + props.configData.formId, '_blank').focus();
+					let viewFormProfileUrl = server + mw.util.getUrl(`Special:Redirect/page/` + props.configData.formId);
+					window.open(viewFormProfileUrl, '_blank').focus();
 			}
 		}
 
