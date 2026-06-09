@@ -283,9 +283,10 @@ class IIIFCanvasParsers {
 
 	/**
 	 * IIIF Presentation v2
+	 * $specialPageUrl - fully qualified URL of Special:IIIFServ
 	 */
 	public static function formatCanvasV2(
-		string $baseUrl,
+		string $specialPageUrl,
 		string $repoSource,// eg local
 		string $pageid,
 		string $fileName,
@@ -296,8 +297,8 @@ class IIIFCanvasParsers {
 		$smallThumb,
 		$mediaType
 	) {
-		$canvasId = $baseUrl . "/Special:IIIFServ/presentation/canvas/{$repoSource}/" . $pageid . ".json";
-		$imageAnnotationId = $baseUrl . "/Special:IIIFServ/presentation/annotation/{$repoSource}/" . $pageid . ".json";
+		$canvasId = $specialPageUrl . "/presentation/canvas/{$repoSource}/" . $pageid . ".json";
+		$imageAnnotationId = $specialPageUrl . "/presentation/annotation/{$repoSource}/" . $pageid . ".json";
 
 		if( $repoSource === "local" ) {
 			$service = IIIFMwImgAPI::buildIIR( $pageid, $sourceWidth, $sourceHeight, [], "2" );
@@ -359,7 +360,7 @@ class IIIFCanvasParsers {
 	 * IIIF Presentation v3
 	 */
 	public static function formatCanvasV3(
-		string $baseUrl,
+		string $specialPageUrl,
 		string $repoSource,// eg local
 		string $pageid,
 		string $fileName,
@@ -371,8 +372,8 @@ class IIIFCanvasParsers {
 		$smallThumb,
 		$mediaType
 	) {
-		$canvasId = $baseUrl . "/Special:IIIFServ/presentation/canvas/{$repoSource}/" . $pageid . ".json";
-		$imageAnnotationId = $baseUrl . "/Special:IIIFServ/presentation/annotation/{$repoSource}/" . $pageid . ".json";
+		$canvasId = $specialPageUrl . "/presentation/canvas/{$repoSource}/" . $pageid . ".json";
+		$imageAnnotationId = $specialPageUrl . "/presentation/annotation/{$repoSource}/" . $pageid . ".json";
 		
 		if( $repoSource === "local" ) {
 			$service = IIIFMwImgAPI::buildIIR( $pageid, $sourceWidth, $sourceHeight, [], "3" );
@@ -409,7 +410,7 @@ class IIIFCanvasParsers {
 			"items" => [
 				//Painting Annotations
 				[
-					"id" => $baseUrl . "/Special:IIIFServ/presentation/annotationpage/{$repoSource}/" . $pageid,
+					"id" => $specialPageUrl . "/presentation/annotationpage/{$repoSource}/" . $pageid,
 					"type" => "AnnotationPage",
 					"items" => [
 						[

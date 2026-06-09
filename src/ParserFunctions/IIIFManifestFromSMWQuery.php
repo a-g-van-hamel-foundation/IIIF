@@ -49,8 +49,7 @@ class IIIFManifestFromSMWQuery {
 
 		$base64 = IIIFUtils::base64urlEncode( trim($query) );
 
-		$baseUrl = IIIFUtils::getUrlBase();
-		$res = "$baseUrl/Special:IIIFServ/presentation3/manifest/local/smwquery/{$base64}";
+		$res = IIIFUtils::getFullURLForPage( "Special:IIIFServ" ) . "/presentation3/manifest/local/smwquery/{$base64}";
 		return [ $res, 'noparse' => false, 'isHTML' => false ];
 	}
 

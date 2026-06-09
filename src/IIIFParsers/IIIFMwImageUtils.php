@@ -89,10 +89,9 @@ class IIIFMwImageUtils {
 		// [ $x, $y, $w, $h ] = IIIFImageUtils::translateXYWHRegion( $request["region"], $width, $height );
 
 		// Create and return thumbnail
-		$baseUrl = IIIFUtils::getUrlBase();
-		$thumbnailPath = self::createThumbnail( $file, $width, $height );		
+		$thumbnailPath = self::createThumbnail( $file, $width, $height );
 		if ( $thumbnailPath !== "" ) {
-			return $baseUrl . $thumbnailPath;
+			return IIIFUtils::getUrlBase() . $thumbnailPath;
 		}
 		return false;
 	}

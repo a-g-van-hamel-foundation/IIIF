@@ -1,7 +1,12 @@
 <?php
 
 /**
- * IIIF API for creating image information request
+ * IIIF API for creating an Image Information Request (IIR)
+ * Returns info.json containing technical metadata about an image
+ * 
+ * @link https://iiif.io/api/image/2.0/#information-request
+ * @link https://iiif.io/api/image/2.1/#image-information
+ * @link https://iiif.io/api/image/3.0/#5-image-information
  * 
  * @todo clean up dev notes:
  * Not (.../identifier/info.json) but (/identifier)
@@ -146,7 +151,7 @@ class IIIFMwImgAPI extends ApiBase {
 			//not sure
 			// $id = 24230;
 			// getRevisionById is not static
-			$revisionRecord = \RevisionStore::getRevisionById( $id, 0, null );
+			$revisionRecord = RevisionStore::getRevisionById( $id, 0, null );
 			$pageTitle = $revisionRecord->getPageAsLinkTarget(); // LinkTarget
 			$page = $revisionRecord->getPage(); // PageIdentity
 			$file = $localRepo->findFile( $pageTitle );
@@ -162,74 +167,6 @@ class IIIFMwImgAPI extends ApiBase {
 			$file = $oldfiles[0];
 		}
 		return $file;
-	}
-
-	/**
-	 * Not for production use.
-	 */
-	private static function testDoSomethingWithFile( $file ) {
-		$baseUrl = IIIFUtils::getUrlBase();
-		$height = $file->getHeight();
-		$width = $file->getWidth();
-		// $file->getDescriptionShortUrl() e.g. /index.php?curid=5573"
-		$fileUrl = $baseUrl . $file->getURL(); // /images/..
-		$viewUrl = $baseUrl . $file->getViewURL();
-		$thumbUrl = $file->getThumbUrl();
-		$uploader = $file->getUploader();
-
-		$package = [
-			"url" => $baseUrl . $file->getURL()
-		];
-		// thumbnails
-		//$sizes = [ 320, 640, 800, 1024, 1280, 2560 ];
-		$sizes = [ 320, 640, 800, 1024, 1280, 2560 ];
-
-		$thumbnailUrls = $scaleArr = [];
-		foreach( $sizes as $w ) {
-			// $scaleArr[] = LocalFile::scaleheight( $width, $height, $w );
-			$thumbnailUrls[] = $baseUrl . self::createThumbnail( $file, $w );
-		}
-		// getMimeType() and getMediaType()
-		// get thumbnail URL
-		return $thumbnailUrls;
-	}
-
-	/**
-	 * @todo check if we can make the requested thumbnail, and get transform parameters.
-	 * // cf API: https://phabricator.wikimedia.org/source/mediawiki/browse/master/includes/api/ApiQueryImageInfo.php
-	 * @param File $img
-	 */
-	private static function createThumbnail( File $img, $width ) { 
-		// $finalThumbParams = $this->mergeThumbParams( $img, $scale, $params['urlparam'] );
-		$thumb = $img->createThumb( $width );
-		return $thumb;
-	}
-
-	/**
-	 * @deprecated
-	 * @param string $imageName
-	 * @return void
-	 */
-	private static function testCollectFunctionsIMightNeed( string $imageName ) {
-		// $finalThumbParams = $this->mergeThumbParams( $img, $scale, $params['urlparam'] );
-		$services = MediaWikiServices::getInstance();
-		$localRepo = $services->getRepoGroup()->getLocalRepo();
-		$imageName = '';
-		$image = $localRepo->newFile( $imageName );
-		// $image->exists()
-		$imageLimits = $services->getMainConfig()->get( 'ImageLimits' );
-		// $galleryOptions = $services->getMainConfig()->get( 'GalleryOptions' );
-		// $galleryOptions['imageWidth'], galleryOptions['imageHeight']
-
-		// File.php - https://doc.wikimedia.org/mediawiki-core/master/php/classFile.html
-		// $image ->transform( $params, File::RENDER_NOW );
-		$thumbPath = $image->getThumbPath(); //  thumbnail path
-		$thumbUrl = $image->getThumbUrl(); //  thumbnail directory
-
-		$thumbnailParams = [
-			"physicalWidth"=> ""
-		];
-		$thumbnailSource = $image->getThumbnailSource( $thumbnailParams );
 	}
 
 	/**
@@ -259,46 +196,6 @@ class IIIFMwImgAPI extends ApiBase {
 	}
 
 	/**
-	 * Get data from requests to external APIs, e.g. Commons
-	 * Avoid for internal PHP uses (https://www.mediawiki.org/wiki/API:Calling_internally)
-	 */
-	public static function getResultFromApiRequest( $endPoint, $titles, $width ) {
-		// https://en.wikipedia.org/w/api.php?action=query&format=json&prop=imageinfo&titles=File:Mapofkanto.png&iiprop=url|timestamp|user|mime|extmetadata&iiurlwidth=100
-		// https://codecs.vanhamel.nl/api.php?action=query&format=json&prop=imageinfo&titles=File:1-AG-van-Hamel.jpg&iiprop=url|timestamp|user|mime|extmetadata&iiurlwidth=200
-		//$apiUrlStr = `/api.php?action=query&format=json&prop={$prop}&titles={$titles}&iiprop=`;
-		$prop = 'imageinfo';
-		$titles = 'File:1-AG-van-Hamel.jpg'; //test
-		$baseUrlStr = IIIFUtils::getUrlBase();
-		$endPoint = $baseUrlStr . "api.php";
-		$iiprop = "url|size|timestamp|user|mime|extmetadata";
-		$iiurlwidth= "200";
-		
-		$qParams = [
-			"action" => "query",
-			"format" => "json",
-			"prop" => $prop,
-			"titles" => $titles,
-			"iiprop" => $iiprop,
-			"iiurlwidth" => $iiurlwidth // or ...height?
-		];
-		$qUrl = $endPoint . "?" . http_build_query( $qParams );
-
-		// ? 
-		$ch = curl_init( $qUrl );
-		curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
-		$output = curl_exec( $ch );
-		curl_close( $ch );
-
-		$res = json_decode( $output, true );
-		return $res;
-		/*
-		foreach( $res["query"]["pages"] as $k => $v ) {
-			echo( $v["title"] . " is uploaded by User:" . $v["imageinfo"][0]["user"] . "\n" );
-		}
-		*/
-	}
-
-	/**
 	 * Build Image Information Request (IIR), level 0, tile-less
 	 * ~ '.../info.json'
 	 */
@@ -309,12 +206,13 @@ class IIIFMwImgAPI extends ApiBase {
 		array $sizes = [],
 		string $version = "2"
 	): array {
-		$baseUrl = IIIFUtils::getUrlBase();
-		$currentId = $baseUrl . "$_SERVER[REQUEST_URI]";
+		// Not currently using api URL but special page below
+		// $currentId = IIIFUtils::getUrlBase() . "$_SERVER[REQUEST_URI]";
 		// @todo create version for UI
-		// $id = $id;
 		// @todo in case of file names, convert to page ids
-		$redirectId = $baseUrl . "/Special:IIIFServ/image/local/" . $id;
+
+		$redirectId = IIIFUtils::getFullURLForPage( "Special:IIIFServ/image/local/{$id}" );
+
 		$res = $scaleArr = [];
 
 		// @todo - Issue here is that aspect ratio is not consistent 

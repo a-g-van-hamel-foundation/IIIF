@@ -159,6 +159,7 @@ class IIIFMWPresAPI extends ApiBase {
 		$revid = null
 	) {
 		$baseUrl = IIIFUtils::getUrlBase();
+		$specialPageUrl = IIIFUtils::getFullURLForPage( "Special:IIIFServ" );
 		$IIIFMwImageUtils = new IIIFMwImageUtils();
 		// pageid, fileName, sourceWidth, sourceHeight, uploader, mediaType, thumbnailUrl, imageResourceId, smallThumb
 		$fileData = $IIIFMwImageUtils->getFileDataForCanvas( $baseUrl, $pageid, $fileName, $revid );
@@ -172,7 +173,7 @@ class IIIFMWPresAPI extends ApiBase {
 		];
 
 		$canvas = IIIFCanvasParsers::formatCanvasV2(
-			$baseUrl,
+			$specialPageUrl,
 			"local",
 			$fileData["pageid"],
 			$fileData["fileName"],
@@ -191,6 +192,7 @@ class IIIFMWPresAPI extends ApiBase {
 	 * @return array|null
 	 */
 	private static function buildCanvasV3( $pageid, $fileName, $revid ) {
+		$specialPageUrl = IIIFUtils::getFullURLForPage( "Special:IIIFServ" );
 		$baseUrl = IIIFUtils::getUrlBase();
 		$IIIFMwImageUtils = new IIIFMwImageUtils();
 		// pageid, fileName, sourceWidth, sourceHeight, uploader, mediaType, thumbnailUrl, imageResourceId, smallThumb
@@ -205,7 +207,7 @@ class IIIFMWPresAPI extends ApiBase {
 		];
 
 		$canvas = IIIFCanvasParsers::formatCanvasV3(
-			$baseUrl,
+			$specialPageUrl,
 			"local",
 			$fileData["pageid"],
 			$fileData["fileName"],
@@ -230,10 +232,9 @@ class IIIFMWPresAPI extends ApiBase {
 		$source = "local",
 		$label = "[No label]"
 	) {
-		$baseUrl = IIIFUtils::getUrlBase();
-		$manifestId = $baseUrl . "/Special:IIIFServ/presentation/manifest/{$source}/{$redirectParams}";
-			//https://codecs.codicology.eu/Special:IIIFServ/presentation/{repo}/pageids/34234,5656,65656
-		$sequenceId = $baseUrl . "/Special:IIIFServ/presentation/sequence/{$source}/normal.json" ;
+		$specialPageUrl = IIIFUtils::getFullURLForPage( "Special:IIIFServ" );
+		$manifestId = $specialPageUrl . "/presentation/manifest/{$source}/{$redirectParams}";
+		$sequenceId = $specialPageUrl . "/presentation/sequence/{$source}/normal.json" ;
 			// cf. http://34.250.47.171:5000/iiif/sequence/normal.json
 		$sequences = [];
 		$sequences[0] = [
@@ -259,11 +260,11 @@ class IIIFMWPresAPI extends ApiBase {
 		$source = "local",
 		$label = "[No label]"
 	) {
-		$baseUrl = IIIFUtils::getUrlBase();
+		$specialPageUrl = IIIFUtils::getFullURLForPage( "Special:IIIFServ" );
 		$res = [
 			"@context" => "http://iiif.io/api/presentation/3/context.json",
 			"type" => "Manifest",
-			"id" => $baseUrl . "/Special:IIIFServ/presentation3/manifest/{$source}/{$redirectParams}",
+			"id" => $specialPageUrl . "/presentation3/manifest/{$source}/{$redirectParams}",
 			"label" => IIIFParserUtils::formatLabelOrValue( $label, "3", "none" ),
 			// description not in IIIF v3
 			// "description" => "Manifest generated from a selection of MediaWiki files",

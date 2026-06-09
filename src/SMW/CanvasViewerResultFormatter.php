@@ -8,6 +8,8 @@
 namespace IIIF\SMW;
 
 //use MediaWiki\MediaWikiServices;
+//use MediaWiki\Title\Title;
+use MediaWiki\Html\Html;
 use SMW\Query\QueryResult;
 use SMW\Query\ResultPrinters\ResultPrinter;
 use IIIF\IIIFUtils;
@@ -84,14 +86,15 @@ class CanvasViewerResultFormatter extends ResultPrinter {
 		}
 
 		$manifestStr = htmlspecialchars(json_encode($canvases));
-		$html = \Html::rawElement(
+		//CanvasViewerResultFormatter
+		$html = Html::rawElement(
 			"div",
 			[
 				"data-id" => "iiif-canvas-viewer-" . rand(1000000,9999999),
 				"class" => "iiif-annotation-canvasviewer iiif-canvas-viewer",
 				"data-manifest-json" => $manifestStr,
 				// @todo
-				"data-manifest" => IIIFUtils::getUrlBase() . `/Special:IIIF/` . rand(1000000,9999999),
+				"data-manifest" => IIIFUtils::getFullURLForPage( "Special:IIIF" ) . `/` . rand(1000000,9999999),
 				"data-canvasitems" => htmlspecialchars(json_encode( $canvasItems ) ),
 				"data-tilesources" => htmlspecialchars(json_encode( $tileSources) ),
 				"data-annotationpages" => htmlspecialchars(json_encode( $annotationPages ) ),
@@ -106,7 +109,7 @@ class CanvasViewerResultFormatter extends ResultPrinter {
 			],
 			"<div class='iiif-loader'></div>"
 		);
-		return \Html::rawElement( "div", [ "class" => "iiif-canvas-viewer--wrapper" ], $html );;
+		return Html::rawElement( "div", [ "class" => "iiif-canvas-viewer--wrapper" ], $html );;
 	}
 
 }

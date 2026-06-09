@@ -106,8 +106,9 @@ class IIIFAPIOSDHandler extends ApiBase {
 	 */
 	public function getManifestContent( string $manifestUrl ) {
 		$urlBase = IIIFUtils::getUrlBase();
-		if ( str_starts_with( $manifestUrl, "{$urlBase}/Special:IIIFServ/" ) ) {
-			$urlParts = explode( "/", str_replace( "{$urlBase}/Special:IIIFServ/", "", $manifestUrl ) );
+		$specialPageUrl = IIIFUtils::getFullURLforPage( "Special:IIIFServ" );
+		if ( str_starts_with( $manifestUrl, "{$specialPageUrl}/" ) ) {
+			$urlParts = explode( "/", str_replace( "{$specialPageUrl}/", "", $manifestUrl ) );
 			// Get destination URL
 			$iiifSpecialServ = new IIIFSpecialServ( "IIIFServ" );
 			$apiUrl = $iiifSpecialServ->getRedirectUrl( $urlParts );

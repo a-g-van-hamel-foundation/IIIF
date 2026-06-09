@@ -88,7 +88,7 @@ class IIIFMwRemote {
 			return [];
 		}
 
-		$baseLocalUrl = IIIFUtils::getUrlBase();
+		$specialPageUrl = IIIFUtils::getFullURLForPage( "Special:IIIFServ" );
 		$fileTitle = $fileProps['title'];
 		$sourceWidth = $fileProps['imageinfo'][0]['width'];
 		$sourceHeight = $fileProps['imageinfo'][0]['height'];
@@ -102,7 +102,7 @@ class IIIFMwRemote {
 		// Second, format the requests in the appropriate format V2 or V3
 		if ( $apiVersion == "2" ) {
 			$canvas = IIIFCanvasParsers::formatCanvasV2(
-				$baseLocalUrl,
+				$specialPageUrl,
 				$reposource,
 				$pageid,
 				$fileTitle,
@@ -115,7 +115,7 @@ class IIIFMwRemote {
 			);
 		} elseif( $apiVersion == "3" ) {
 			$canvas = IIIFCanvasParsers::formatCanvasV3(
-				$baseLocalUrl,
+				$specialPageUrl,
 				$reposource,
 				$pageid,
 				$fileTitle,
@@ -167,8 +167,7 @@ class IIIFMwRemote {
 		int $sourceHeight,
 		string $version = "2"
 	): array {
-		$baseUrl = IIIFUtils::getUrlBase();
-		$redirectId = "{$baseUrl}/Special:IIIFServ/image/{$repoName}/{$pageid}";
+		$redirectId = IIIFUtils::getFullURLForPage( "Special:IIIFServ" ) . "/image/{$repoName}/{$pageid}";
 		$thumbSteps = self::getThumbStepsForRepo( $repoName );
 		$scaleArr = IIIFMwImageUtils::calculateLevel0SizesFixed( $sourceWidth, $sourceHeight, $thumbSteps );
 		$service = IIIFCanvasParsers::formatImageService( $version, $redirectId, $sourceWidth, $sourceHeight, $scaleArr );

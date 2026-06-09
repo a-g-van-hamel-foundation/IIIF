@@ -6,22 +6,16 @@
 
 namespace IIIF\IIIFParsers;
 
-use LocalFile;
-use IIIF\API\IIIFMwImgAPI;
-use IIIF\IIIFMwRemote;
-use IIIF\IIIFUtils;
 use IIIF\IIIFParsers\IIIFParserUtils;
 
 class IIIFRangeParsers {
 
-	private $urlBase;
 	// Something that uniquely identifies the resource and can be reused in the manifest
 	private $sourceId;
 	private $canonicalRangeParamsV2 = [];
 	private $canonicalRangeParamsV3 = [];
 
 	public function __construct() {
-		$this->urlBase = IIIFUtils::getUrlBase();
 		$this->canonicalRangeParamsV2 = [ "@id", "@type", "label", "viewingHint", "canvases", "ranges", "members" ];
 		$this->canonicalRangeParamsV3 = [ "id", "type", "label", "items" ];
 	}

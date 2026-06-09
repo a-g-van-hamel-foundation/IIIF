@@ -37,6 +37,16 @@ class IIIFUtils {
 	}
 
 	/**
+	 * Get fully qualified URL for page
+	 * @param string $page
+	 * @return string
+	 */
+	public static function getFullURLForPage( string $page ) {
+		$url = Title::newFromText( $page )->getFullURL( "", false, PROTO_CANONICAL );
+		return $url;
+	}
+
+	/**
 	 * Get JSON-encoded content from URL and return array
 	 * Disallows http: schemes
 	 * @param string $manifestUrl
@@ -75,8 +85,8 @@ class IIIFUtils {
 
 	public static function getFileContentsByCURL( $apiUrl ) {
 		$httpRequestFactory = MediaWikiServices::getInstance()->getHttpRequestFactory();
-		// rely on default user agent
-		// @todo consider custom one eg "userAgent" => "IIIF extension/0.0 ($urlBase)"
+		// Rely on default user agent; @todo consider custom one
+		// eg "userAgent" => "IIIF extension/0.0 ($urlBase)"
 		// $urlBase = self::getUrlBase();
 		$options = [ 
 			"followRedirects" => true
