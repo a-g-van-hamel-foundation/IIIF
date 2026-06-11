@@ -4,6 +4,7 @@ namespace IIIF\API;
 
 use MediaWiki\Api\ApiBase;
 use Wikimedia\ParamValidator\ParamValidator;
+use MediaWiki\Title\Title;
 use IIIF\IIIFMwRemote;
 use IIIF\IIIFUtils;
 use IIIF\IIIFParsers\IIIFMwImageUtils;
@@ -39,18 +40,18 @@ class IIIFMWPresAPI extends ApiBase {
 	public function execute() {
 		$params = $this->extractRequestParams();
 		$resourceType = $params["resourcetype"];
-		$pageIdStr = $params["pageids"];
-		$fileStr = $params["files"];
-		$smwquery = $params['smwquery'];
+		$pageIdStr = trim( $params["pageids"] );
+		$fileStr = trim( $params["files"] );
+		$smwquery = trim( $params['smwquery'] );
 
 		$repoGeneric = $params['source'] ?? "local";
 		$label = $params["label"] ?? "Collection of images";
 		$res = $canvases = [];
 		$redirectParams = null;
 
-		if ( $resourceType === "manifest" && $pageIdStr !== null ) {
-			$redirectParams = "pageids/" . trim($pageIdStr);
-			$pageIdArr = explode( ",", trim($pageIdStr) );
+		if ( $resourceType === "manifest" && $pageIdStr !== "" ) {
+			$redirectParams = "pageids/" . $pageIdStr;
+			$pageIdArr = explode( ",", $pageIdStr );
 			foreach ( $pageIdArr as $id ) {
 				$prefixAndIdArr = explode( ":", $id );
 				if ( count( $prefixAndIdArr ) < 2 ) {
@@ -85,10 +86,10 @@ class IIIFMWPresAPI extends ApiBase {
 					);
 				}
 			}
-		} elseif ( $resourceType === "manifest" && $fileStr !== null ) {
+		} elseif ( $resourceType === "manifest" && $fileStr !== "" ) {
 			$repoSource = $repoGeneric;
-			$redirectParams = "files/" . trim($fileStr);
-			$fileArr = explode( ";", trim($fileStr) );
+			$redirectParams = "files/" . $fileStr;
+			$fileArr = explode( ";", $fileStr );
 			foreach ( $fileArr as $file ) {
 				if ( $repoSource === "local" ) {
 					$canvases[] = $params["version"] === "3"
@@ -104,11 +105,13 @@ class IIIFMWPresAPI extends ApiBase {
 					);
 				}
 			}
-		} elseif ( $resourceType === "manifest" && $smwquery !== null ) {
-			$redirectParams = "smwquery/" . trim($smwquery);
+		} elseif ( $resourceType === "manifest" && $smwquery !== "" ) {
+			//$repoSource = $repoGeneric;
+			$redirectParams = "smwquery/" . $smwquery;
 			// Currently, v3 only
 			$params["version"] = "3";
 			$rawQuery = IIIFUtils::base64urlDecode( $smwquery );
+			// Add Page ID from Semantic Extra Special Properties
 			$rawQuery .= "|?Page ID#=pageid|link=none|limit=999";
 			$smwQueryRes = IIIFSMW::getQueryResultForQuery( $rawQuery, "" )->toArray();
 			$canvases = $this->convertSMWQueryResultsToCanvasItems( $smwQueryRes["results"] );
@@ -158,6 +161,9 @@ class IIIFMWPresAPI extends ApiBase {
 		$fileName = null,
 		$revid = null
 	) {
+		if ( $pageid === null ) {
+			return null;
+		}
 		$baseUrl = IIIFUtils::getUrlBase();
 		$specialPageUrl = IIIFUtils::getFullURLForPage( "Special:IIIFServ" );
 		$IIIFMwImageUtils = new IIIFMwImageUtils();
@@ -192,6 +198,9 @@ class IIIFMWPresAPI extends ApiBase {
 	 * @return array|null
 	 */
 	private static function buildCanvasV3( $pageid, $fileName, $revid ) {
+		if ( $pageid === null ) {
+			return null;
+		}
 		$specialPageUrl = IIIFUtils::getFullURLForPage( "Special:IIIFServ" );
 		$baseUrl = IIIFUtils::getUrlBase();
 		$IIIFMwImageUtils = new IIIFMwImageUtils();
@@ -282,15 +291,18 @@ class IIIFMWPresAPI extends ApiBase {
 			],
 			"files" => [
 				ParamValidator::PARAM_TYPE => "string",
-				ParamValidator::PARAM_REQUIRED => false
+				ParamValidator::PARAM_REQUIRED => false,
+				ParamValidator::PARAM_DEFAULT => ""
 			],
 			"pageids" => [
 				ParamValidator::PARAM_TYPE => "string",
-				ParamValidator::PARAM_REQUIRED => false
+				ParamValidator::PARAM_REQUIRED => false,
+				ParamValidator::PARAM_DEFAULT => ""
 			],
 			"smwquery"=> [
 				ParamValidator::PARAM_TYPE => "string",
-				ParamValidator::PARAM_REQUIRED => false
+				ParamValidator::PARAM_REQUIRED => false,
+				ParamValidator::PARAM_DEFAULT => ""
 			],
 			"smwsort"=> [
 				ParamValidator::PARAM_TYPE => "string",
@@ -322,9 +334,15 @@ class IIIFMWPresAPI extends ApiBase {
 	private function convertSMWQueryResultsToCanvasItems( array $results ) {
 		$canvases = [];
 		foreach( $results as $pagename => $data ) {
-			$fullurl = $data["fullurl"];
-			$pageid = $data["printouts"]["pageid"][0];
-			
+			// Get page ID
+			if ( isset( $data["printouts"]["pageid"][0] ) ) {
+				// Faster but works only if Semantic Extra Special Properties is installed and _PAGEID is enabled.
+				$pageid = $data["printouts"]["pageid"][0];
+			} else {
+				$titleObj = Title::newFromText( $data["fulltext"] );
+				$pageid = $titleObj !== null ? $titleObj->getArticleID() : null;
+			}
+
 			$canvasData = self::buildCanvasV3( $pageid, null, null );
 			if ( $canvasData !== null ) {
 				if ( !empty($data["printouts"]["label"]) ) {
