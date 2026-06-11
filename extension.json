@@ -412,6 +412,10 @@
 				}
 			],
 			"description": "List of file repos with a list of canonical thumbnail widths defined as possible scaling steps."
+		},
+		"IIIFAPIValueSep": {
+			"value": ";",
+			"description": "In select cases, the preferred separator for multiple values of a URL parameter. This was added because it was found that some server environments treat semi-colons, like ampersands, as parameter delimiters. Currently implemented for the list of file names in the iiif-mw-pres API module."
 		}
 	},
 	"ContentHandlers": {

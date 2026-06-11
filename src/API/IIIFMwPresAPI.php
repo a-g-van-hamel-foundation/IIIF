@@ -89,7 +89,8 @@ class IIIFMWPresAPI extends ApiBase {
 		} elseif ( $resourceType === "manifest" && $fileStr !== "" ) {
 			$repoSource = $repoGeneric;
 			$redirectParams = "files/" . $fileStr;
-			$fileArr = explode( ";", $fileStr );
+			$valDelimiter = $this->getConfig()->get( "IIIFAPIValueSep" );
+			$fileArr = explode( $valDelimiter, $fileStr );
 			foreach ( $fileArr as $file ) {
 				if ( $repoSource === "local" ) {
 					$canvases[] = $params["version"] === "3"
@@ -161,7 +162,7 @@ class IIIFMWPresAPI extends ApiBase {
 		$fileName = null,
 		$revid = null
 	) {
-		if ( $pageid === null ) {
+		if ( $pageid === null && $fileName === null ) {
 			return null;
 		}
 		$baseUrl = IIIFUtils::getUrlBase();
@@ -198,7 +199,7 @@ class IIIFMWPresAPI extends ApiBase {
 	 * @return array|null
 	 */
 	private static function buildCanvasV3( $pageid, $fileName, $revid ) {
-		if ( $pageid === null ) {
+		if ( $pageid === null && $fileName === null ) {
 			return null;
 		}
 		$specialPageUrl = IIIFUtils::getFullURLForPage( "Special:IIIFServ" );
