@@ -2,7 +2,7 @@ So you managed to store your annotation data on a JSON page, or a JSON content s
 
 You can do so using the <code>#iiif-annotator-data</code> parser function, which lets you send data to a wiki template.
 
-See also [`#iiif-annotator`]({urlBase}/Special:IIIF/pf-iiif-annotator)
+See also [`#iiif-annotator`]({specialPage}/pf-iiif-annotator)
 
 ## Parser function parameters
 
@@ -32,7 +32,7 @@ See also [`#iiif-annotator`]({urlBase}/Special:IIIF/pf-iiif-annotator)
 Each set of annotation data consists of:
 - the dataset that has been submitted through the form in the annotation tool
     - For multi-valued data, the default separator is a semi-colon (`;`). If that does not fit your needs, for instance if your values may include semi-colons, you can set `sep` to your preferred string.
-- additional data. The result formats [`iiif-canvas-viewer`]({$urlBase}/Special:IIIF/iiif-canvas-viewer) and [`iiif-annotation-gallery`]({$urlBase}/Special:IIIF/iiif-annotation-gallery) require some of these to be recorded in semantic properties.
+- additional data. The result formats [`iiif-canvas-viewer`]({specialPage}/iiif-canvas-viewer) and [`iiif-annotation-gallery`]({specialPage}/iiif-annotation-gallery) require some of these to be recorded in semantic properties.
     - **manifest** - Manifest URL. Required for `iiif-canvas-viewer`.
     - **annotationid** - Annotation id
     - **index** - Annotation index based on the Canvas index and in the absence of a universally satisfying rule, the y-coordinates of the annotation shape

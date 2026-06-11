@@ -1,6 +1,6 @@
 The result format `iiif-annotation-gallery` lets you transform the result of a Semantic MediaWiki query on Annotations into a collection of images in a gallery grid layout. Clicking an image triggers a lightbox-type modal overlay with a caption.
 
-For a guide on how to store Annotations as subobjects, see the documentation on the [parser function `#iiif-annotator-data`]({urlBase}/Special:IIIF/pf-iiif-annotator-data).
+For a guide on how to store Annotations as subobjects, see the documentation on the [parser function `#iiif-annotator-data`]({specialPage}/pf-iiif-annotator-data).
 
 ## Required properties
 A couple of printout properties are required to provide some necessary data. In order for those properties to get recognised by the data model, they should be [(re-)labelled](https://www.semantic-mediawiki.org/wiki/Help:Displaying_information#Printing_property_values) with the predefined names given below. A query using this result format must use:

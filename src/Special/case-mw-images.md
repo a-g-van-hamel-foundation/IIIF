@@ -5,7 +5,7 @@ It is true that, by default at least, MediaWiki's image file system is not desig
 ## Generating a Manifest with the `iiif-mw-pres` API module
 To view images in a IIIF-compliant viewer, you need a IIIF Manifest. To view images from a MediaWiki repository in this way, they need to be appropriately referenced in the Manifest.
 
-The [`iiif-mw-pres` API module]({urlBase}/Special:IIIF/iiif-mw-pres) simplifies this process. It allows you to use your local MediaWiki repository (using native methods) and/or external MediaWiki sites such as Wikimedia Commons (by fetching data from the API). What comes out is a Manifest that can be loaded in your viewer. Conveniently, the API module can also be accessed through a redirect service, examples of which are given below.
+The [`iiif-mw-pres` API module]({specialPage}/iiif-mw-pres) simplifies this process. It allows you to use your local MediaWiki repository (using native methods) and/or external MediaWiki sites such as Wikimedia Commons (by fetching data from the API). What comes out is a Manifest that can be loaded in your viewer. Conveniently, the API module can also be accessed through a redirect service, examples of which are given below.
 
 In what follows, note that shorthands must be used to identify the repository of each image:
 - `local` for local images

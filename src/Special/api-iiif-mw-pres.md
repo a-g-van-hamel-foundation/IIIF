@@ -1,7 +1,7 @@
 The `iiif-mw-pres` API module implements the IIIF Presentation API using the MediaWiki file system. It supports image files (level 0, tileless, pyramidically sized) from the local MediaWiki repository as well as from external repositories such as Wikimedia Commons.
 
 ### Specific images identified by page id or file name
-[See here for a usage guide]({urlBase}/Special:IIIF/case-mw-images)
+[See here for a usage guide]({specialPage}/case-mw-images)
 
 ### Images as results from a Semantic MediaWiki query
 For the `smwquery` service, see the section on the `#iiif-manifest-from-smwquery` parser function.

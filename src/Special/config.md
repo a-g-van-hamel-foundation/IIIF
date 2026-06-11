@@ -1,4 +1,4 @@
-_For a list of default and current settings on this wiki, [see here]({urlBase}/Special:IIIF/settings)_
+_For a list of default and current settings on this wiki, [see here]({specialPage}/settings)_
 
 ## How it works
 
@@ -6,7 +6,7 @@ _For a list of default and current settings on this wiki, [see here]({urlBase}/S
 The API modules `iiif-manifest` (and with it, `iiif-annotations`) and `iiif-collection` allow you to use [Semantic MediaWiki](https://www.semantic-mediawiki.org) to provide data with which to create or modify IIIF resources. The default settings make assumptions about the properties and query conditions used to run the relevant queries, but you'll likely want to modify these global defaults for your own wiki. The extension lets you customise them in two ‘cascading’ ways:
 
 1. As default [configuration settings](https://www.mediawiki.org/wiki/Manual:Configuration_settings) in your LocalSettings.php file.
-2. As a JSON schema/profile stored in the [`IIIF:` namespace]({urlBase}/Special:IIIF/namespace). A schema can be used to override your site-wide settings simply by pointing the API module to the page ID that identifies the schema.
+2. As a JSON schema/profile stored in the [`IIIF:` namespace]({specialPage}/namespace). A schema can be used to override your site-wide settings simply by pointing the API module to the page ID that identifies the schema.
 
 ### Configuration for trusted MediaWiki image repositories
 To allow Wikimedia Commons, set `$wgUseInstantCommons = true`. Any other external MediaWiki repository from which you want to pull images must be registered as a trusted site in [`$wgForeignFileRepos`](https://www.mediawiki.org/wiki/Manual:$wgForeignFileRepos). For instance, if you were to add [Wikivoyage](https://en.wikivoyage.org/), you could add the following to your LocalSettings.php file:
@@ -44,7 +44,7 @@ It is recommended to use the IIIF namespace to store your JSON configuration sch
 <!-- SemanticAnnotationsConfig should now be SMWConfig -->
 
 ### type: SMWConfig
-Schemas with type `SMWConfig` are used to provide the necessary ingredients for a semantic query, overriding the default configuration for Semantic MediaWiki. Their usage is explained in the usage guides on [building Collections]({urlBase}/Special:IIIF/case-collections) and [working with Annotations]({urlBase}/Special:IIIF/case-smw-annotations).
+Schemas with type `SMWConfig` are used to provide the necessary ingredients for a semantic query, overriding the default configuration for Semantic MediaWiki. Their usage is explained in the usage guides on [building Collections]({specialPage}/case-collections) and [working with Annotations]({specialPage}/case-smw-annotations).
 
 ### type: FormConfig
-Schemas with type `FormConfig` are used to create the form to be used with the [annotation tool]({urlBase}/Special:IIIF/iiif-annotator). See [Creating forms]({urlBase}/Special:IIIF/config-form).
+Schemas with type `FormConfig` are used to create the form to be used with the [annotation tool]({specialPage}/iiif-annotator). See [Creating forms]({specialPage}/config-form).

@@ -81,11 +81,12 @@ class IIIFSpecial extends SpecialPage {
 		$fileContents = file_get_contents( $this->extensionPath . "/{$filePath}" );
 		// replace variables, here urlBase
 		$urlBase = IIIFUtils::getUrlBase();
+		$specialPage = IIIFUtils::getFullURLForPage("Special:IIIF");
 		$extensionPath = IIIFUtils::getExtensionPath();
 
 		$newFileContents = str_replace(
-			[ "{urlBase}", "{extensionPath}" ],
-			[ $urlBase, $extensionPath ],
+			[ "{specialPage}", "{urlBase}", "{extensionPath}" ],
+			[ $specialPage, $urlBase, $extensionPath ],
 			$fileContents
 		);
 

@@ -1,4 +1,4 @@
-The result format `iiif-canvas-viewer` lets you use a deep-zoom image viewer, one canvas at a time, to show the result of a Semantic MediaWiki query on [subobjects representing Annotations]({urlBase}/Special:IIIF/pf-iiif-annotator-data). It uses the same image/annotation viewer, based on OpenSeadragon and Annotorious, that is used for the [annotation tool]({urlBase}/Special:IIIF/pf-iiif-annotator).
+The result format `iiif-canvas-viewer` lets you use a deep-zoom image viewer, one canvas at a time, to show the result of a Semantic MediaWiki query on [subobjects representing Annotations]({specialPage}/pf-iiif-annotator-data). It uses the same image/annotation viewer, based on OpenSeadragon and Annotorious, that is used for the [annotation tool]({specialPage}/pf-iiif-annotator).
 
 Unlike the annotation tool, which focuses on a single existing resource, it generates a new one from the Canvases and Annotations that are returned by the query. It may gather data from multiple Manifests to draw everything together. 
 
@@ -9,7 +9,7 @@ A number of printout properties are required to provide the necessary data. In o
 - `canvasid` - the Canvas identifier (`id`/`@id`)
 - `xywh` - the xywh values of the image region
 - `tilesource` - tile source identifier (without `/info.json`)
-- `profileid` - required unless 'template' is used. Refers to the page ID of the profile that was used to configure the [annotation form]({urlBase}/Special:IIIF/config-form). See below.
+- `profileid` - required unless 'template' is used. Refers to the page ID of the profile that was used to configure the [annotation form]({specialPage}/config-form). See below.
 
 ## Formatting annotations
 The sidebar on the right is where data associated with your Annotation are presented. There are two ways in which you can use semantic properties to create appropriate content.
@@ -18,7 +18,7 @@ The sidebar on the right is where data associated with your Annotation are prese
 A wiki template offers a lot of flexibility and customisability.
 
 ### Option 2: use the profile/schema
-In addition to configuring forms, the [form profile]({urlBase}/Special:IIIF/config-form) can also serve as a reference model for presenting the data submitted. In fact, this is what the annotation tool already relies on when it goes into 'view only mode'.
+In addition to configuring forms, the [form profile]({specialPage}/config-form) can also serve as a reference model for presenting the data submitted. In fact, this is what the annotation tool already relies on when it goes into 'view only mode'.
 
 To adopt the same approach here is more difficult because (a) not every annotation returned by the query was created using the same form profile, and (b) because there is no easy to trace connection between a form profile and the semantic properties that end up recording the data. That said, there are some steps you can take to achieve the same thing.
 
