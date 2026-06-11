@@ -40,8 +40,8 @@
 
 	"apihelp-iiif-mw-pres-summary": "IIIF Presentation API (currently 2.0 only) using the MediaWiki file system. Supports image files (level 0, tileless, pyramidically sized) from the local MediaWiki repository as well as from external repositories such as Wikimedia Commons. Redirect URLs include Special:IIIFServ/presentation/{source}/pageids/{pageids} and Special:IIIFServ/presentation/{source}/files/{files}",
 	"apihelp-iiif-mw-pres-param-action": "iiif-mw-pres",
-	"apihelp-iiif-mw-pres-param-pageids": "Page IDs of the wanted files.",
-	"apihelp-iiif-mw-pres-param-files": "Page names of the wanted files",
+	"apihelp-iiif-mw-pres-param-pageids": "Page IDs of the wanted files. The value separator to be used is a comma.",
+	"apihelp-iiif-mw-pres-param-files": "Page names of the wanted files. The default value separator is a semi-colon. In the event that your server environment treats a semi-colon as a parameter delimiter, you can edit your local settings file to set `$wgIIIFAPIValueSep` to an alternative separator and use that in the URL instead.",
 	"apihelp-iiif-mw-pres-param-smwquery": "Reserved, not yet implemented. Use an #ask query to fetch images from the wiki.",
 	"apihelp-iiif-mw-pres-param-smwsort": "Reserved, not yet implemented. Intended to add sorting conditions to smwquery.",
 	"apihelp-iiif-mw-pres-param-version": "API version (2 or 3).",

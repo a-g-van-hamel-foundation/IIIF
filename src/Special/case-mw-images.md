@@ -20,7 +20,7 @@ The easiest approach is as follows:
 * Set `source` to 'local'
 * Do either of the following:
     * use `pageids` to list one or multiple image files by [page id](https://www.mediawiki.org/wiki/Help:Page_ID). Use **commas** to separate multiple page ids.
-    * use `files` to list one or multiple image files by page name. Use **semi-colons** to separate multiple file names. Page titles with and without `File:` namespace prefix are acceptable.
+    * use `files` to list one or multiple image files by page name. Use **semi-colons** to separate multiple file names; or in the rare event your server treats a semi-colon as a URL parameter delimiter, edit your local settings file to set `$wgIIIFAPIValueSep` to an alternative, maybe a pipe symbol, and use that instead. Page titles with and without `File:` namespace prefix are acceptable.
 
 - Example with page IDs:
 `/api.php?action=iiif-mw-pres&format=json&source=local&pageids=44730,44736,51926`
