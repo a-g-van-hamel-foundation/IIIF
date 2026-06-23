@@ -67,7 +67,6 @@ class IIIFJsonContentHandler extends JsonContentHandler {
 
 		$title = Title::castFromPageReference( $cpoParams->getPage() );
 		$pageId = $title->getId();
-		$context = new RequestContext();
 		$outputPage = RequestContext::getMain()->getOutput();
 
 		$parserOutput->addModuleStyles( [ "ext.iiif.styles" ] );
