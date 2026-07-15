@@ -5,10 +5,7 @@ namespace IIIF\Config;
 use MediaWiki\Content\JsonContentHandler;
 use MediaWiki\Content\Content;
 use MediaWiki\Content\Renderer\ContentParseParams;
-use MediaWiki\Content\Transform\PreSaveTransformParams;
-use MediaWiki\Content\ValidationParams;
 use MediaWiki\Title\Title;
-use MediaWiki\Context\RequestContext;
 use MediaWiki\Parser\ParserOutput;
 use IIIF\Config\IIIFJsonContent;
 use IIIF\Config\IIIFConfig;
@@ -67,11 +64,10 @@ class IIIFJsonContentHandler extends JsonContentHandler {
 
 		$title = Title::castFromPageReference( $cpoParams->getPage() );
 		$pageId = $title->getId();
-		$outputPage = RequestContext::getMain()->getOutput();
 
 		$parserOutput->addModuleStyles( [ "ext.iiif.styles" ] );
 
-		$header = self::buildHeader( $title, $outputPage );
+		$header = self::buildHeader( $title );
 
 		$footer = "";
 		$jsonContentStr = $content->getText();
@@ -85,25 +81,26 @@ class IIIFJsonContentHandler extends JsonContentHandler {
 		if ( $cpoParams->getGenerateHtml() ) {
 			if ( $content->isValid() ) {
 				$jsonContent = $content->rootValueTable( $content->getData()->getValue() );
-				$parserOutput->setText( $header . $jsonContent . $footer );
+				$parserOutput->setRawText( $header . $jsonContent . $footer );
 			} else {
 				$error = wfMessage( 'invalid-json-data' )->parse();
-				$parserOutput->setText( $error );
+				$parserOutput->setRawText( $error );
 			}
 
 			$parserOutput->addModuleStyles( [ 'mediawiki.content.json' ] );
 		} else {
-			$parserOutput->setText( null );
+			$parserOutput->setRawText( null );
 		}
 	}
 
 	/**
 	 * Create header before content
+	 * 
 	 * @param Title $title
-	 * @param mixed $outputPage
+	 * 
 	 * @return string
 	 */
-	private static function buildHeader( Title $title, $outputPage ) {
+	private static function buildHeader( Title $title ) {
 		$pageId = $title->getId();
 		$pageName = $title->getFullText();
 		$urlName = urlencode( $pageName );
