@@ -15,6 +15,7 @@ namespace IIIF\Special;
 use \Parsedown;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\SpecialPage\SpecialPage;
+use MediaWiki\Html\Html;
 use IIIF\IIIFUtils;
 
 class IIIFSpecial extends SpecialPage {
@@ -178,7 +179,7 @@ class IIIFSpecial extends SpecialPage {
 			"data-id" => rand(1000000,9999999),
 			"data-manifest" => $manifest
 		];
-		$res = \Html::rawElement(
+		$res = Html::rawElement(
 			"div",
 			$attribs,
 			"Testing"
