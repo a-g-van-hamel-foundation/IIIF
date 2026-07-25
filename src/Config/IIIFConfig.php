@@ -49,15 +49,23 @@ class IIIFConfig {
 		}
 		
 		// Process
-		$annotTextPropsOld = explode( ",", self::$IIIFAnnotTextProp );
-		$annotTextProps = [];
-		foreach( $annotTextPropsOld as $prop ) {
-			$annotTextProps[] = str_replace( " ", "_", trim( $prop ) );
+		if ( gettype( self::$IIIFAnnotTextProp ) === "string" ) {
+			$annotTextPropsOld = explode( ",", self::$IIIFAnnotTextProp );
+			$annotTextProps = [];
+			foreach( $annotTextPropsOld as $prop ) {
+				$annotTextProps[] = trim( $prop );
+			}
+			self::$annotTextProps = $smwConfigProps["annotTextProps"] = $annotTextProps;
+		} elseif( gettype( self::$IIIFAnnotTextProp ) === "array" ) {
+			$annotTextProps = [];
+			foreach( self::$IIIFAnnotTextProp as $prop ) {
+				$annotTextProps[] = trim( $prop );
+			}
+			self::$annotTextProps = $smwConfigProps["annotTextProps"] = $annotTextProps;
 		}
-		self::$annotTextProps = $smwConfigProps["annotTextProps"] = $annotTextProps;
 		
 		// Process
-		self::$annotTargetProp = $smwConfigProps["annotTargetProp"] = str_replace( " ", "_", trim( self::$IIIFAnnotTargetProp ) );
+		self::$annotTargetProp = $smwConfigProps["annotTargetProp"] = trim( self::$IIIFAnnotTargetProp );
 
 		return $smwConfigProps;
 	}
