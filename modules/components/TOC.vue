@@ -27,7 +27,7 @@
 						<cdx-icon :icon="cdxIconCheck" class="iiif-edit-success"></cdx-icon>
 					</div>
 					<div v-if="iconStatus == 'fail' "><span class="iiif-edit-fail">Failed</span></div>
-					<cdx-button @click="editTargetPage(targetPageId, targetSlot, list1)">Save</cdx-button>
+					<cdx-button @click="checkAndEditTargetPage(targetSlot, list1)">Save</cdx-button>
 				</div>
 
 				<div class="iiif-toc-lists">
@@ -129,7 +129,7 @@
 
 		</template>
 	</resizable-windows>
-		
+
 </template>
 
 <script>
@@ -168,6 +168,9 @@ module.exports = defineComponent( {
 		//debugLog( "TOC.vue - formProfileData", props.formProfileData );
 		const formProfileSchema = ref( props.formProfileData ?? {} );
 
+		// Use a proxy variable as the page may not exist yet.
+		const targetPageIdProxy = ref( props.targetPageId ?? "0" );
+
 		// data
 		// <HTMLElement | null>
 		const el1 = ref();
@@ -180,7 +183,7 @@ module.exports = defineComponent( {
 			: [];
 		// Automatically set indentLevel to 0 if undefined
 		list1.value.forEach( item => {
-			if ( item.indentLevel === undefined ) {
+			if (item.indentLevel === undefined) {
 				item.indentLevel = 0;
 			}
 		} );
@@ -242,45 +245,49 @@ module.exports = defineComponent( {
 				indentLevel: 0
 			}
 			referenceListForEnabledForms[random] = false;
-			list1.value.splice( index + 1, 0, newItem );
+			list1.value.splice(index + 1, 0, newItem);
 		}
 
 		function handleRemove(index, itemId) {
 			referenceListForEnabledForms[itemId] = false;
-			list1.value.splice( index, 1 );
+			list1.value.splice(index, 1);
 		}
 
 		// Top menu
 		const toolMenuItems = ref( [] );
-
-		if ( props.iiifManifest !== null ) {
-			const apiMenuItemsGroup = [
-				{ value: "view-api", label: `IIIF manifest in Range API module`, description: "View new Manifest with Ranges", icon: cdxIconNewWindow },
-				// @todo generate Ranges even if no IIIF manifest is provided
-				{ value: "copy-api", label: "Copy URL shorthand", description: `Special:IIIFServ/manifest/mergerange/${props.targetPageId}/${props.targetSlot}`, icon: cdxIconCopy },
-				{ value: "view-manifest", label: "Original manifest", description: `${props.iiifManifest}`, icon: cdxIconNewWindow }
-			];
-			toolMenuItems.value.push( ...apiMenuItemsGroup );
+		buildToolMenu();
+		function buildToolMenu() {
+			toolMenuItems.value = [];
+			if (props.iiifManifest !== null && targetPageIdProxy.value !== "0") {
+				const apiMenuItemsGroup = [
+					{ value: "view-api", label: `IIIF manifest in Range API module`, description: "View new Manifest with Ranges", icon: cdxIconNewWindow },
+					// @todo generate Ranges even if no IIIF manifest is provided
+					{ value: "copy-api", label: "Copy URL shorthand", description: `Special:IIIFServ/manifest/mergerange/${targetPageIdProxy.value}/${props.targetSlot}`, icon: cdxIconCopy }
+				];
+				toolMenuItems.value.push( ...apiMenuItemsGroup );
+			}
+			if (props.iiifManifest !== null) {
+				toolMenuItems.value.push( { value: "view-manifest", label: "Original manifest", description: `${props.iiifManifest}`, icon: cdxIconNewWindow } );
+			}
+			toolMenuItems.value.push( { value: "view-form-profile", label: "Form profile", icon: cdxIconNewWindow, disabled: props.configData?.formId ? false : true } );
+			toolMenuItems.value.push( { 
+				value: "view-data",
+				label: props.targetSlot !== "main" ? `Data page (slot: ${props.targetSlot})` : `Data page`,
+				description: props.targetPage,
+				icon: cdxIconNewWindow,
+				disabled: targetPageIdProxy.value !== "0" ? false : true
+			} );
 		}
-		if ( props.configData?.formId ) {
-			toolMenuItems.value.push( { value: "view-form-profile", label: "Form profile", icon: cdxIconNewWindow } );
-		}
-		toolMenuItems.value.push( { 
-			value: "view-data",
-			label: props.targetSlot !== "main" ? `Data page (slot: ${props.targetSlot})` : `Data page`,
-			description: props.targetPage,
-			icon: cdxIconNewWindow
-		} );
 
 		const toolMenuItemSelected = ref(null);
 		function onSelectToolMenuItem(newSelection) {
 			toolMenuItemSelected.value = newSelection;
 			let server = mw.config.get("wgServer");
-			let apiRedirectUrl = server + mw.util.getUrl(`Special:IIIFServ/manifest/mergerange/${props.targetPageId}/${props.targetSlot}`);
+			let apiRedirectUrl = server + mw.util.getUrl(`Special:IIIFServ/manifest/mergerange/${targetPageIdProxy.value}/${props.targetSlot}`);
 
-			switch( newSelection ) {
+			switch(newSelection) {
 				case "view-data":
-					let viewDataUrl = server + mw.util.getUrl(`Special:Redirect/page/` + props.targetPageId);
+					let viewDataUrl = server + mw.util.getUrl(`Special:Redirect/page/` + targetPageIdProxy.value);
 					window.open(viewDataUrl, '_blank').focus();
 					break;
 				case "view-manifest":
@@ -298,11 +305,47 @@ module.exports = defineComponent( {
 			}
 		}
 
-		// Edit target page using WSSlots
-		function editTargetPage(targetPageId, targetSlot, content) {
-			// Requires WSSlots!
+		function checkAndEditTargetPage(targetSlot, content) {
+			const self = this;
+			if (targetPageIdProxy.value === "0") {
+				let apiCreatePageParams = {
+					action: "edit",
+					title: props.targetPage,
+					text: "{}",
+					contentformat: "application/json",
+					contentmodel: "json",
+					//tags: "",
+					summary: "Create empty data page for IIIF TOC creator"
+				};
+				new mw.Api().postWithToken('csrf', apiCreatePageParams )
+				.done( function(data) {
+					if (data.hasOwnProperty("warnings")) {
+						self.showStatusIcon("fail");
+						console.error(data.warnings.main["*"]);
+					} else {
+						targetPageIdProxy.value = data.edit.pageid;
+						editTargetPage(targetSlot, content, self);
+						// Update tool menu items
+						buildToolMenu();
+					}
+				})
+				.fail( function(e) {
+					self.showStatusIcon("fail");
+					console.error(e);
+				});
+			} else {
+				editTargetPage(targetSlot, content, self);
+			}
+		}
+
+		/**
+		 * Edit target page using WSSlots,
+		 * to be used after checkAndEditTargetPage().
+		 * Page must exist before it can be edited over WSSlots' API.
+		 */
+		function editTargetPage(targetSlot, content, self) {
 			var text = { "items": content };
-			if ( props.iiifManifest !== null && props.iiifManifest !== "" ) {
+			if (props.iiifManifest !== null && props.iiifManifest !== "") {
 				text["manifest"] = props.iiifManifest;
 			}
 			var editParams = {
@@ -310,16 +353,14 @@ module.exports = defineComponent( {
 				format: "json",
 				formatversion: "2",
 				// title: targetPage,
-				pageid: targetPageId,
+				pageid: targetPageIdProxy.value,
 				slot: targetSlot,
-				text: JSON.stringify( text ),
+				text: JSON.stringify(text),
 				contentformat: "application/json",
 				contentmodel: "json",
 				summary: `Saved changes in slot (${targetSlot}) with the IIIF TOC Creator`
 			};
-			const mwApi = new mw.Api();
-			const self = this;
-			mwApi.postWithToken('csrf', editParams )
+			new mw.Api().postWithToken('csrf', editParams )
 			.done( function(data) {
 				self.showStatusIcon("success");
 				debugLog( "Saved successfully with the IIIF TOC Creator" );
@@ -343,7 +384,7 @@ module.exports = defineComponent( {
 			return props.configData?.mode === "windows";
 		} );
 		const iiifViewerClass = ref( "" );
-		iiifViewerClass.value = "iiif-" + ( props.configData.iiifViewer ?? "x") + "-viewer-for-toc" + ( props.configData?.mode === "standalone" ? "--fh" : "" );
+		iiifViewerClass.value = "iiif-" + (props.configData.iiifViewer ?? "x") + "-viewer-for-toc" + (props.configData?.mode === "standalone" ? "--fh" : "");
 
 		const wrapperClass = ref( props.configData?.wrapperClass ?? undefined );
 		const wrapperStyle = ref( props.configData?.wrapperStyle ?? undefined );
@@ -355,6 +396,7 @@ module.exports = defineComponent( {
 
         return {
 			formProfileSchema,
+			targetPageIdProxy,
 			el1,
 			el2,
 			list1,
@@ -362,7 +404,7 @@ module.exports = defineComponent( {
 			toolMenuItems,
 			toolMenuItemSelected,
 			onSelectToolMenuItem,
-			editTargetPage,
+			checkAndEditTargetPage,
 			iconStatus,
 			showStatusIcon,
 			handleAddToBottom,
@@ -459,7 +501,7 @@ module.exports = defineComponent( {
 		flex-direction: row;
 	}
 	.toc-form {
-  		padding-top: 1rem;
+		padding-top: 1rem;
 	}
 }
 
