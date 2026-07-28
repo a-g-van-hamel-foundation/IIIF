@@ -80,6 +80,8 @@
 
 	"tag-iiif-annotator-edit": "IIIF annotator edit",
 	"tag-iiif-annotator-edit-description": "Tag for marking a page edit with the IIIF annotation tool.",
+	"tag-iiif-toc-edit": "IIIF TOC creator edit",
+	"tag-iiif-toc-edit-description": "Tag for marking a page edit with the TOC creation tool",
 
 	"iiif-printer-iiif-canvas-viewer-name": "IIIF Canvas Viewer",
 	"iiif-printer-iiif-canvas-viewer-paramdesc-template": "name of the wiki template with which to display the printouts in the sidebar",
