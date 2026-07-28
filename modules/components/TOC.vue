@@ -308,16 +308,19 @@ module.exports = defineComponent( {
 		function checkAndEditTargetPage(targetSlot, content) {
 			const self = this;
 			if (targetPageIdProxy.value === "0") {
-				let apiCreatePageParams = {
+				let createParams = {
 					action: "edit",
 					title: props.targetPage,
-					text: "{}",
-					contentformat: "application/json",
-					contentmodel: "json",
-					//tags: "",
+					text: "",
+					tags: "iiif-toc-edit",
 					summary: "Create empty data page for IIIF TOC creator"
 				};
-				new mw.Api().postWithToken('csrf', apiCreatePageParams )
+				if (targetSlot === "main") {
+					createParams.text = "{}";
+					createParams.contentformat = "application/json";
+					createParams.contentmodel = "json";
+				}
+				new mw.Api().postWithToken("csrf", createParams)
 				.done( function(data) {
 					if (data.hasOwnProperty("warnings")) {
 						self.showStatusIcon("fail");
@@ -348,18 +351,30 @@ module.exports = defineComponent( {
 			if (props.iiifManifest !== null && props.iiifManifest !== "") {
 				text["manifest"] = props.iiifManifest;
 			}
-			var editParams = {
-				action: "editslot",
-				format: "json",
-				formatversion: "2",
-				// title: targetPage,
-				pageid: targetPageIdProxy.value,
-				slot: targetSlot,
-				text: JSON.stringify(text),
-				contentformat: "application/json",
-				contentmodel: "json",
-				summary: `Saved changes in slot (${targetSlot}) with the IIIF TOC Creator`
-			};
+			if ( targetSlot !== "main" ) {
+				var editParams = {
+					action: "editslot",
+					format: "json",
+					formatversion: "2",
+					// title: targetPage,
+					pageid: targetPageIdProxy.value,
+					slot: targetSlot,
+					text: JSON.stringify(text),
+					tags: "iiif-toc-edit",
+					summary: `Saved changes to slot (${targetSlot}) with the IIIF TOC Creator`
+				};
+			} else {
+				var editParams = {
+					action: "edit",
+					pageid: parseInt(targetPageIdProxy.value),
+					//title: props.targetPage,
+					text: JSON.stringify(text),
+					contentformat: "application/json",
+					contentmodel: "json",
+					tags: "iiif-toc-edit",
+					summary: `Saved changes to main slot with the IIIF TOC Creator`
+				};
+			}
 			new mw.Api().postWithToken('csrf', editParams )
 			.done( function(data) {
 				self.showStatusIcon("success");

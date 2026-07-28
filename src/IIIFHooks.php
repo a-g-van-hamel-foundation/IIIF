@@ -107,6 +107,7 @@ class IIIFHooks implements
 	 */
 	public function onListDefinedTags( &$tags ) {
 		$tags[] = "iiif-annotator-edit";
+		$tags[] = "iiif-toc-edit";
 		return true;
 	}
 
@@ -115,12 +116,14 @@ class IIIFHooks implements
 	 */
 	public function onChangeTagsListActive( &$tags ) {
 		$tags[] = "iiif-annotator-edit";
+		$tags[] = "iiif-toc-edit";
 		return true;
 	}
 
 	// Allow tag to be used by the API (ChangeTagsAllowedAdd)
 	public function onChangeTagsAllowedAdd( &$allowedTags, $tags, $user ) {
 		$allowedTags[] = "iiif-annotator-edit";
+		$allowedTags[] = "iiif-toc-edit";
 	}
 
 	public static function registerSMWResultFormats() {
