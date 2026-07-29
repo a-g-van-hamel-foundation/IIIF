@@ -94,7 +94,7 @@
 </template>
 
 <script>
-const { defineComponent, computed, ref } = require("vue");
+const { defineComponent, computed, ref, watch, onMounted, markRaw } = require("vue");
 const store = require("ext.iiif.annotator.store");
 const OSDViewerModule = require( "./OSDViewer.vue" );
 const AnnotoriousOSD = require( "ext.iiif.lib.annotorious.osd" );
@@ -143,123 +143,216 @@ module.exports = defineComponent( {
 		},
 		summary: { type: String, default: "" }
 	},
-	methods: {
-		getOSDViewerFromChild( OSDViewer ) {
-			this.OSDViewer = OSDViewer;
-		},
-		initOSDAnnotator() {
-			// W3CImageFormat adapter
-			if ( typeof(this.currentCanvas.url) !== "undefined" ) {
-				this.debugLog( "Attempting to use W3CImageFormat with", this.currentCanvas.url );
-				this.OSDAnnotatorOptions.adapter = AnnotoriousOSD.W3CImageFormat( this.currentCanvas.url );
-			} else {
-				console.log( "Something went wrong. The current canvas URL (this.currentCanvas.url) is undefined");
+	setup(props, context) {
+		// context.emit, context.expose
+
+		/**
+		 * Dev only
+		 * @param msg
+		 * @param loggable
+		 */
+		function debugLog( msg = "(No message)", loggable = "" ) {
+			// console.log( "AnnotatorInterface: " + msg, loggable );
+		}
+
+		const prefixUrl = ref( mw.config.get("wgExtensionAssetsPath") + "/IIIF/modules/lib-openseadragon/images/" );
+		const manifestUrl = ref( props.configProps['manifest'] ?? null );
+		const tileSources = ref( props.tileSourcesFromManifest );
+
+		// OSD Viewer
+		const OSDViewer = ref( null );
+		const showOSDViewer = ref( true );
+		const containerId = ref( "osdragon-widget-" + props.configProps['id'] ?? "osdragon-widget" );
+		const id = ref( "osd-" + props.configProps['id'] ?? "osd-viewer" );
+		const osdViewerEl = computed( () => {
+			return document.getElementById( "osd-" + props.configProps['id'] ?? "osd-viewer" );
+		});
+
+		// OSD Viewer navigation / canvases
+		function getPageIndexFromUrl() {
+			const urlParams = new URLSearchParams(window.location.search);
+			const defaultIndex = props.configProps.canvasIndex ?? "0";
+			const index = parseInt( urlParams.get("cdx") ?? defaultIndex );
+			return index;
+		}
+		const initialPageIndex = getPageIndexFromUrl();
+		store.commit("updateCurrentCanvas", props.canvasItems[initialPageIndex] );
+		const currentCanvas = computed( () => {
+			return store.getters.getCurrentCanvas ?? null;
+		});
+		function setCanvasFromPageIndex(idx) {
+			if (typeof idx === "string" ) {
+				idx = parseInt(idx);
 			}
-			this.OSDAnnotator = AnnotoriousOSD.createOSDAnnotator(
-				this.OSDViewer,
-				this.OSDAnnotatorOptions
-			);
+			store.commit("updateCurrentCanvas", props.canvasItems[idx]);
+		}
+
+		// OSD Viewer navigation/TOC
+		const isViewerMode = ref( props.configProps["mode"] === "viewer" );
+		debugLog( "Are we in viewer mode?", isViewerMode.value );
+
+		const isNavigationEnabled = ref( true );
+		function createTOCFromCanvasItems( canvasItems ) {
+			let toc = [];
+			for (let i = 0; i < canvasItems.length; i++) {
+ 				toc[i] = {
+					value: canvasItems[i]["index"],
+					label: canvasItems[i]["label"]
+				}
+			}
+			return toc;
+		}
+		const tocMenuItems = ref( createTOCFromCanvasItems( props.canvasItems ) );
+
+		// OSD Annotorious
+		const OSDAnnotator = ref(null);
+		const OSDAnnotatorOptions = ref({
+			drawingEnabled: false,
+			style: {
+				fill: '#ff0000',
+				fillOpacity: 0.15
+			},
+			multiSelect: true
+		});
+		if ( isViewerMode.value ) {
+			OSDAnnotatorOptions.value.userSelectAction = "SELECT";
+		}
+		const sequenceMode = ref(true);
+		const currentAnnotation = ref(null);
+		// Reference data
+		const annotatedCanvasRefList = ref( [] );
+		// Print area for dev info - to be disabled in production:
+		// var printArea = ref( '' );
+
+		/** Emitter handler: receives the OSDViewer instance 
+		 * from the child component.
+		 */
+		function getOSDViewerFromChild( osdViewerInstance ) {
+			// Why markRaw? This OpenSeadragon lib instance is 
+			// 'opaque', i.e. must be left to manage its own 
+			// internal state. No deep-tracking by Vue.
+			OSDViewer.value = markRaw( osdViewerInstance );
+		}
+
+		function initOSDAnnotator() {
+			// W3CImageFormat adapter
+			if ( typeof(currentCanvas.value.url) !== "undefined" ) {
+				debugLog( "Attempting to use W3CImageFormat with", currentCanvas.value.url );
+				OSDAnnotatorOptions.value.adapter = AnnotoriousOSD.W3CImageFormat( currentCanvas.value.url );
+			} else {
+				console.log( "Something went wrong. The current canvas URL (currentCanvas.value.url) is undefined");
+			}
+			// Why markRaw? Same as OSDViewer above:
+			// opaque Annotorious instance
+			// not plain state we want Vue to track.
+			OSDAnnotator.value = markRaw( AnnotoriousOSD.createOSDAnnotator(
+				OSDViewer.value,
+				OSDAnnotatorOptions.value
+			) );
 			AnnotoriousOSD.SequenceModePlugin = SequenceModePlugin(
-				this.OSDAnnotator,
-				this.OSDViewer,
-				this.initialAnnotationPages ?? [],
-				this.canvasItems
+				OSDAnnotator.value,
+				OSDViewer.value,
+				props.initialAnnotationPages ?? [],
+				props.canvasItems
 			);
-			if( !this.isViewerMode ) {
-				this.setOSDAnnotatorBehaviours( this.OSDAnnotator, this.OSDViewer );
+			if( !isViewerMode.value ) {
+				setOSDAnnotatorBehaviours();
 			} else {
 				// viewer mode
-				this.onClickAnnotation( this.OSDAnnotator, this.OSDViewer, this );
-				var self = this;
-				this.OSDAnnotator.on("selectionChanged", function(annotations) {
-					self.OSDViewer.zoomPerClick = 1.5;
+				onClickAnnotation();
+				OSDAnnotator.value.on("selectionChanged", function(annotations) {
+					OSDViewer.value.zoomPerClick = 1.5;
 				});
 			}
 			// Set current MW user, not Guest
-			this.OSDAnnotator.setUser({
+			OSDAnnotator.value.setUser({
 				id: mw.user.id(),
 				name: mw.user.id()
 		 	});
 			// @todo - Should we do this here?
-			this.updateAnnotatedCanvasRefList( this.OSDAnnotator.exportAllAnnotations() );
-		},
-		// Emitter handlers
-		toggleOSDDrawingTool( doAnnotate = false ) {
-			this.OSDAnnotatorOptions.drawingEnabled = doAnnotate;
-			this.OSDAnnotator.setDrawingEnabled(doAnnotate);
-			this.OSDViewer.zoomPerClick = doAnnotate ? 1 : 1.5;
+			updateAnnotatedCanvasRefList( OSDAnnotator.value.exportAllAnnotations() );
+		}
+
+		// Emitter handler
+		function toggleOSDDrawingTool( doAnnotate = false ) {
+			OSDAnnotatorOptions.value.drawingEnabled = doAnnotate;
+			OSDAnnotator.value.setDrawingEnabled(doAnnotate);
+			OSDViewer.value.zoomPerClick = doAnnotate ? 1 : 1.5;
 			if ( !doAnnotate ) {
-				this.OSDAnnotator.cancelDrawing();
+				OSDAnnotator.value.cancelDrawing();
 			}
-		},
+		}
+
 		// @todo unused so probably remove (may not even work)
-		getCurrentSourceId() {
-			return this.OSDViewer.tileSources[this.OSDViewer.currentPage];
-		},
+		function getCurrentSourceId() {
+			return OSDViewer.value.tileSources[OSDViewer.value.currentPage];
+		}
+
 		/**
 		 * Update annotation with new data from AnnotatorForm
 		 * except for image coordinates in 'target',
 		 * and 'creator' and 'created'
 		 */
-		updateAnnotation( updatedAnnotation ) {
+		function updateAnnotation( updatedAnnotation ) {
 			// Because AnnotatorForm could not check for intermediate
 			// changes (if any) to image coordinates, let's get them now.
 			// (1) get current annotation without the new data
-			const latestAnno = this.OSDAnnotator.getAnnotationById(updatedAnnotation.id);
+			const latestAnno = OSDAnnotator.value.getAnnotationById(updatedAnnotation.id);
 
 			// (2) Update with new data
-			const newAnno = latestAnno;
+			// Clone rather than alias latestAnno: mutating the same object
+			// Annotorious has stored internally would make its before/after
+			// diff see no change, and it could then skip firing its own
+			// 'updateAnnotation' event (which is what triggers writeToWiki()).
+			const newAnno = { ...latestAnno };
 			newAnno.body = updatedAnnotation.body ?? updatedAnnotation.bodies ?? [];
-			/*
-			var newObj = {
-				id: updatedAnnotation.id,
-				body: updatedAnnotation.body ?? updatedAnnotation.bodies,
-				creator: latestAnno.creator ?? "",
-				created: latestAnno.created ?? "",
-				target: latestAnno.target
-			};
-			*/
-			this.OSDAnnotator.updateAnnotation(newAnno);
-			this.debugLog( "updateAnnotation: new annotation before update", JSON.stringify(newAnno) );
-			// Don't use this.writeToWiki() here because of API edit lag
-		},
-		updateAnnotatedCanvasRefList(annotationPages) {
+
+			OSDAnnotator.value.updateAnnotation(newAnno);
+			debugLog( "updateAnnotation: new annotation before update", JSON.stringify(newAnno) );
+			// Don't use writeToWiki() here because of API edit lag
+		}
+
+		function updateAnnotatedCanvasRefList(annotationPages) {
 			const list = [];
-			for (anno of annotationPages) {
+			for (const anno of annotationPages) {
 				let idx = anno.references.index;
 				list[idx] = {
 					canvasIndex: idx,
 					canvasId: anno.references.canvasId,
-					label: this.canvasItems[idx]["label"] ?? ""
+					label: props.canvasItems[idx]["label"] ?? ""
 				};
 			}
-			this.annotatedCanvasRefList = list;
-		},
-		writeToWiki() {
-			var annotationPages = this.OSDAnnotator.exportAllAnnotations();
-			var prevAnnotatedCanvasRefList = this.annotatedCanvasRefList;
-			this.updateAnnotatedCanvasRefList( annotationPages );
+			annotatedCanvasRefList.value = list;
+		}
 
-			if ( this.annotatedCanvasRefList === prevAnnotatedCanvasRefList ) {
-				self.showStatusIcon("nochange");
-				this.debugLog( "writeToWiki(): no changes in annotation list" );
+		function writeToWiki() {
+			const annotationPages = OSDAnnotator.value.exportAllAnnotations();
+			const prevAnnotatedCanvasRefList = annotatedCanvasRefList.value;
+			updateAnnotatedCanvasRefList( annotationPages );
+
+			if (annotatedCanvasRefList.value === prevAnnotatedCanvasRefList) {
+				// Should not happen: updateAnnotatedCanvasRefList()
+				// always assigns a new array.
+				showStatusIcon("nochange");
+				debugLog( "writeToWiki(): no changes in annotation list" );
 				return;
 			} else {
-				this.debugLog( "writeToWiki(): attempting to save ", JSON.stringify(annotationPages) );
+				debugLog( "writeToWiki(): attempting to save ", JSON.stringify(annotationPages) );
 			}
 
 			// Prepare the API action
-			const wikiPage = this.configProps.target ?? null;
-			const targetSlot = this.configProps.targetSlot ?? null;
+			const wikiPage = props.configProps.target ?? null;
+			const targetSlot = props.configProps.targetSlot ?? null;
 			if ( wikiPage === null ) {
-				console.log( "AnnotationPages could not be written to a wiki page. Reason: no wiki page specified." );
+				console.error( "AnnotationPages could not be written to a wiki page. Reason: no wiki page specified." );
 				return;
 			}
+			let editParams;
 			if ( targetSlot !== null && targetSlot !== "" ) {
-				this.debugLog( "Using editslot for slot", targetSlot );
+				debugLog( "Using editslot for slot", targetSlot );
 				// WSSlots' editslot.
 				// Content model cannot be set/changed through action
-				var editParams = {
+				editParams = {
 					action: "editslot",
 					format: "json",
 					formatversion: "2",
@@ -269,7 +362,7 @@ module.exports = defineComponent( {
 					summary: `Saved annotationPages in slot (${targetSlot}) with IIIF Annotator`
 				};
 			} else {
-				var editParams = {
+				editParams = {
 					action: "edit",
 					format: "json",
 					formatversion: "2",
@@ -277,171 +370,79 @@ module.exports = defineComponent( {
 					text: JSON.stringify(annotationPages),
 					summary: "Saved AnnotationPages with IIIF Annotator",
 					contentformat: "application/json",
-					contentmodel: this.configProps['targetContentModel'] ?? "json",
+					contentmodel: props.configProps['targetContentModel'] ?? "json",
 					tags: "iiif-annotator-edit"
 				};
 			}
 
 			// Perform the API action
 			const mwApi = new mw.Api();
-			const self = this;
 			mwApi.postWithToken('csrf', editParams )
 			.done( function(data) {
-				self.showStatusIcon("success");
-				self.debugLog( "API response", data );
-				self.debugLog( "Successfully saved annotationPages", JSON.stringify(annotationPages) );
+				showStatusIcon("success");
+				debugLog( "API response", data );
+				debugLog( "Successfully saved annotationPages", JSON.stringify(annotationPages) );
 			})
 			.fail( function(e) {
-				console.log( "Failed to save data with the IIIF Annotator", e );
-				self.showStatusIcon("fail");
+				console.error( "Failed to save data with the IIIF Annotator", e );
+				showStatusIcon("fail");
 			});
 		}
-	},
-	watch: {
-		currentCanvas: function(n,o) {
-			this.showForm(false);
-		},
-		currentAnnotation: function(n,o) {
-			this.debugLog( "currentAnnotation being watched:", n );
-			// In the event that not all Annotations were created using the 
-			// same form, allows for the use of multiple profiles
-			// @todo maybe profileid info is best taken from AnnotationPage references section
-			if ( typeof n.body[0] !== 'undefined' && typeof n.body[0].profileid !== 'undefined' 
-			&& Object.keys(this.formProfiles).length > 0
-			//&& typeof this.formProfiles.length !== "object"
-			) {
-				this.formProfileSchema = this.formProfiles[n.body[0].profileid];
-			}
-		}
-	},
-	mounted() {
-	},
-	setup(props, context) {
-		// context.emit, context.expose
-		var prefixUrl = ref( mw.config.get("wgExtensionAssetsPath") + "/IIIF/modules/lib-openseadragon/images/" );
-		var manifestUrl = ref( props.configProps['manifest'] ?? null );
-		var tileSources = ref( props.tileSourcesFromManifest );
 
-		// OSD Viewer
-		var OSDViewer = ref( null );
-		var showOSDViewer = ref( true );
-		var containerId = ref( "osdragon-widget-" + props.configProps['id'] ?? "osdragon-widget" );
-		var id = ref( "osd-" + props.configProps['id'] ?? "osd-viewer" );
-		const osdViewerEl = computed( () => {
-			return document.getElementById( "osd-" + props.configProps['id'] ?? "osd-viewer" );
-		});
-		// OSD Viewer navigation / canvases
-		function getPageIndexFromUrl() {
-			const urlParams = new URLSearchParams(window.location.search);
-			var defaultIndex = props.configProps.canvasIndex ?? "0";
-			var index = parseInt( urlParams.get("cdx") ?? defaultIndex );
-			return index;
-		}
-		var initialPageIndex = getPageIndexFromUrl();
-		store.commit("updateCurrentCanvas", props.canvasItems[initialPageIndex] );
-		var currentCanvas = ref( null );
-		var currentCanvas = computed( () => {
-			return store.getters.getCurrentCanvas ?? null;
-		});
-		function setCanvasFromPageIndex(idx) {
-			if (typeof idx === "string" ) {
-				var idx = parseInt(idx);
-			}
-			store.commit("updateCurrentCanvas", props.canvasItems[idx]);
+		function setOSDAnnotatorBehaviours() {
+			onDeleteRemoveAnnotation();
+			onCreateAnnotation();
+			onUpdateAnnotation();
+			onDeleteAnnotation();
+			onClickAnnotation();
+			onSelectionChanged();
 		}
 
-		// OSD Viewer navigation/TOC
-		var isViewerMode = ref( props.configProps["mode"] === "viewer" );
-		debugLog( "Are we in viewer mode?", isViewerMode.value );
-
-		var isNavigationEnabled = ref( true );
-		function createTOCFromCanvasItems( canvasItems ) {
-			toc = [];
-			for (let i = 0; i < canvasItems.length; i++) {
- 				toc[i] = {
-					value: canvasItems[i]["index"],
-					label: canvasItems[i]["label"]
-				}
-			}
-			return toc;
-		}
-		var tocMenuItems = ref( [] );
-		var tocMenuItems = createTOCFromCanvasItems( props.canvasItems );
-
-		// OSD Annotorious
-		var OSDAnnotator = ref(null);
-		const OSDAnnotatorOptions = ref({
-			drawingEnabled: false,
-			style: {
-				fill: '#ff0000',
-				fillOpacity: 0.15
-			},
-			multiSelect: true			
-		});
-		if ( isViewerMode.value ) {
-			OSDAnnotatorOptions.value.userSelectAction = "SELECT";
-		}
-		var sequenceMode = ref(true);
-		var currentAnnotation = ref(null);
-		// Reference data
-		const annotatedCanvasRefList = ref( [] );
-		// Print area for dev info - to be disabled in production:
-		// var printArea = ref( '' );
-
-		function setOSDAnnotatorBehaviours( OSDAnnotator, OSDViewer ) {
-			onDeleteRemoveAnnotation( OSDAnnotator, this );
-			onCreateAnnotation( OSDAnnotator, this );
-			onUpdateAnnotation( OSDAnnotator, this );
-			onDeleteAnnotation( OSDAnnotator, this );
-			onClickAnnotation( OSDAnnotator, OSDViewer, this );
-			onSelectionChanged( OSDAnnotator, OSDViewer, this );
-		}
-
-		function onDeleteRemoveAnnotation( osdAnnotator, self ) {
+		function onDeleteRemoveAnnotation() {
 			osdViewerEl.value.addEventListener("keydown", function(evt) {
 				if (evt.key === "Delete" || evt.key === "Backspace") {
-					const selected = osdAnnotator.getSelected();
+					const selected = OSDAnnotator.value.getSelected();
 					if (typeof selected !== "undefined") {
 						selected.forEach( function(anno) {
-							self.debugLog( "onDeleteRemoveAnnotation", anno );
-							self.debugLog( "all current annotations", self.OSDAnnotator.exportAllAnnotations());
-							osdAnnotator.removeAnnotation(anno);
+							debugLog( "onDeleteRemoveAnnotation", anno );
+							debugLog( "all current annotations", OSDAnnotator.value.exportAllAnnotations());
+							OSDAnnotator.value.removeAnnotation(anno);
 						});
-						// don't use self.writeToWiki() here
-						self.showForm(false);
+						// don't use writeToWiki() here
+						showForm(false);
 					}
 				}
 			});
 		}
-		function onCreateAnnotation( osdAnnotator, self ) {
-			osdAnnotator.on("createAnnotation", function(annotation) {
-				// self.printArea = JSON.stringify( annotation );
-				self.currentAnnotation = annotation ?? null;
-				self.debugLog('self.currentCanvas',self.currentCanvas);
+		function onCreateAnnotation() {
+			OSDAnnotator.value.on("createAnnotation", function(annotation) {
+				// printArea = JSON.stringify( annotation );
+				currentAnnotation.value = annotation ?? null;
+				debugLog('currentCanvas', currentCanvas.value);
 				let newAnnotation = JSON.parse(JSON.stringify(annotation));
 
-		  		self.debugLog("Created annotation (createAnnotation fired)", newAnnotation);
-				self.setTab("form");
-				self.showForm(true);
-				//self.isFormEnabled = true;
+		  		debugLog("Created annotation (createAnnotation fired)", newAnnotation);
+				setTab("form");
+				showForm(true);
+				//isFormEnabled.value = true;
 
-				self.writeToWiki();
+				writeToWiki();
 			});
 		}
-		function onUpdateAnnotation( osdAnnotator, self ) {
-			osdAnnotator.on('updateAnnotation', function(updated, previous ) {
-				// console.log('Annotation was updated and is now', updated);
-				self.writeToWiki();
+		function onUpdateAnnotation() {
+			OSDAnnotator.value.on('updateAnnotation', function(updated, previous ) {
+				// debugLog('Annotation was updated and is now', updated);
+				writeToWiki();
 			});
 		}
-		function onSelectionChanged( osdAnnotator, osdViewer, self ) {
-			osdAnnotator.on("selectionChanged", function(annotations) {
-				//console.log('Selection changed (selectionChanged)', annotations );
+		function onSelectionChanged() {
+			OSDAnnotator.value.on("selectionChanged", function(annotations) {
+				//debugLog('Selection changed (selectionChanged)', annotations );
 				debugLog('Selection changed (selectionChanged)', annotations );
-				if( !osdAnnotator.isDrawingEnabled() ) {
+				if( !OSDAnnotator.value.isDrawingEnabled() ) {
 					// Set/reset to default zoom factor in case
-					// onClickAnnotation previously set it to 1 
-					osdViewer.zoomPerClick = 1.5;
+					// onClickAnnotation previously set it to 1
+					OSDViewer.value.zoomPerClick = 1.5;
 				}
 
 				// May be used for debugging purposes:
@@ -452,8 +453,8 @@ module.exports = defineComponent( {
 					debugLog( "Annotations (array) selected", annotations );
 					if( annotations.length > 1 ) {
 						// Do not associate a form with multiple shapes
-						//self.isFormEnabled = false;
-						self.showForm(false);
+						//isFormEnabled.value = false;
+						showForm(false);
 					}
 				} else if( annotations["target"] !== undefined ) {
 					debugLog( "Annotation (obj) with target selected", annotations );
@@ -463,46 +464,46 @@ module.exports = defineComponent( {
 			});
 		}
 
-		function onDeleteAnnotation( osdAnnotator, self ) {
-			osdAnnotator.on("deleteAnnotation", function(annotation) {
+		function onDeleteAnnotation() {
+			OSDAnnotator.value.on("deleteAnnotation", function(annotation) {
 				if( typeof annotation === "undefined" ) {
-					self.debugLog("onDeleteAnnotation: annotation is undefined");
+					debugLog("onDeleteAnnotation: annotation is undefined");
 				} else {
-					//self.debugLog("onDeleteAnnotation", annotation);
+					//debugLog("onDeleteAnnotation", annotation);
 				}
-				// Form - see now onDeleteRemoteAnnotation
-				self.writeToWiki();
-				//self.formKey = Date.now();
-				//self.isFormEnabled = false;
+				// Form - see now onDeleteRemoveAnnotation
+				writeToWiki();
+				//formKey.value = Date.now();
+				//isFormEnabled.value = false;
 			});
 		}
 
 		// cf. onSelectionChanged, which checks if multiple shapes are selected
-		function onClickAnnotation( osdAnnotator, osdViewer, self ) {
-			osdAnnotator.on("clickAnnotation", function(annotation, originalEvent) {
-				self.debugLog('Annotation clicked:', annotation );
+		function onClickAnnotation() {
+			OSDAnnotator.value.on("clickAnnotation", function(annotation, originalEvent) {
+				debugLog('Annotation clicked:', annotation );
 				//console.log('Annotation clicked:', annotation );
 
 				// Disable form just in case ????
-				// self.isFormEnabled = false;
-				// self.formKey = Date.now();
+				// isFormEnabled.value = false;
+				// formKey.value = Date.now();
 
 				// Disable zoom on click
-				osdViewer.zoomPerClick = 1;
-				self.currentAnnotation = annotation ?? null;
+				OSDViewer.value.zoomPerClick = 1;
+				currentAnnotation.value = annotation ?? null;
 				/*
-				if ( self.currentAnnotation !== undefined
-					&& annotation.id === self.currentAnnotation.id ) {
+				if ( currentAnnotation.value !== undefined
+					&& annotation.id === currentAnnotation.value.id ) {
 					// No need to start anew. Keep current data but
 					// there are some issues with this approach - @todo
-					self.currentAnnotation = annotation;
+					currentAnnotation.value = annotation;
 				} else {
-					self.currentAnnotation = annotation;
+					currentAnnotation.value = annotation;
 				}
-				*/			
-				self.setTab( !self.isViewerMode ? "form" : "dataset");
-				self.showForm(true);
-				// dev: self.printArea = JSON.stringify( annotation );
+				*/
+				setTab( !isViewerMode.value ? "form" : "dataset");
+				showForm(true);
+				// dev: printArea.value = JSON.stringify( annotation );
 			});
 		}
 
@@ -547,20 +548,20 @@ module.exports = defineComponent( {
 		if (props.configProps.customOptions) {
 			customOptions.value = JSON.parse(props.configProps.customOptions);
 		}
-		var formProfileSchema = ref(
+		const formProfileSchema = ref(
 			props.formProfile ?? formProfileDefault
 		);
-		var formKey = ref(0);
+		const formKey = ref(0);
 		const isFormEnabled = ref( false );
 		function showForm(isEnabled) {
 			isFormEnabled.value = isEnabled;
-			var formKey = Date.now();
+			formKey.value = Date.now();
 		}
 		// Edit status
 		const iconStatus = ref( "" );
 		function showStatusIcon(status) {
 			iconStatus.value = status;
-			var timeOut = setTimeout( function() {
+			setTimeout( function() {
 				iconStatus.value = "";
 			}, 2500 );
 		}
@@ -570,14 +571,25 @@ module.exports = defineComponent( {
 		const resizableStyle = ref( "" );
 		const isResizableEnabled = ref( true );
 
-		/**
-		 * Dev only
-		 * @param msg
-		 * @param loggable 
-		 */
-		function debugLog( msg = "(No message)", loggable = "" ) {
-			// console.log( "AnnotatorInterface: " + msg, loggable );
-		}
+		// Watchers
+		watch( currentCanvas, function(n, o) {
+			showForm(false);
+		});
+
+		watch( currentAnnotation, function(n, o) {
+			debugLog( "currentAnnotation being watched:", n );
+			// In the event that not all Annotations were created 
+			// using the same form, allows for the use of multiple 
+			// profiles.
+			// @todo maybe profileid info is best taken from 
+			// AnnotationPage references section
+			if ( typeof n.body[0] !== 'undefined' && typeof n.body[0].profileid !== 'undefined'
+			&& Object.keys(props.formProfiles).length > 0
+			//&& typeof props.formProfiles.length !== "object"
+			) {
+				formProfileSchema.value = props.formProfiles[n.body[0].profileid];
+			}
+		});
 
 		return {
 			prefixUrl,
@@ -593,6 +605,7 @@ module.exports = defineComponent( {
 			currentCanvas,
 			// initialPageIndex,
 			setCanvasFromPageIndex,
+			getOSDViewerFromChild,
 
 			// Viewer navigation
 			isViewerMode,
@@ -602,9 +615,14 @@ module.exports = defineComponent( {
 			// Annotorious
 			OSDAnnotator,
 			OSDAnnotatorOptions,
+			initOSDAnnotator,
 			sequenceMode,
 			setOSDAnnotatorBehaviours,
-			//setOSDAnnotatorBehavioursInViewerMode,
+			toggleOSDDrawingTool,
+			getCurrentSourceId,
+			updateAnnotation,
+			updateAnnotatedCanvasRefList,
+			writeToWiki,
 			onDeleteRemoveAnnotation,
 			onCreateAnnotation,
 			onDeleteAnnotation,
@@ -626,6 +644,7 @@ module.exports = defineComponent( {
 			showForm,
 			customOptions,
 			formProfileSchema,
+			formKey,
 			iconStatus,
 			showStatusIcon,
 

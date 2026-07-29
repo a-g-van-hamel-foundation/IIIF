@@ -77,12 +77,6 @@ module.exports = defineComponent( {
 		showIcon: { type: "String", default: "" },
 		customOptions: { type: "Object", default: {} }
 	},
-	methods: {
-		// @todo maybe remove
-		updateValue( value ) {
-			this.debugLog("updateValue", value );
-		}
-	},
 	watch: {
 		currentCanvas: function(n,o) {
 			this.debugLog("currentCanvas changed on watch",n);
@@ -201,6 +195,11 @@ module.exports = defineComponent( {
 		var showIconClose = ref( false );
 		var showIconEllipsis = ref( false );
 
+		// dev only
+		function updateValue(value) {
+			debugLog("updateValue", value);
+		}
+
 		// Dev only
 		function debugLog( msg = "(No message)", loggable = "" ) {
 			//console.log( "AnnotatorForm: " + msg, loggable );
@@ -224,6 +223,7 @@ module.exports = defineComponent( {
 			cdxIconCheck, cdxIconClose, cdxIconEllipsis,
 			showIconCheck, showIconClose, showIconEllipsis,
 
+			updateValue,
 			debugLog
 		};
 	}

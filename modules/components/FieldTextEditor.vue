@@ -1,17 +1,19 @@
 <template>
-	<textarea
-		style="display:none"
-		:name="name"
-		v-model="storableContent"
-	></textarea>
-	<quill-editor
-		ref="quillEditor"
-		theme="snow"
-		v-model:content="content"
-		content-type="html"
-		@update:content="handleUpdatedContent"
-		:toolbar="['bold', 'italic', 'underline']"
-	></quill-editor>
+	<div class="text-editor-field">
+		<textarea
+			style="display:none"
+			:name="name"
+			v-model="storableContent"
+		></textarea>
+		<quill-editor
+			ref="quillEditor"
+			theme="snow"
+			v-model:content="content"
+			content-type="html"
+			@update:content="handleUpdatedContent"
+			:toolbar="['bold', 'italic', 'underline']"
+		></quill-editor>
+	</div>
 </template>
 
 <script>
@@ -27,17 +29,15 @@ module.exports = defineComponent({
 		name: { type: String, default: "" },
 		label: { type: String, default: "" },
 		ariaLabel: { type: String, default: "" },
-		inputValue: { type: String, default: "hello..." },
+		inputValue: { type: String, default: "" },
 	},
-	watch: {},
 	emits: ['update:inputValue'],
 	setup(props, { emit } ) {
 		const content = ref(props.inputValue);
-
-		//const storableContent = ref(props.inputValue);
 		const storableContent = computed({
-			get() { return props.inputValue },
-			set(val) { emit('update:inputValue', val) }
+			get() { return content.value; },
+			// For a non-FormData approach like TOC
+			set(val) { emit('update:inputValue', val); }
 		});
 
 		function handleUpdatedContent(str) {

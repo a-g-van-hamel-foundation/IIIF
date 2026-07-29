@@ -38,8 +38,7 @@
 			<label :for="name">{{ label }}</label>
 			<field-xml-editor
 				:name="name"
-				v-model="inputValue"
-				:input-value="inputValue"
+				v-model:input-value="selection"
 			></field-xml-editor>
 		</section>
 	</template>

@@ -9,7 +9,7 @@
 			v-model="content"
 			:placeholder="placeholder"
 		></textarea>
-		<textarea hidden :name="name" :value="content"></textarea>
+		<textarea hidden :name="name" :value="storableContent"></textarea>
 	</div>
 </template>
 
@@ -57,8 +57,8 @@ module.exports = defineComponent( {
 			const self = this;
 			aceEditor.session.on('change', function(delta) {
 				self.content = aceEditor.getSession().getValue();
+				self.$emit("update:inputValue", self.content);
 				//console.log( "content changed", self.content );
-				//this.$emit('emit-update-value', this.content );
 			});
 			this.addKeyboardShortcuts( aceEditor );
 			this.aceEditor = aceEditor;
@@ -98,22 +98,21 @@ module.exports = defineComponent( {
 	},
 	emits: ['update:inputValue'],
 	setup(props, { emit }) {
-		// const content = ref( props.inputValue );
-		const content = computed({
-			get() { return props.inputValue },
-			set(val) { emit('update:inputValue', val) }
+		const content = ref( props.inputValue );
+		const storableContent = computed({
+			get() { return content.value; },
+			set(val) { emit('update:inputValue', val); }
 		});
-		//const val = ref( content );
-		const aceEditor = ref( null );
+
 		/*
 		const textareaClasses = computed( () => ( {
 			'is-autogrow': props.autogrow
 		} ) );
-		  */
+		*/
+
 		return {
-			aceEditor,
-			content
-			//val
+			content,
+			storableContent
 		}
 	}
 });
