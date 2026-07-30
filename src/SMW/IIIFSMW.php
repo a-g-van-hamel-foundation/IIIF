@@ -76,9 +76,10 @@ class IIIFSMW {
 	 *
 	 * @param string $queryArg
 	 * @param string $printout
+	 * @param ?string[] $propNames Don't substitute underscores for spaces
 	 * @return array
 	 */
-	public static function getAllObjectsForQuery( 
+	public static function getAllObjectsForQuery(
 		string $queryArg,
 		string $printout,
 		?array $propNames = null

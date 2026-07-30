@@ -102,7 +102,7 @@ class IIIFCollectionAPI extends ApiBase {
 	 */
 	public static function preprocessManifestV3( $item, $smwconfig = null ) {
 
-		$propNames = self::getPropNamesForCollection( false );
+		$propNames = self::getPropNamesForCollection();
 		$manifestProp = $propNames[0];
 		$labelProp = $propNames[1];
 
@@ -153,22 +153,15 @@ class IIIFCollectionAPI extends ApiBase {
 		$IIIFCollectionSortProp = self::$smwConfigProps["IIIFCollectionSortProp"];
 
 		$printout = "|named args=yes|link=none|limit=9999|sort={$IIIFCollectionSortProp}|searchlabel=";
-		$propNames = self::getPropNamesForCollection( true );
+		$propNames = self::getPropNamesForCollection();
 		$resources = IIIFSMW::getAllObjectsForQuery( $queryArg, $printout, $propNames );
 
 		return $resources;
 	}
 
-	public static function getPropNamesForCollection(
-		$underscores = true
-	): array {
+	private static function getPropNamesForCollection(): array {
 		$manifestProp = self::$smwConfigProps['IIIFCollectionItemURI'];
 		$labelProp = self::$smwConfigProps['IIIFCollectionItemResource'];
-		if ( $underscores == true ) {
-			$manifestProp = str_replace( " ", "_", $manifestProp );
-			//$manifestProp = "IIIF Manifest URL";
-    		$labelProp = str_replace( " ", "_", $labelProp );
-		}
     	$propNames = [
         	$manifestProp,
             $labelProp
