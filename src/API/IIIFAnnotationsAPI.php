@@ -13,8 +13,6 @@
 namespace IIIF\API;
 
 use MediaWiki\Api\ApiBase;
-use MediaWiki\MediaWikiServices;
-use SMW\DIWikiPage;
 use Wikimedia\ParamValidator\ParamValidator;
 use IIIF\Config\IIIFConfig;
 use IIIF\IIIFUtils;
@@ -179,21 +177,6 @@ class IIIFAnnotationsAPI extends ApiBase {
 	 */
 	public static function getPropertyValuesForAnnotation( $item ): array {
 		return IIIFAnnotationParsers::getPropertyValuesForAnnotation( $item );
-	}
-
-	/**
-	 * Maybe SMW has a native function for this.
-	 * doUnserialize()
-	 * @todo getNamespaceFromNumber is almost identical to one in SMW file
-	 */
-	private static function resolveDIWikiPage( $diWikipage ) {
-		//doUnserialize
-		$arr = explode( '#', $diWikipage, 4 );
-		$namespaceNumber = intval( $arr[1] );
-		$prefix = ( $namespaceNumber !== 0 ) ? IIIFSMW::getNamespaceNameFromIndex( $namespaceNumber ) . ":" : "";
-		$pagename = $prefix . $arr[0];
-		$str = str_replace( "_", " ", $pagename);
-		return $str;
 	}
 
 	/**
