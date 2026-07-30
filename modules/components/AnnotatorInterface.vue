@@ -236,11 +236,11 @@ module.exports = defineComponent( {
 
 		function initOSDAnnotator() {
 			// W3CImageFormat adapter
-			if ( typeof(currentCanvas.value.url) !== "undefined" ) {
+			if ( typeof currentCanvas.value.url !== "undefined" ) {
 				debugLog( "Attempting to use W3CImageFormat with", currentCanvas.value.url );
 				OSDAnnotatorOptions.value.adapter = AnnotoriousOSD.W3CImageFormat( currentCanvas.value.url );
 			} else {
-				console.log( "Something went wrong. The current canvas URL (currentCanvas.value.url) is undefined");
+				console.error( "Something went wrong. The current canvas URL (currentCanvas.value.url) is undefined");
 			}
 			// Why markRaw? Same as OSDViewer above:
 			// opaque Annotorious instance
@@ -303,13 +303,13 @@ module.exports = defineComponent( {
 			// Clone rather than alias latestAnno: mutating the same object
 			// Annotorious has stored internally would make its before/after
 			// diff see no change, and it could then skip firing its own
-			// 'updateAnnotation' event (which is what triggers writeToWiki()).
+			// 'updateAnnotation' event (which is what triggers prepareAndWriteToWiki()).
 			const newAnno = { ...latestAnno };
 			newAnno.body = updatedAnnotation.body ?? updatedAnnotation.bodies ?? [];
 
 			OSDAnnotator.value.updateAnnotation(newAnno);
 			debugLog( "updateAnnotation: new annotation before update", JSON.stringify(newAnno) );
-			// Don't use writeToWiki() here because of API edit lag
+			// Don't use prepareAndWriteToWiki() here because of API edit lag
 		}
 
 		function updateAnnotatedCanvasRefList(annotationPages) {
@@ -325,31 +325,75 @@ module.exports = defineComponent( {
 			annotatedCanvasRefList.value = list;
 		}
 
-		function writeToWiki() {
+		// Page ID can be '0' (i.e. page does not exist)
+		// and changes if we create the page
+		const targetPageIdProxy = ref( props.configProps.targetId ?? "0" );
+		// Slot defaults to "main"
+		const targetSlot = ref( (props.configProps.targetSlot !== null && props.configProps.targetSlot !== "") ? props.configProps.targetSlot : "main" );
+
+		function prepareAndWriteToWiki() {
+			// Get AnnotationPages
 			const annotationPages = OSDAnnotator.value.exportAllAnnotations();
+
+			// Reflist check
 			const prevAnnotatedCanvasRefList = annotatedCanvasRefList.value;
 			updateAnnotatedCanvasRefList( annotationPages );
-
 			if (annotatedCanvasRefList.value === prevAnnotatedCanvasRefList) {
 				// Should not happen: updateAnnotatedCanvasRefList()
 				// always assigns a new array.
 				showStatusIcon("nochange");
-				debugLog( "writeToWiki(): no changes in annotation list" );
+				debugLog( "prepareAndWriteToWiki(): no changes in annotation list" );
 				return;
 			} else {
-				debugLog( "writeToWiki(): attempting to save ", JSON.stringify(annotationPages) );
+				debugLog( "prepareAndWriteToWiki(): attempting to save ", JSON.stringify(annotationPages) );
 			}
 
 			// Prepare the API action
-			const wikiPage = props.configProps.target ?? null;
-			const targetSlot = props.configProps.targetSlot ?? null;
-			if ( wikiPage === null ) {
+			const targetPage = props.configProps.target ?? null;
+			if (targetPage === null || targetPage === "") {
 				console.error( "AnnotationPages could not be written to a wiki page. Reason: no wiki page specified." );
 				return;
+			} else if(targetPageIdProxy.value == "0") {
+				// Create intended page first.
+				let createParams = {
+					action: "edit",
+					title: targetPage,
+					text: "",
+					tags: "iiif-toc-edit",
+					summary: "Create empty data page for IIIF annotation tool"
+				};
+				if (targetSlot.value === "main") {
+					createParams.text = "{}";
+					createParams.contentformat = "application/json";
+					createParams.contentmodel = "json";
+				}
+				new mw.Api().postWithToken("csrf", createParams)
+				.done( function(data) {
+					if (data.hasOwnProperty("warnings")) {
+						showStatusIcon("fail");
+						console.error(data.warnings.main["*"]);
+					} else {
+						targetPageIdProxy.value = data.edit.pageid;
+						writeToWiki(annotationPages);
+					}
+				})
+				.fail( function(e) {
+					showStatusIcon("fail");
+					console.error(e);
+				});
+			} else {
+				writeToWiki(annotationPages);
 			}
+		}
+
+		/**
+		 * Should not be used independently of prepareAndWriteToWiki()
+		 */
+		function writeToWiki(annotationPages) {
+			const wikiPage = props.configProps.target ?? null;
 			let editParams;
-			if ( targetSlot !== null && targetSlot !== "" ) {
-				debugLog( "Using editslot for slot", targetSlot );
+			if (targetSlot.value !== "main") {
+				debugLog( "Using editslot for slot", targetSlot.value );
 				// WSSlots' editslot.
 				// Content model cannot be set/changed through action
 				editParams = {
@@ -357,9 +401,9 @@ module.exports = defineComponent( {
 					format: "json",
 					formatversion: "2",
 					title: wikiPage,
-					slot: targetSlot,
+					slot: targetSlot.value,
 					text: JSON.stringify(annotationPages),
-					summary: `Saved annotationPages in slot (${targetSlot}) with IIIF Annotator`
+					summary: `Saved annotationPages in slot (${targetSlot.value}) with IIIF Annotator`
 				};
 			} else {
 				editParams = {
@@ -368,16 +412,15 @@ module.exports = defineComponent( {
 					formatversion: "2",
 					title: wikiPage,
 					text: JSON.stringify(annotationPages),
-					summary: "Saved AnnotationPages with IIIF Annotator",
 					contentformat: "application/json",
 					contentmodel: props.configProps['targetContentModel'] ?? "json",
-					tags: "iiif-annotator-edit"
+					tags: "iiif-annotator-edit",
+					summary: "Saved AnnotationPages with IIIF Annotator"
 				};
 			}
 
 			// Perform the API action
-			const mwApi = new mw.Api();
-			mwApi.postWithToken('csrf', editParams )
+			new mw.Api().postWithToken('csrf', editParams )
 			.done( function(data) {
 				showStatusIcon("success");
 				debugLog( "API response", data );
@@ -408,7 +451,7 @@ module.exports = defineComponent( {
 							debugLog( "all current annotations", OSDAnnotator.value.exportAllAnnotations());
 							OSDAnnotator.value.removeAnnotation(anno);
 						});
-						// don't use writeToWiki() here
+						// don't use prepareAndwriteToWiki() here
 						showForm(false);
 					}
 				}
@@ -426,13 +469,13 @@ module.exports = defineComponent( {
 				showForm(true);
 				//isFormEnabled.value = true;
 
-				writeToWiki();
+				prepareAndWriteToWiki();
 			});
 		}
 		function onUpdateAnnotation() {
 			OSDAnnotator.value.on('updateAnnotation', function(updated, previous ) {
 				// debugLog('Annotation was updated and is now', updated);
-				writeToWiki();
+				prepareAndWriteToWiki();
 			});
 		}
 		function onSelectionChanged() {
@@ -446,7 +489,7 @@ module.exports = defineComponent( {
 				}
 
 				// May be used for debugging purposes:
-				if( typeof(annotations) === "array" && annotations.length === 0 ) {
+				if( Array.isArray(annotations) && annotations.length === 0 ) {
 					debugLog( "Annotations (array) selected", "none" );
 					// Presumably just deleted
 				} else if( annotations[0] !== undefined && annotations[0]["id"] !== undefined ) {
@@ -472,7 +515,7 @@ module.exports = defineComponent( {
 					//debugLog("onDeleteAnnotation", annotation);
 				}
 				// Form - see now onDeleteRemoveAnnotation
-				writeToWiki();
+				prepareAndWriteToWiki();
 				//formKey.value = Date.now();
 				//isFormEnabled.value = false;
 			});
@@ -482,7 +525,6 @@ module.exports = defineComponent( {
 		function onClickAnnotation() {
 			OSDAnnotator.value.on("clickAnnotation", function(annotation, originalEvent) {
 				debugLog('Annotation clicked:', annotation );
-				//console.log('Annotation clicked:', annotation );
 
 				// Disable form just in case ????
 				// isFormEnabled.value = false;
@@ -595,6 +637,8 @@ module.exports = defineComponent( {
 			prefixUrl,
 			manifestUrl,
 			tileSources,
+			targetPageIdProxy,
+			targetSlot,
 
 			// OSD Viewer
 			OSDViewer,
@@ -622,7 +666,7 @@ module.exports = defineComponent( {
 			getCurrentSourceId,
 			updateAnnotation,
 			updateAnnotatedCanvasRefList,
-			writeToWiki,
+			prepareAndWriteToWiki,
 			onDeleteRemoveAnnotation,
 			onCreateAnnotation,
 			onDeleteAnnotation,

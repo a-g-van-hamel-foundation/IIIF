@@ -4,6 +4,7 @@ namespace IIIF\ParserFunctions;
 
 use MediaWiki\Parser\Parser;
 use MediaWiki\Registration\ExtensionRegistry;
+use MediaWiki\Title\Title;
 use MediaWiki\Html\Html;
 use IIIF\ParserFunctions\IIIFParserFunctionUtils;
 
@@ -38,6 +39,14 @@ class IIIFAnnotator {
 			}
 		}
 
+		$targetId = 0;
+		if ( $target !== null ) {
+			$targetTitle = Title::newFromText( $target );
+			if ( $targetTitle !== null ) {
+				$targetId = $targetTitle->getId();
+			}
+		}
+
 		$outputPage = $parser->getOutput();
 		$outputPage->addModules( [ "ext.iiif.annotator" ] );
 		$outputPage->addModuleStyles( [ "ext.iiif.styles" ] );
@@ -49,6 +58,7 @@ class IIIFAnnotator {
 			"data-profile" => $profile,
 			"data-profile-id" => $profileId,
 			"data-target" => $target,
+			"data-target-id" => $targetId,
 			"data-target-content-model" => $contentModel,
 			"data-canvas-index" => $canvasIndex,
 			"data-mode" => $mode

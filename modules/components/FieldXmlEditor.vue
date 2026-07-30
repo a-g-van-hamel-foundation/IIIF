@@ -69,7 +69,7 @@ module.exports = defineComponent( {
 					e.preventDefault();
 					const selected = aceEditor.getSelectedText();
 					if ( selected !== "" ) {
-						var newVal = "<expan>" + selected + "</expan>";
+						var newVal = "<ex>" + selected + "</ex>";
 						aceEditor.session.replace( aceEditor.selection.getRange(), newVal );
 						var newVal = "";
 					}
