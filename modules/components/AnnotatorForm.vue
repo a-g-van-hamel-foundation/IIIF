@@ -230,46 +230,55 @@ module.exports = defineComponent( {
 } );
 </script>
 
-<style>
+<style lang="less">
 .annotator-sidebar {
 	max-height: 100%;
 	overflow-y: auto;
+	.submit-form-button-container {
+		display:flex;
+		flex-direction: row;
+		margin-bottom:1rem;
+		justify-content: flex-end;
+		gap: .5rem;
+		.cdx-button:enabled {
+			background: #5f7470 linear-gradient(180deg,#778985,#5f7470) repeat-x;
+			color: var(--color-inverted-fixed,#fff);
+			border-color: #5f7470;
+		}
+		.cdx-button:enabled:hover {
+			background-color: #4e5f5c;
+			background: #4e5f5c linear-gradient(180deg,#687774,#4e5f5c) repeat-x;
+			border-color: #5f7470;
+		}
+		.cdx-button:enabled:focus:not(:active) {
+			background-color: #5f7470;
+			border-color:#a1ddc6;
+			box-shadow: inset 0 0 0 1px #a1ddc6;
+		}
+	}
 }
-.annotator-sidebar .submit-form-button-container {
-	display:flex;
-	flex-direction: row;
-	margin-bottom:1rem;
-	justify-content: flex-end;
-	gap: .5rem;
-}
-.annotator-sidebar .submit-form-button-container .cdx-button {
-	background-color: #5f7470;
-	color:#FFF;
-}
-.annotator-sidebar .submit-form-button-container .cdx-button:hover {
-	background: #4e5f5c linear-gradient(180deg,#687774,#4e5f5c) repeat-x;
-}
-.annotator-sidebar .submit-form-button-container .cdx-button:enabled:focus:not(:active) {
-	border-color:#a1ddc6;
-	box-shadow: inset 0 0 0 1px #a1ddc6;
-}
+
 .annot-placeholder-text {
 	font-size:.8rem;
 }
-.cdx-icon.annot-status {
-	display:inline;
-	-webkit-animation: fadeInOut 2.5s linear forwards;
-    animation: fadeInOut 2.5s linear forwards;
+
+.cdx-icon {
+	&.annot-status {
+		display: inline;
+		-webkit-animation: fadeInOut 2.5s linear forwards;
+		animation: fadeInOut 2.5s linear forwards;
+	}
+	&.annot-success {
+		color:#69B33F;	
+	}
+	&.annot-fail {
+		color:#dd3243;
+	}
+	&.annot-nochange {
+		color:grey;
+	}
 }
-.cdx-icon.annot-success {
-	color:#69B33F;	
-}
-.cdx-icon.annot-fail {
-	color:#dd3243;
-}
-.cdx-icon.annot-nochange {
-	color:grey;
-}
+
 @keyframes fadeInOut {
 	0%,100% { opacity: 0; }
 	20%,80% { opacity: 1; }

@@ -86,7 +86,7 @@ module.exports = defineComponent({
 });
 </script>
 
-<style>
+<style lang="less">
 ul.cdx-menu {
 	margin-left: 0 !important;
 }
@@ -94,31 +94,36 @@ ul.cdx-menu {
 .ql-container {
 	font-family: inherit;
 }
+
+.ql-toolbar.ql-snow {
+	font-family: inherit;
+	padding: 4px 8px;
+}
+
 .ql-editor {
 	border-color: #a2a9b1;
 	box-shadow: inset 0 0 0 2px transparent;
 	transition-property: background-color, color, border-color, box-shadow;
 	transition-duration: 0.25s;
-}
-.ql-editor:hover {
-	border-color: #72777d;
-}
-.ql-editor:focus {
-	border-color: #36c;
-	box-shadow: inset 0 0 0 2px #36c;
-	outline: 1px solid transparent;
-}
-
-.ql-editor ol,
-.ql-editor ul {
-	padding-left: 0;
-	margin-bottom: 0.5rem !important;
-}
-.ql-editor ul > li::before {
-	content: none;
-}
-.ql-editor ol li:not(.ql-direction-rtl),
-.ql-editor ul li:not(.ql-direction-rtl) {
-	padding-left: 0.5em;
+	// Match Codex padding for text inputs
+	padding: 8px;
+	&:hover {
+		border-color: #72777d;
+	}
+	&:focus {
+		border-color: #36c;
+		box-shadow: inset 0 0 0 2px #36c;
+		outline: 1px solid transparent;
+	}
+	ol, ul {
+		padding-left: 0;
+		margin-bottom: 0.5rem !important;
+		li:not(.ql-direction-rtl) {
+			padding-left: 0.5em;
+		}
+		ul > li::before {
+			content: none;
+		}
+	}
 }
 </style>
