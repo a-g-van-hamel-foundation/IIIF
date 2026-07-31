@@ -6,7 +6,7 @@
 			ref="annotationToggle"
 			class="toggle-annotate"
 			v-model="doAnnotate"
-			aria-label="Toggle annotation tool"
+			:aria-label="messages.toggleDraw"
 			@update:model-value="onAnnotationUpdate"
 		>
 			<cdx-icon :icon="cdxIconHighlight"></cdx-icon>
@@ -15,8 +15,16 @@
 
 	<cdx-button
 		class="osd-viewer-rotation"
+		value="rotateLeft"
+		:aria-label="messages.rotateAntiClockwise"
+		@click="onClickRotationAntiClockwise">
+		<cdx-icon :icon="cdxIconReload" class="icon-flip-hor"></cdx-icon>
+	</cdx-button>
+
+	<cdx-button
+		class="osd-viewer-rotation"
 		value="rotateRight"
-		aria-label="Rotate clockwise"
+		:aria-label="messages.rotateClockwise"
 		@click="onClickRotation">
 		<cdx-icon :icon="cdxIconReload"></cdx-icon>
 	</cdx-button>
@@ -24,12 +32,13 @@
 	<cdx-toggle-button
 		class="osd-viewer-other-toggle"
 		value="show"
-		aria-label="Show"
+		:aria-label="messages.showImageFilters"
 		v-model="toggleImageFilters"
 		@update:model-value="onToggleImageFilters"
 	>
 		<cdx-icon :icon="cdxIconImage"></cdx-icon>
 	</cdx-toggle-button>
+
 	<div :class="dropdownClass">
 		<div class="anno-field">
 			<label>{{ $i18n( "iiif-annotator-osdviewertools-brightness" ).text() }}</label>
@@ -70,7 +79,7 @@
 		<cdx-button
 			class="osd-viewer-filter-reset"
 			value="reset"
-			aria-label="Reset filters"
+			:aria-label="messages.resetImageFilters"
 			@click="onClickResetFilters">
 			{{ $i18n( "iiif-annotator-osdviewertools-resetfilters" ).text() }}
 		</cdx-button>
@@ -80,7 +89,7 @@
 		ref="fullscreenToggle"
 		class="toggle-fullscreen"
 		v-model="toggleFullscreen"
-		aria-label="Toggle fullscreen mode"
+		:aria-label="messages.toggleFullscreenMode"
 		@update:model-value="onFullScreenChange"
 	>
 		<template v-if="!toggleFullscreen">
@@ -143,6 +152,15 @@ module.exports = defineComponent( {
 			// console.log( 'update:modelValue event emitted with value: ' + value );
 		}
 
+		const messages = ref({
+			toggleDraw: "Toggle annotation tool",
+			rotateAntiClockwise: "Rotate anti-clockwise",
+			rotateClockwise: "Rotate clockwise",
+			showImageFilters: "Show",
+			resetImageFilters: "Reset filters",
+			toggleFullscreenMode: "Toggle fullscreen mode"
+		});
+
 		// Fullscreen mode
 		const toggleFullscreen = ref( false );
 		const onFullScreenChange = function(value) {
@@ -158,14 +176,19 @@ module.exports = defineComponent( {
 		// Rotation
 		var newRotation = ref( props.rotation );
 		function onClickRotation(value) {
-			var newRotation = props.rotation = props.rotation + 90;
+			var newRotation = props.rotation = props.rotation + 45;
 		}
 
-		// Button group
+		function onClickRotationAntiClockwise(value) {
+			var newRotation = props.rotation = props.rotation - 45;
+		}
+
+		// Button group - now unused
 		var buttons = [
 			{ value: "rotateRight", label: null, icon: cdxIconReload, ariaLabel: "Rotate clockwise" }
 			//, { value: "fullScreen", label: null, icon: cdxIconFullScreen, ariaLabel: "Open viewer in full screen mode" }
 		];
+
 		function onClickButtons( value ) {
 			switch( value ) {
 				case "rotateRight":
@@ -220,11 +243,15 @@ module.exports = defineComponent( {
 		return {
 			doAnnotate,
 			onAnnotationUpdate,
+
+			messages,
+
 			toggleFullscreen,
 			onFullScreenChange,
 			newRotation,
 			buttons,
 			onClickButtons,
+			onClickRotationAntiClockwise,
 			onClickRotation,
 			// 4
 			toggleImageFilters,
@@ -276,4 +303,14 @@ module.exports = defineComponent( {
 	z-index: 1;
 	padding:.9em;
 }
+
+.icon-flip-hor {
+	-webkit-transform: scaleX(-1);
+	-moz-transform: scaleX(-1);
+	-o-transform: scaleX(-1);
+	transform: scaleX(-1);
+	filter: FlipH;
+	-ms-filter: "FlipH";
+}
+
 </style>
