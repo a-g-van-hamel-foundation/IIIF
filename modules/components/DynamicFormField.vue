@@ -51,11 +51,11 @@
 			<input 
 				type="hidden"
 				:name="name"
-				:value="selection"
+				:value="selectedItem"
 			></input>
 			<cdx-select
-				v-model:selected="selection"
-				@update:selected="updateSelected"
+				:selected="selectedItem"
+				@update:selected="updateSelectedItem"
 				:menu-items="menuItems || []"
 				default-label="Select"
 				:placeholder="placeholder"
@@ -165,13 +165,13 @@ module.exports = defineComponent( {
 	},
 	watch: {
 		selection: function(n,o) {
-			//this.debugLog("DFF, selection changed", n );
+			this.debugLog("DFF, selection watched is now", n );
 		},
 		selections: function(n,o) {
-			this.debugLog( "DFF, selections watched", n );
+			this.debugLog( "DFF, selections watched is now", n );
 		},
 		inputValue: function(n,o) {
-			//this.debugLog("DFF, inputValue changed", n );
+			this.debugLog("DFF, inputValue watched is now", n );
 		}
 	},
 	// @todo emits: [ 'emit-update-value' ],
@@ -183,6 +183,8 @@ module.exports = defineComponent( {
 			get() { return props.inputValue },
       		set(val) { emit('update:inputValue', val) }
 		});
+		// selectedItem may eventually replace selection
+		const selectedItem = ref( props.inputValue ?? null );
 		// Multiselect:
 		const selections = ref( [] );
 		/*
@@ -216,12 +218,13 @@ module.exports = defineComponent( {
 			} else if( n != null ) {
 				selection.value = [ n ];
 			}
-			emit( "emit-update-value", n );
+			// emit( "emit-update-value", n );
 		}
 
-		function updateSelected(n) {
-			debugLog('DFF, updateSelected', n);
-			emit('emit-update-value', n );
+		function updateSelectedItem(n) {
+			debugLog('DFF, updateSelectedItem', n);
+			selectedItem.value = n;
+			emit('update:inputValue', n);
 		}
 
 		function updateValue(n) {
@@ -243,10 +246,10 @@ module.exports = defineComponent( {
 				menuItemsSelected.value = [];
 			}
 		}
-		// Similar to updateSelected
+		// Similar to updateSelectedItem
 		function onMultiselectUpdateSelected(n) {
 			debugLog( 'DFF (multiselect), current selections:', n.join( ', ' ) );
-			emit( "emit-update-value", n );
+			//emit( "emit-update-value", n );
 		}
 
 		// Dev only
@@ -257,10 +260,11 @@ module.exports = defineComponent( {
 		return {
 			emit,
 			selection,
+			selectedItem,
 			selections,
 			updateValue,
 			updateLookupValue,
-			updateSelected,
+			updateSelectedItem,
 			menuItems,
 
 			menuItemsSelected,
@@ -275,27 +279,31 @@ module.exports = defineComponent( {
 });
 </script>
 
-<style>
+<style lang="less">
+.cdx-select-vue__handle {
+	// Keep things in the middle
+	line-height: inherit;
+}
+
 .form-field,
 .anno-field {
 	margin-bottom: .5rem;
-}
-.form-field label,
-.anno-field label {
-	font-size: .9rem;
-	margin-bottom: 0.4rem;
-	font-variant: all-small-caps;
+	label {
+		font-size: .9rem;
+		margin-bottom: 0.4rem;
+		font-variant: all-small-caps;
+	}
 }
 
 .form-field-horizontal {
 	display:flex;
 	gap: .5rem;
 	margin-bottom: 0.5rem;
-}
-.form-field-horizontal label {
-	width: 5rem;
-	font-size: .9rem;
-	font-variant: all-small-caps;
+	label {
+		width: 5rem;
+		font-size: .9rem;
+		font-variant: all-small-caps;
+	}
 }
 .form-field-horizontal > div {
 	width: 100%;
