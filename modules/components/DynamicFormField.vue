@@ -280,9 +280,29 @@ module.exports = defineComponent( {
 </script>
 
 <style lang="less">
-.cdx-select-vue__handle {
-	// Keep things in the middle
-	line-height: inherit;
+.anno-field {
+	.cdx-select {
+		min-width: 150px;
+		width: 100%;
+	}
+	.cdx-select-vue__handle {
+		// Keep things in the middle
+		line-height: inherit;
+	}
+	.ace_editor {
+		border: 1px solid #a2a9b1;
+		box-shadow: inset 0 0 0 5px transparent;
+		transition-property: background-color,color,border-color,box-shadow;
+		transition-duration: .25s;
+		&.ace_focus {
+			border: 1px solid #36c;
+			box-shadow: inset 0 0 0 5px #36c;
+			outline: 1px solid transparent;
+		}
+	}
+	.ace_scroller {
+		padding: 8px 4px;
+	}
 }
 
 .form-field,
@@ -304,29 +324,25 @@ module.exports = defineComponent( {
 		font-size: .9rem;
 		font-variant: all-small-caps;
 	}
-}
-.form-field-horizontal > div {
-	width: 100%;
+	& > div {
+		width: 100%;
+	}
 }
 
 .form-field-compact {
 	display: inline-flex;
 	margin-bottom: .5rem;
-}
-.form-field-compact label {
-	margin-right: .5rem;
-	font-size: .9rem;
-	font-variant: all-small-caps;
-}
-.form-field-compact .cdx-text-input {
-	min-width:4rem;
-}
-.form-field-compact input {
-	width: 5rem;
+	label {
+		margin-right: .5rem;
+		font-size: .9rem;
+		font-variant: all-small-caps;
+	}
+	.cdx-text-input {
+		min-width:4rem;
+	}
+	input {
+		width: 5rem;
+	}
 }
 
-.cdx-select {
-	min-width: 150px;
-	width: 100%;
-}
 </style>
