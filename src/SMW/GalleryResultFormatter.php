@@ -2,7 +2,7 @@
 
 namespace IIIF\SMW;
 
-//use MediaWiki\MediaWikiServices;
+use MediaWiki\Html\Html;
 use SMW\Query\QueryResult;
 use SMW\Query\ResultPrinters\ResultPrinter;
 use IIIF\IIIFUtils;
@@ -23,11 +23,10 @@ class GalleryResultFormatter extends ResultPrinter {
 	}
 
 	/**
-	 * Supersedes getParameters
 	 * @see IResultPrinter::getParamDefinitions
 	 * @return array
 	 */
-	public function getParamDefinitions( array $definitions ) {
+	public function getParamDefinitions( array $definitions ): array {
 		// Default params
 		$definitions = parent::getParamDefinitions( $definitions );
 
@@ -54,15 +53,15 @@ class GalleryResultFormatter extends ResultPrinter {
 			"message" => "iiif-printer-iiif-annotation-gallery-paramdesc-template",
 			"default" => null
 		];
-		return array_merge( $definitions, $this->getParameters() );
+		return $definitions;
 	}
 
-	public function isDeferrable() {
+	public function isDeferrable(): bool {
 		// @todo Make sure "ext.iiif.styles" gets loaded, too
 		return true;
 	}
 
-	public function getResources() {
+	protected function getResources(): array {
 		return [
 			"modules" => [ "ext.iiif.resultformat.annotationgallery" ],
 			"styles" => [ "ext.iiif.styles" ]
@@ -98,7 +97,7 @@ class GalleryResultFormatter extends ResultPrinter {
 			$furtherResults = $SMWInfolink->getText( SMW_OUTPUT_HTML, null );
 		}
 
-		$html = \Html::rawElement(
+		$html = Html::rawElement(
 			"div",
 			[
 				"class" => "iiif-annotation-gallery",
@@ -112,7 +111,7 @@ class GalleryResultFormatter extends ResultPrinter {
 		);
 
 		$this->isHTML = true;
-		return \Html::rawElement( "div", [ "class" => "iiif-annotation-gallery--wrapper" ], $html . $furtherResults );
+		return Html::rawElement( "div", [ "class" => "iiif-annotation-gallery--wrapper" ], $html . $furtherResults );
 	}
 
 }

@@ -7,8 +7,6 @@
 
 namespace IIIF\SMW;
 
-//use MediaWiki\MediaWikiServices;
-//use MediaWiki\Title\Title;
 use MediaWiki\Html\Html;
 use SMW\Query\QueryResult;
 use SMW\Query\ResultPrinters\ResultPrinter;
@@ -33,11 +31,10 @@ class CanvasViewerResultFormatter extends ResultPrinter {
 	}
 
 	/**
-	 * Supersedes getParameters
 	 * @see IResultPrinter::getParamDefinitions
 	 * @return array
 	 */
-	public function getParamDefinitions( array $definitions ) {
+	public function getParamDefinitions( array $definitions ): array {
 		$definitions = parent::getParamDefinitions( $definitions );
 
 		$definitions[] = [
@@ -46,10 +43,10 @@ class CanvasViewerResultFormatter extends ResultPrinter {
 			"default" => null
 		];
 
-		return array_merge( $definitions, $this->getParameters() );
+		return $definitions;
 	}
 
-	public function getResources() {
+	protected function getResources(): array {
 		return [
 			"modules" => [ "ext.iiif.resultformat.canvasviewer" ],
 			"styles" => [ "ext.iiif.styles" ]
