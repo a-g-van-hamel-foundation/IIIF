@@ -24,6 +24,7 @@ Once the extension has been installed, a detailed guide to configuration and usa
 - https://codecs.vanhamel.nl/Show:Lab/IIIF (not updated in a while)
 
 ## Changelog
+- Forthcoming - Updated result formats for SMW 7. Fixed typo in documentation: `$wgIIIFv2QueryArg` and `$wgIIIFv3QueryArg` use at signs, not ampersands. Added `targetid` parameter to `#iiif-annotator` as an alternative to `target`. Added documentation for `#iiif-annotator` in TemplateData's preferred format (per [T54607](https://phabricator.wikimedia.org/T54607)).
 - 1.3 (August 2026) - Relatively minor release. Fixed recent regressions in the `iiif-collection` API module and 'select' input. Modified image rotation feature. Adjusted styling. Code improvements.
 - 1.2 (July 2026) - Automatic page creation for non-existing target pages in the annotation tool and TOC creator. Support for editing main slots without WSSlots. Fixes to text editor inputs. Improved support for special properties in iiif-annotations API module (with thanks to @guergana). Updated documentation. Added further edit tags. AnnotatorInterface methods converted from Options API to Composition API. Misc. code improvements.
 - 1.1.1 (June 2026). Minor release to improve compatibility. Removed hard dependency on SESP extension. Repaired broken links in documentation. Added config option `$wgIIIFAPIValueSep` (default: semi-colon) to allow admin to set an alternative value separator for file names in the `iiif-mw-pres` API module should the server somehow treat a semi-colon as a URL parameter delimiter.
