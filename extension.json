@@ -366,11 +366,11 @@
 	"config": {
 		"IIIFv3QueryArg": {
 			"value": "[[Class::Object items]] [[Is item in object::@]] [[Has target URI::+]]",
-			"description": "The SMW query argument to be used by the IIIF manifest API (v3), which queries for all annotations. Use an ampersand as placeholder for the resource page."
+			"description": "The SMW query argument to be used by the IIIF manifest API (v3), which queries for all annotations. Use an at sign as placeholder for the resource page."
 		},
 		"IIIFv2QueryArg": {
 			"value": "[[Class::Object items]] [[Has target URI::@]]",
-			"description": "The SMW query argument to be used by the IIIF manifest API (v2), which queries for annotations for the canvas only. Use an ampersand as placeholder for the canvas ID."
+			"description": "The SMW query argument to be used by the IIIF manifest API (v2), which queries for annotations for the canvas only. Use an at sign as placeholder for the canvas ID."
 		},
 		"IIIFAnnotTextProp": {
 			"value": "Has resource comments",

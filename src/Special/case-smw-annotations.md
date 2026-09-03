@@ -31,8 +31,8 @@ The relevant config variables as are as follows :
 
 | Local settings (PHP) | Schema (JSON) | Description<br> |
 | ------------- | ------------- | ------------- |
-| `$wgIIIFv3QueryArg` | `IIIFv3QueryArg` > `value` | The query condition to be used for the IIIF manifest API v3, which queries for all annotations. Use an ampersand as placeholder for the resource page. |
-| `$wgIIIFv2QueryArg` | `IIIFv2QueryArg` > `value` | The query condition to be used for the IIIF manifest API v2, which queries for annotations for the canvas only. Use an ampersand as placeholder for the canvas ID |
+| `$wgIIIFv3QueryArg` | `IIIFv3QueryArg` > `value` | The query condition to be used for the IIIF manifest API v3, which queries for all annotations. Use an at sign (`@`) as placeholder for the resource page. |
+| `$wgIIIFv2QueryArg` | `IIIFv2QueryArg` > `value` | The query condition to be used for the IIIF manifest API v2, which queries for annotations for the canvas only. Use an at sign (`@`) as placeholder for the canvas ID |
 | `$wgIIIFAnnotTextProp` | `IIIFAnnotTextProp` > `value` | The property used to provide the text of the annotation. |
 | `$wgIIIFAnnotTargetProp` | `IIIFAnnotTargetProp` > `value` | The property that links annotations to the canvas URI (corresponding to 'target' in v3, 'on' in v2). |
 | `$wgIIIFAnnotSortProp` | `IIIFAnnotSortProp` > `value` | The property or properties used to sort multiple annotations. Use a comma to separate multiple properties. |
