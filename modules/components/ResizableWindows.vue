@@ -1,6 +1,6 @@
 <template>
 
-	<div v-if="isEnabled" :class="layoutClass" :style="wrapperStyle">
+	<div v-if="isEnabled" :class="layoutClass + ' ' + viewportClass" :style="wrapperStyle">
 		<div class="resizable-container">
 			<div
 				class="resizer-handle"
@@ -31,13 +31,14 @@
 </template>
 
 <script>
-const { defineComponent, computed, ref } = require("vue");
+const { defineComponent, computed, ref, watch } = require("vue");
 
 module.exports = defineComponent( {
 	name: "ResizableWindows",
 	props: {
 		isEnabled: { type: Boolean, default: true },
-		wrapperClass: { type: String, default: "resizable-layout--fixed"},
+		wrapperClass: { type: String, default: "resizable-layout"},
+		fullViewportMode: { type: Boolean, default: false },
 		wrapperStyle: { type: String, default: "" },
 		resizerWidth: { type: Number, default: 10 },
 		initWidthLeft: { type: String, default: "50%" },
@@ -93,11 +94,18 @@ module.exports = defineComponent( {
 			document.addEventListener( "pointerup", stopDragHandle );
 		}
 
+		const viewportClass = ref( '' );
+		watch(() => props.fullViewportMode, (n) => {
+			document.body.classList.toggle( 'full-viewport-mode', n );
+			viewportClass.value = n ? 'workspace--full-viewport' : '';
+		});
+
 		return {
 			layoutClass,
 			handleStyle,
 			gridStyle,
-			onHandlePointerdown
+			onHandlePointerdown,
+			viewportClass
 		}
 	}
 } );
@@ -107,20 +115,34 @@ module.exports = defineComponent( {
 <style>
 .resizable-layout {
 	width: 100%;
-	height: 100%;
+	height: 100dvh;
 	box-sizing: border-box;
+	background-color:#edfaf5;
 }
 .resizable-layout--fixed {
 	position: fixed;
 	top: 0;
 	left: 0;
 	width: 100%;
-	height: 100vh;
-	z-index: 5;
+	height: 100dvh;
+	z-index: 10;
 	box-sizing: border-box;
 	background-color:#edfaf5;
 }
 
+/* Viewport */
+.workspace--full-viewport {
+	position: fixed;
+	inset: 0;
+	width: 100%;
+	height: 100dvh;
+	z-index: 10;
+}
+.full-viewport-mode {
+	overflow: hidden;
+}
+
+/* Container and grid */
 .resizable-container {
 	position:relative;
 	width: 100%;
@@ -144,6 +166,7 @@ module.exports = defineComponent( {
 	box-sizing: border-box;
 }
 
+/* Handle */
 .resizer-handle {
 	position: absolute;
 	top: 0;
@@ -160,4 +183,5 @@ module.exports = defineComponent( {
 .resizer-handle:hover {
 	background-color: #6c6c6c;
 }
+
 </style>

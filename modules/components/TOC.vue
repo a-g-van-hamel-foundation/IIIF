@@ -2,6 +2,7 @@
 
 	<resizable-windows
 		:wrapper-class="wrapperClass"
+		:full-viewport-mode="fullViewportMode"
 		:wrapper-style="wrapperStyle"
 		:resizer-width="10"
 		:is-enabled="isResizableWindowsEnabled"
@@ -27,7 +28,23 @@
 						<cdx-icon :icon="cdxIconCheck" class="iiif-edit-success"></cdx-icon>
 					</div>
 					<div v-if="iconStatus == 'fail' "><span class="iiif-edit-fail">Failed</span></div>
-					<cdx-button @click="checkAndEditTargetPage(targetSlot, list1)">Save</cdx-button>
+					<cdx-button
+						@click="checkAndEditTargetPage(targetSlot, list1)"
+						action="progressive"
+						weight="primary"
+					>Save</cdx-button>
+
+					<cdx-button
+						@click="toggleViewportMode()"
+						weight="quiet"
+					>
+						<template v-if="!fullViewportMode">
+							<cdx-icon :icon="cdxIconFullScreen" title="Enter full viewport"></cdx-icon>
+						</template>
+						<template v-else>
+							<cdx-icon :icon="cdxIconExitFullscreen" title="Leave full viewport"></cdx-icon>
+						</template>
+					</cdx-button>
 				</div>
 
 				<div class="iiif-toc-lists">
@@ -68,7 +85,8 @@
 											</span>
 											<details class="toc-item-close">
 												<summary>
-													<cdx-icon :icon="cdxIconClose" class="cdx-icon-warning" title="Remove item"></cdx-icon> </summary>
+													<cdx-icon :icon="cdxIconClose" class="cdx-icon-warning" title="Remove item"></cdx-icon>
+												</summary>
 												<button @click="handleRemove(index, item.id)"
 													class="cdx-button cdx-button--action-destructive cdx-button--size-small" aria-label="Remove this item"
 													>Remove?
@@ -139,7 +157,7 @@ const TOCForm = require( "./TOCForm.vue" );
 const Tify = require( "./Tify.vue" );
 const ResizableWindows = require( "./ResizableWindows.vue" );
 const { CdxButton, CdxMenuButton, CdxIcon, CdxTextInput } = require( "@wikimedia/codex" );
-const { cdxIconAdd, cdxIconTableAddRowAfter, cdxIconClose, cdxIconTrash, cdxIconDraggable, cdxIconExpand, cdxIconCollapse, cdxIconEllipsis, cdxIconCheck, cdxIconNewWindow, cdxIconCopy } = require( './icons.json' );
+const { cdxIconAdd, cdxIconTableAddRowAfter, cdxIconClose, cdxIconTrash, cdxIconDraggable, cdxIconExpand, cdxIconCollapse, cdxIconEllipsis, cdxIconCheck, cdxIconNewWindow, cdxIconFullScreen, cdxIconExitFullscreen, cdxIconCopy } = require( './icons.json' );
 
 module.exports = defineComponent( {
 	name: "TOC",
@@ -405,6 +423,11 @@ module.exports = defineComponent( {
 		const wrapperStyle = ref( props.configData?.wrapperStyle ?? undefined );
 		const iiifViewer = ref( props.configData?.iiifViewer ?? undefined );
 
+		const fullViewportMode = ref(false);
+		function toggleViewportMode() {
+			fullViewportMode.value = !fullViewportMode.value;
+		}
+
 		function debugLog(msg, res) {
 			//console.log( "TOCForm: " + msg, res || "" );
 		}
@@ -435,17 +458,23 @@ module.exports = defineComponent( {
 			isResizableWindowsEnabled,
 			wrapperClass,
 			wrapperStyle,
-			cdxIconClose,
-			cdxIconTrash,
+
 			cdxIconAdd,
-			cdxIconTableAddRowAfter,
-			cdxIconDraggable,
-			cdxIconExpand,
-			cdxIconCollapse,
-			cdxIconEllipsis,
 			cdxIconCheck,
-			cdxIconNewWindow,
+			cdxIconClose,
+			cdxIconCollapse,
 			cdxIconCopy,
+			cdxIconDraggable,
+			cdxIconEllipsis,
+			cdxIconExpand,
+			cdxIconExitFullscreen,
+			cdxIconFullScreen,
+			cdxIconNewWindow,
+			cdxIconTableAddRowAfter,
+			cdxIconTrash,
+
+			fullViewportMode,
+			toggleViewportMode,
 
 			debugLog
 		}
