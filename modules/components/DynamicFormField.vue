@@ -83,6 +83,7 @@
 				:show-value="showValue"
 				:api-type="apiType"
 				:api-url="apiUrl"
+				:allow-tags="allowTags"
 				:options="menuItems"
 				:custom-options="customOptions"
 				@emit-lookup-value="updateLookupValue"
@@ -157,6 +158,7 @@ module.exports = defineComponent( {
 		showValue: { type: Boolean, default: false },
 		apiType: { type: String, default: "wikibase" },
 		apiUrl: { type: String, default: "https://www.wikidata.org/w/api.php" },
+		allowTags: { type: Boolean, default: false },
 		placeholder: { type: String, default: "" },
 		options: { type: Array, default: [] },
 		defaultValue: { type: String, default: "" },
@@ -164,25 +166,25 @@ module.exports = defineComponent( {
 		customOptions: { type: Object, default: {} }
 	},
 	watch: {
-		selection: function(n,o) {
+		selection: function( n, o ) {
 			this.debugLog("DFF, selection watched is now", n );
 		},
-		selections: function(n,o) {
-			this.debugLog( "DFF, selections watched is now", n );
+		selections: function( n, o ) {
+			this.debugLog( "DFF, selections watched are now", n );
 		},
-		inputValue: function(n,o) {
+		inputValue: function( n, o ) {
 			this.debugLog("DFF, inputValue watched is now", n );
 		}
 	},
 	// @todo emits: [ 'emit-update-value' ],
 	emits: ['update:inputValue'],
-	setup(props, { emit }) {
+	setup( props, { emit } ) {
 		// const selection = ref( props.inputValue || null );
 		// proxy for props.inputValue
-		const selection = computed({
+		const selection = computed( {
 			get() { return props.inputValue },
-      		set(val) { emit('update:inputValue', val) }
-		});
+      		set( val ) { emit('update:inputValue', val) }
+		} );
 		// selectedItem may eventually replace selection
 		const selectedItem = ref( props.inputValue ?? null );
 		// Multiselect:
@@ -207,11 +209,11 @@ module.exports = defineComponent( {
 		*/
 
 		// 'lookup'
-		function updateLookupValue(n) {
-			debugLog("DFF, updateLookupValue: ",n );
-			debugLog("DFF, updateLookupValue, current selection: ", selection.value );
-			if ( Array.isArray(selection.value) && n != null ) {
-				const alreadyExists = selection.value.some(item => item.value === n.value);
+		function updateLookupValue( n ) {
+			debugLog( "DFF, updateLookupValue: ",n );
+			debugLog( "DFF, updateLookupValue, current selection: ", selection.value );
+			if ( Array.isArray( selection.value ) && n != null ) {
+				const alreadyExists = selection.value.some( item => item.value === n.value );
 				if ( !alreadyExists ) {
 					selection.value = [ ...selection.value, n ];
 				}
@@ -221,24 +223,24 @@ module.exports = defineComponent( {
 			// emit( "emit-update-value", n );
 		}
 
-		function updateSelectedItem(n) {
+		function updateSelectedItem( n ) {
 			debugLog('DFF, updateSelectedItem', n);
 			selectedItem.value = n;
 			emit('update:inputValue', n);
 		}
 
-		function updateValue(n) {
-			debugLog("DFF, updateValue: ",n);
-			emit('update:inputValue', n);
+		function updateValue( n ) {
+			debugLog( "DFF, updateValue: ", n );
+			emit( 'update:inputValue', n );
 		}
 
 		// Multiselect
-		const multiselectChips = ref( [] );
+		const multiselectChips = ref( [ ] );
 		const multiselectConfig = {
 			boldLabel: false,
 			visibleItemLimit: 6
 		};
-		const menuItemsSelected = ref( [] );
+		const menuItemsSelected = ref( [ ] );
 		function onMultiselectInput( value ) {
 			if ( value ) {
 				menuItemsSelected.value = menuItems.value.filter( ( item ) => item.label.includes( value ) );
@@ -249,7 +251,7 @@ module.exports = defineComponent( {
 		// Similar to updateSelectedItem
 		function onMultiselectUpdateSelected(n) {
 			debugLog( 'DFF (multiselect), current selections:', n.join( ', ' ) );
-			//emit( "emit-update-value", n );
+			// emit( "emit-update-value", n );
 		}
 
 		// Dev only
@@ -344,5 +346,4 @@ module.exports = defineComponent( {
 		width: 5rem;
 	}
 }
-
 </style>

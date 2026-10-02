@@ -9,7 +9,7 @@
 						:name="name"
 						:value="item.value"
 					></input>
-					<button class="dismiss no-drag" @mousedown.stop @click.prevent="handleDismissChip(item)">✕</button>
+					<button class="dismiss no-drag" @mousedown.stop @click.prevent="handleDismissChip( item )">✕</button>
 				</div>
 			</template>
 		</div>
@@ -45,7 +45,7 @@ module.exports = defineComponent( {
 	props: {
 		name: { type: String },
 		placeholder: { type: String, default: "" },
-		selected: { type: [Array,String], default: [] },
+		selected: { type: [ Array, String ], default: [] },
 		// Not implemented
 		//defaultItems: { type: [String, Array ], default: [] },
 		multiple: { type: Boolean, default: false },
@@ -56,34 +56,35 @@ module.exports = defineComponent( {
 		apiUrl: { type: String, default: null },
 		// ...or options
 		options: { type: Array, default: [] },
+		allowTags: { type: Boolean, default: false },
 		customOptions: { type: Object, default: {} }
 	},
 	watch: {
 		selectedItems: {
-			handler(n,o) {
+			handler( n, o ) {
 				this.debugLog( "FieldLookup, selectedItems", n );
 				// @todo these nulls should not happen but may be caused somewhere else
-				let filtered = n.filter((t) => t.value != null );
-				this.$emit('update:selected', filtered.map(item => item.value ) );
+				let filtered = n.filter( ( t ) => t.value != null );
+				this.$emit('update:selected', filtered.map( item => item.value ) );
     		},
 			// Important!
 			deep: true
   		},
-		//defaultItems: function(n,o) {
+		//defaultItems: function( n,o ) {
 			//debugLog( "defaultItems has changed",n);
 			//this.selectedItems = n;
 		//},
-		selected: function(n,o) {
+		selected: function( n, o ) {
 			//debugLog( "FieldLookup, selected: previous values", o );
 			//debugLog( "FieldLookup, selected: new value", n );
 		},
 		currentSelection: {
-			handler(n,o) {
+			handler( n, o ) {
 				this.$emit( "emit-lookup-value", n );
 				if ( n == "" || n == null ) {
 					if ( this.apiType == "reconciliation" ) {
 						// re-populate menu with initial suggestions
-						this.fetchAPIResultsAndSetMenu("");
+						this.fetchAPIResultsAndSetMenu( "" );
 					}
 					//return;
 				}				
@@ -95,24 +96,26 @@ module.exports = defineComponent( {
 			},
 			deep: true
 		},
-		menuItems: function(n,o) {
+		menuItems: function( n, o ) {
 			// debugLog( "menuItems changed to", n );
 		}
 	},
 	emits: ['update:selected'],
-	setup(props, {emit} ) {
+	setup( props, {emit} ) {
 		const dragKey = ref(0);
 
 		// Data
 		const dataSourceType = props.apiType != null ? "api" : "options";
 		// selectedItems: array of objects in the format
 		// [ { label: ..., value: ... },{ label: ..., value: ... } ]
-		const selectedItems = ref( [] );
+		const selectedItems = ref( [ ] );
 		// @dev try this instead in the event of out-of-sync issues
-		// const validSelectedItems = computed(() => selectedItems.value.filter(item => item?.value));
-
+		// const validSelectedItems = computed(() => selectedItems.value.filter( item => item?.value ) );
+		
+		// Allow tags for reconciliation API; options not yet implemented
+		const doAllowTags = ref( props.allowTags );
 		if ( dataSourceType == "api" ) {
-			initSetSelectedItemsForAPI( props.multiple, props.selected );
+			initSetSelectedItemsForAPI( props.selected, props.multiple );
 		} else {
 			initSetSelectedItemsForOptions( props.selected );
 		}
@@ -123,8 +126,8 @@ module.exports = defineComponent( {
 				return [];
 			}
 			const valuesOnly = [];
-			selectedItems.value.forEach( (item) => {
-				valuesOnly.push(item.value);
+			selectedItems.value.forEach( ( item ) => {
+				valuesOnly.push( item.value );
 			});
 			return valuesOnly;
 		}
@@ -144,8 +147,12 @@ module.exports = defineComponent( {
 		// mutations responsive to search term
 		const menuItems = ref( [] );
 
-		// Update selected items once labels have been fetched
-		function initSetSelectedItemsForAPI( multiple, selected ) {
+		/**
+		 * Update selected items once labels have been fetched from the API
+		 * @param {Array|String} selected - The selected items to initialize
+		 * @param {Boolean} multiple - Whether or not multiple selections are allowed
+		 */
+		function initSetSelectedItemsForAPI( selected, multiple ) {
 			if ( selected == null ) {
 				return;
 			}
@@ -155,6 +162,7 @@ module.exports = defineComponent( {
 					? [ selected ]
 					: ( selected ?? [] );
 				for ( const defaultItem of newDefaultItems ) {
+					console.log( "defaultItem", defaultItem );
 					fetchLabelAndUpdateSelectedItems( defaultItem );
 				}
 			} else {
@@ -167,6 +175,10 @@ module.exports = defineComponent( {
 			}
 		}
 
+		/**
+		 * Update selected items once labels have been fetched from options
+		 * @param {Array} selected - The selected items to initialize
+		 */
 		function initSetSelectedItemsForOptions( selected ) {
 			if ( selected == null || props.options == [] ) {
 				return;
@@ -180,7 +192,10 @@ module.exports = defineComponent( {
 					selectedItems.value = [];
 				}
 				//item
-				const found = props.options.find( (res) => res.value == item );
+				console.log( ' props.options',  props.options );
+				//var options = possiblyAddTagToResults( item, props.options, "options" );
+				var options = props.options;
+				const found = options.find( ( res ) => res.value == item );
 				debugLog( "...Found option", found );
 				addToSelectedItems( { 
 					value: item, 
@@ -189,21 +204,25 @@ module.exports = defineComponent( {
 			}
 		}
 
-		// If we switched from string to array, etc.,
-		// attempt to rescue
-		// targetFormat = multple
+		/**
+		 * Helper function to attempt to rescue a selection if the datatype
+		 * has changed, e.g. if switched from string to array
+		 * @param {String|Array} v
+		 * @param {String} targetDatatype "string" or "array"
+		 */
 		function rescueSelection( v, targetDatatype ) {
 			if ( typeof v == "string" ) {
 				return targetDatatype == "array" ? [ v ] : v;
-			} else {
-				// proper delimiter unknown
-				return targetDatatype == "string" ? v.join( ",")  : v;
 			}
-			return v;
+			// Proper delimiter unknown
+			return targetDatatype == "string" ? v.join( "," ) : v;
 		}
 
-		// Add selected items once we have retrieved 
-		// matching labels from the API
+		/**
+		 * Add selected items once we have retrieved matching labels
+		 * from the API.
+		 * @param {?String} item - The item for which to fetch a label
+		 */
 		function fetchLabelAndUpdateSelectedItems( item ) {
 			if ( item == null || item == "" ) {
 				return;
@@ -214,55 +233,76 @@ module.exports = defineComponent( {
 			}
 			//debugLog( "running fetchLabelAndUpdateSelectedItems for item", item );
 			requestAPIResults( item )
-			.then( (data) => {
-				if ( data == undefined ) {
+			.then( ( data ) => {
+				if ( data == undefined || data == null ) {
+					console.log( "No data returned from the API" );
 					// ?menuItems.value = [];
 					return;
 				}
 				if ( props.apiType == "wikibase" ) {
 					// likely the first item (data.search[0]) but look for it anyway
-					const found = data.search.find( (res) => res.id == item );
+					// @todo ? Custom tags not implemented
+					const found = data.search.find( ( res ) => res.id == item );
 					if ( props.multiple && found !== undefined ) {
 						addToSelectedItems( { value: item, label: found.label ?? item } );
-					} else if( found !== undefined ) {
-						setItem({ value: item, label: found.label ?? item });
+					} else if ( found !== undefined ) {
+						setItem( { value: item, label: found.label ?? item } );
 					} else {
 						debugLog( "Lookup could not find an item in the Wikibase database.", item  );
-						setItem({ value: item, label: item + " (?)" });
+						var affix = doAllowTags.value ? " [new tag]" : " [?]";
+						setItem( { value: item, label: item + affix } );
 					}
-				} else if( props.apiType == "reconciliation" ) {
-					const found = data.result.find( (res) => res.id == item );
+				} else if ( props.apiType == "reconciliation" ) {
+					let found = data.result.find( ( res ) => res.id == item );
+					// Accept custom tags if allowTags is true and the item is not found in the API results
+					if ( doAllowTags.value && found == undefined ) {
+						console.log("Accepting new tag", item );
+						var newDataResult = possiblyAddTagToResults( item, data.result, "api" );
+						found = newDataResult.find( ( res ) => res.id == item );
+						var label = ( found.name ?? item ) + " [new tag]";
+					} else {
+						var label = found.name ?? item;
+					}
+
 					// add (multiple) or replace
 					if ( props.multiple && found !== undefined ) {
-						addToSelectedItems( { value: item, label: found.name ?? item } );
-					} else if( found !== undefined ) {
-						setItem({ value: item, label: found.name ?? item });
+						addToSelectedItems( { value: item, label: label } );
+					} else if ( found !== undefined ) {
+						setItem( { value: item, label: label } );
 					} else {
 						debugLog( "Lookup could not find an item in the reconciliation API. Perhaps the query changed or the page was deleted?", item  );
-						setItem({ value: item, label: item + " (?)" });
+						setItem( { value: item, label: label + " [?]" });
 					}
 				}
 			});
 		}
 
-		// @todo Flesh this out! Retrieving label should not usually 
-		// follow this route
+		/**
+		 * Update the current selection label for API-based lookups. This function retrieves the label for the currently selected value from the API and updates the currentSelectionLabel accordingly. It also adds the current selection to the selectedItems array.
+		 * @todo Flesh this out! Retrieving label should not usually follow this route
+		 * @returns void
+		 */
 		function updateCurrentSelectionLabelForAPI() {
 			requestAPIResults( currentSelection.value )
 			.then( ( data ) => {
+				if ( data == undefined || data == null ) {
+					console.log( "No data returned from the API" );
+					// ?menuItems.value = [];
+					return;
+				}
 				if ( props.apiType == "wikibase" ) {
 					var dataResult = data.search;
 					var labelName = "label";
 				} else if ( props.apiType == "reconciliation" ) {
-					var dataResult = data.result;
+					var dataResult = possiblyAddTagToResults( currentSearchTerm.value, data.result, "api" );
 					var labelName = "name";
 				} else {
 					return;
 				}
-				if ( dataResult == undefined ) {
+				if ( dataResult == undefined || dataResult == null ) {
 					return;
 				}
-				const found = dataResult.find( (res) => res.id == currentSelection.value );
+				const found = dataResult.find( ( res ) => res.id == currentSelection.value );
 				if ( found != undefined && found[labelName] != undefined ) {
 					currentSelectionLabel.value = found[labelName];
 					addCurrentSelectionToSelectedItems( currentSelectionLabel.value );
@@ -273,39 +313,98 @@ module.exports = defineComponent( {
 			});
 		}
 
+		/**
+		 * If allowTags is true and the current, non-empty search term does not
+		 * already exist in the results, adds the current search term as a new
+		 * item to the top of the results.
+		 * @param {string} searchTerm - The search term to add as a tag
+		 * @param {Array} results - The current list of results
+		 * @param {string} sourceType - The source type of the results ("api" or "options")
+		 * @returns {Array} - The list of results possibly updated with the new tag
+		 */
+		function possiblyAddTagToResults( searchTerm, results, sourceType = "api" ) {
+			if ( doAllowTags.value && searchTerm != null && searchTerm != "" ) {
+				// Check if the search term is already in the results
+				const exists = results.some( result => result.id === searchTerm );
+				if ( !exists && sourceType === "api" ) {
+					results.unshift( {
+						id: searchTerm,
+						name: searchTerm,
+						match: true,
+						tag: true
+					} );
+				} else if ( !exists && sourceType === "options" ) {
+					results.unshift( {
+						value: searchTerm,
+						label: searchTerm,
+						description: "New tag",
+						tag: true
+					} );
+				}
+			}
+			return results;
+		}
+
+		/** 
+		 * Update the current selection label for options-based lookups. This function retrieves the label for the currently selected value from the options and updates the `currentSelectionLabel` accordingly.
+		 * It also adds the current selection to the `selectedItems` array.
+		 * Counterpart to updateCurrentSelectionLabelForAPI() for options-based lookups.
+		 */
 		function updateCurrentSelectionLabelForOptions() {
-			const found = props.options.find( (res) => res.value == currentSelection.value );
+			if ( currentSelection.value == null || currentSelection.value == "" ) {
+				return;
+			}
+
+			let found = props.options.find( ( res ) => res.value == currentSelection.value );
 			if ( found != undefined && found["label"] != undefined ) {
+				console.log( 'Found with label' );
 				currentSelectionLabel.value = found["label"];
 				addCurrentSelectionToSelectedItems( currentSelectionLabel.value );
+			} else if ( found == undefined && doAllowTags.value ) {
+				let options = possiblyAddTagToResults( currentSelection.value, props.options, "options" );
+				found = options.find( ( res ) => res.value == currentSelection.value );
+				currentSelectionLabel.value = found
+					? ( found["label"] + " [new tag]" )
+					: ( currentSelection.value + " [new tag]" );
+				addCurrentSelectionToSelectedItems( currentSelectionLabel.value );
+			} else {
+				debugLog( "No label retrieved for selection.value", currentSelection.value );
+				debugLog( "because options is this", props.options );
 			}
 		}
 
-		function addCurrentSelectionToSelectedItems(label) {
+		/**
+		 * Adds the current selection to the `selectedItems` array.
+		 * If multiple selections are allowed, it appends the new item;
+		 * otherwise, it replaces the existing selection. After adding it,
+		 * it resets the `currentSelection` and `currentSelectionLabel`.
+		 * @param {string} label - The label of the current selection to add
+		 */
+		function addCurrentSelectionToSelectedItems( label ) {
 			//debugLog( "FieldLookup: currentSelectionLabel changed", n );
 			if ( props.multiple ) {
 				// Adds to selectedItems
-				addToSelectedItems({ value: currentSelection.value, label: label });
+				addToSelectedItems( { value: currentSelection.value, label: label } );
 			} else {
-				selectedItems.value = [{ value: currentSelection.value, label: label }];
+				selectedItems.value = [ { value: currentSelection.value, label: label } ];
 			}
 			currentSelection.value = "";
 		}
 
-		function setItem(item) {
+		function setItem( item ) {
 			selectedItems.value = [ item ];
 		}
 
-		function addToSelectedItems(newItem) {
-			const alreadyExists = selectedItems.value.some(item => item.value === newItem.value);
+		function addToSelectedItems( newItem ) {
+			const alreadyExists = selectedItems.value.some( item => item.value === newItem.value );
 			if ( alreadyExists ) {
 				return;
 			}
-			selectedItems.value = [...selectedItems.value, newItem];
+			selectedItems.value = [ ...selectedItems.value, newItem ];
 		}
 
 		// Remove selected item
-		function handleDismissChip(item) {
+		function handleDismissChip( item ) {
 			selectedItems.value = selectedItems.value.filter(
 				t => t.value !== item.value
 			);
@@ -313,7 +412,7 @@ module.exports = defineComponent( {
 
 			// Reset to allow value being watched to be selected again? No longer needed?
 			/*
-			if( item.value === currentSelection.value ) {
+			if ( item.value === currentSelection.value ) {
 				// @todo undefined?
 				currentSelection.value = "";
 				currentSelectionLabel.value = "";
@@ -343,21 +442,21 @@ module.exports = defineComponent( {
 				//https://www.wikidata.org/w/api.php?action=wbsearchentities&origin=*&format=json&limit=10&props=url&language=en&search=certain
 				//https://www.wikidata.org/w/api.php
 				var api = props.apiUrl + `?${ params.toString() }`;
-			} else if( props.apiType == "reconciliation" && props.apiUrl.substring(0,1) == "@" ) {
+			} else if ( props.apiType == "reconciliation" && props.apiUrl.substring(0,1) == "@" ) {
 				// See #iiif-toc parser function
 				// here apiUrl is not a url but a keyed reference 
 				// to one in the customOptions object
 				var api = props.customOptions[props.apiUrl] + encodeURI( searchTerm );
-			} else if( props.apiType == "reconciliation" ) {
+			} else if ( props.apiType == "reconciliation" ) {
 				// @todo offset ?
-				const paramsLocal = new URLSearchParams({
+				const paramsLocal = new URLSearchParams( {
 					origin: '*',
 					action: 'recon-suggest-entity',
 					format: 'json',
 					formatversion: '2',
 					limit: '25',
 					substr: searchTerm
-				});
+				} );
 				//const api = "https://codecs.vanhamel.nl/api.php?action=recon-suggest-entity&format=json&source=smw&profile=69866&offset=0&limit=25&substr=" + ....
 				var api = props.apiUrl + encodeURI( searchTerm );
 			} else {
@@ -366,29 +465,33 @@ module.exports = defineComponent( {
 			return fetch( api ).then( ( response ) => response.json() );
 		}
 
-		function onFocus(e) {
+		function onFocus( e ) {
 			// If value is empty and type=options or 
 			// reconciliation, make sure that menu
 			// is populated with initial suggestions
 			// (if any - API may not return anything).
 			// List should be visible on subsequent keydown.
-			if ( ( e.target.value == "" )
-				&& ( props.apiType == "reconciliation" )
+			if ( e.target.value == "" && props.apiType == "reconciliation"
 			) {
-				fetchAPIResultsAndSetMenu("");
-			} else if( e.target.value == "" && dataSourceType == "options" ) {
-				onInputWithOptions("");
+				fetchAPIResultsAndSetMenu( "" );
+			} else if ( e.target.value == "" && dataSourceType == "options" ) {
+				onInputWithOptions( "" );
 			}
 		}
 
-		// On input, show results in dropdown menu
+		/**
+		 * On input, update the current search term and fetch results from
+		 * the appropriate source (options or API) to show results in the
+		 * dropdown menu. If the input is empty, reset the menu items.
+		 * @param value 
+		 */
 		function onInput( value ) {
 			// Internally track the current search term.
 			currentSearchTerm.value = value;
-			
+
 			// (1) Options
 			if ( dataSourceType == "options" ) {
-				onInputWithOptions(value);
+				onInputWithOptions( value );
 				return;
 			}
 			// Reset and return if we have no input
@@ -397,10 +500,18 @@ module.exports = defineComponent( {
 				return;
 			}
 			// or (2) API
-			fetchAPIResultsAndSetMenu(value);
+			fetchAPIResultsAndSetMenu( value );
 		}
 
-		function fetchAPIResultsAndSetMenu(value) {
+		/**
+		 * Fetch results from the API based on the provided `value` and update
+		 * the menu items accordingly. If the API returns no results, the menu
+		 * items will be reset to an empty array. This function also ensures that
+		 * the results are still relevant to the current search term before
+		 * updating the menu.
+		 * @param value
+		 */
+		function fetchAPIResultsAndSetMenu( value ) {
 			// Internally track the current search term.
 			currentSearchTerm.value = value;
 
@@ -420,7 +531,8 @@ module.exports = defineComponent( {
 					var dataResult = data.search;
 					var labelName = "label";
 				} else if ( props.apiType == "reconciliation" ) {
-					var dataResult = data.result;
+					//let dataResult = data.result;
+					var dataResult = possiblyAddTagToResults( currentSearchTerm.value, data.result, "api" );
 					var labelName = "name";
 				}
 				// Reset the menu items if there are no results.
@@ -432,7 +544,8 @@ module.exports = defineComponent( {
 				const newMenuRes = dataResult.map( ( res ) => ( {
 					value: res.id,
 					label: res[labelName] ?? res.id,
-					description: res.description ?? ""
+					description: res.description ?? ( res.tag ? "New tag" : "" ),
+					tag: res.tag ?? false
 				} ) );
 				// debugLog( "new menu results ",newMenuRes );
 				// Update menuItems.
@@ -444,9 +557,17 @@ module.exports = defineComponent( {
 			} );
 		}
 
-		function onInputWithOptions(value) {
+		/**
+		 * Filter the provided options based on the input value and update the
+		 * menu items accordingly. If the input value is empty, all options will
+		 * be displayed.
+		 * @param {String|null} value
+		 */
+		// onInputFilterOptions
+		function onInputWithOptions( value ) {
 			if ( value && value != "" ) {
-				menuItems.value = props.options.filter( ( item ) => item.label.includes( value ) );
+				let options = possiblyAddTagToResults( value, props.options, "options" );
+				menuItems.value = options.filter( ( item ) => item.label.includes( value ) );
 			} else {
 				menuItems.value = props.options;
 			}
@@ -473,7 +594,8 @@ module.exports = defineComponent( {
 				const results = data.search.map( ( result ) => ( {
 					label: result.label,
 					value: result.id,
-					description: result.description
+					description: result.description,
+					tag: result.tag ?? false
 				} ) );
 
 				// Update menuItems.
@@ -497,12 +619,12 @@ module.exports = defineComponent( {
 			onUpdate() {},
 			onEnd() {
 				// Force Vue to re-sync its vDOM with a fresh array reference
-				selectedItems.value = [...selectedItems.value];
+				selectedItems.value = [ ...selectedItems.value ];
 				dragKey.value++;
 			},
 			filter: 'input,form,fieldset,button,.no-drag',
 			preventOnFilter: true
-		});
+		} );
 
 		function getRandomNumber() {
 			// 7 digits
@@ -536,6 +658,9 @@ module.exports = defineComponent( {
 			addToSelectedItems,
 			deduplicateResults,
 			getRandomNumber,
+
+			doAllowTags,
+
 			debugLog
 		};
 	}

@@ -34,6 +34,7 @@
 						:show-value="field.showValue || false"
 						:api-type="field.apiType || null"
 						:api-url="field.apiUrl || null"
+						:allow-tags="field.allowTags"
 						:options="standardiseOptions(field.options) || []"
 						v-model:input-value="itemData[field.name]"
 						:default-value="field.defaultValue"
@@ -60,6 +61,7 @@
 					:show-value="field.showValue || false"
 					:api-type="field.apiType || null"
 					:api-url="field.apiUrl || null"
+					:allow-tags="field.allowTags"
 					:options="standardiseOptions(field.options) || []"
 					v-model:input-value="itemData[field.name]"
 					:default-value="field.defaultValue"
@@ -115,17 +117,18 @@ module.exports = defineComponent( {
 		const formFields = ref( {} );
 		formFields.value = props.formProfileSchema.properties;
 		// Additional field(s) on top of the profileSchema
-		debugLog( "props.canvases", props.canvases);
+		debugLog( "props.canvases", props.canvases );
 		if ( props.canvases.length !== 0 ) {
-			formFields.value = [{
+			formFields.value = [ {
 				name: "canvasids",
 				label: "IIIF canvas",
 				inputType: "lookup",
 				options: props.canvases,
 				multiple: true,
 				showValue: true,
-				required: false
-			}, ...formFields.value];
+				required: false,
+				allowTags: false
+			}, ...formFields.value ];
 		}
 		debugLog( "TOCForm, props.formProfileSchema", props.formProfileSchema );
 		debugLog( "TOCForm, formFields", formFields );
@@ -137,15 +140,15 @@ module.exports = defineComponent( {
 		if ( props.formProfileSchema.hasOwnProperty("alternatives") ) {
 			hasAlternativeForm.value = true;
 			// Going to support only one first
-			props.formProfileSchema.alternatives.forEach( (alt) => {
+			props.formProfileSchema.alternatives.forEach( ( alt ) => {
 				alternativeFormConfigs.value = [ alt, ...alternativeFormConfigs.value ];
 				alternativeFormFields.value = alt.properties;
-				alternativeFormFields.value = [{
+				alternativeFormFields.value = [ {
 						name: "Select",
 						inputType: "hidden",
 						value: selectedForm ?? "Main"
 					},
-					...alternativeFormFields.value];
+					...alternativeFormFields.value ];
 			} );
 		}
 		const isMainFormEnabled = ref( selectedForm.value == "Main" );
@@ -164,7 +167,7 @@ module.exports = defineComponent( {
 				return [];
 			}
 			const newOptions = [];
-			options.forEach( (opt, index) => {
+			options.forEach( ( opt, index ) => {
 				if ( typeof opt == "string" ) {
 					newOptions[index] = { value: opt, label: opt, }
 				} else {
@@ -175,16 +178,16 @@ module.exports = defineComponent( {
 			return newOptions;
 		}
 
-		function updateValue(n) {
+		function updateValue( n ) {
 			debugLog("TOCForm, updateValue", n );
 		}
 		// Are we still using using this?
-		function onUpdateField(payload) {
+		function onUpdateField( payload ) {
 			debugLog( "TOCForm, onUpdateField: payload", payload );
 			emit('update-field', payload.key, payload.value);
 		}
 		
-		function debugLog(msg, res) {
+		function debugLog( msg, res ) {
 			//console.log( "TOCForm: " + msg, res || "" );
 		}
 
