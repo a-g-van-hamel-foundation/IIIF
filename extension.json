@@ -300,13 +300,14 @@
 			"dependencies": [
 				"ext.iiif.toc.components",
 				"vue",
-				"vuex"
+				"pinia"
 			]
 		},
 		"ext.iiif.toc.components": {
 			"es6": true,
 			"packageFiles": [
 				"components/index-toc.js",
+				"stores/toc.js",
 				"components/TOC.vue",
 				"components/TOCForm.vue",
 				"components/ResizableWindows.vue",

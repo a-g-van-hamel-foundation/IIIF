@@ -9,7 +9,10 @@
 	>
 		<template v-slot:window1>
 			<template v-if="iiifManifest && iiifViewer == 'tify'">
-				<tify :manifest="iiifManifest" :wrapper-class="iiifViewerClass"></tify>
+				<tify
+					:manifest="iiifManifest"
+					:wrapper-class="iiifViewerClass"
+				></tify>
 			</template>
 		</template>
 
@@ -158,6 +161,8 @@ const Tify = require( "./Tify.vue" );
 const ResizableWindows = require( "./ResizableWindows.vue" );
 const { CdxButton, CdxMenuButton, CdxIcon, CdxTextInput } = require( "@wikimedia/codex" );
 const { cdxIconAdd, cdxIconTableAddRowAfter, cdxIconClose, cdxIconTrash, cdxIconDraggable, cdxIconExpand, cdxIconCollapse, cdxIconEllipsis, cdxIconCheck, cdxIconNewWindow, cdxIconFullScreen, cdxIconExitFullscreen, cdxIconCopy } = require( './icons.json' );
+const { storeToRefs } = require( "pinia" );
+const useTOCStore = require( "../stores/toc.js" );
 
 module.exports = defineComponent( {
 	name: "TOC",
@@ -181,7 +186,13 @@ module.exports = defineComponent( {
 		customOptions: { type: Object, default: null },
 		configData: { type: Object, default: null }
 	},
-	setup(props, context) {
+	setup( props, context ) {
+		// Pinia setup
+		const store = useTOCStore();
+		const { canvasIdentifierObjects, canvasNavigationRequest } = storeToRefs( store );
+		const { makeCanvasNavigationRequestById, makeCanvasNavigationRequestByIndex } = store;
+		canvasIdentifierObjects.value = props.canvasIdentifiers;
+
 		// form
 		//debugLog( "TOC.vue - formProfileData", props.formProfileData );
 		const formProfileSchema = ref( props.formProfileData ?? {} );
@@ -297,11 +308,11 @@ module.exports = defineComponent( {
 			} );
 		}
 
-		const toolMenuItemSelected = ref(null);
-		function onSelectToolMenuItem(newSelection) {
+		const toolMenuItemSelected = ref( null );
+		function onSelectToolMenuItem( newSelection ) {
 			toolMenuItemSelected.value = newSelection;
 			let server = mw.config.get("wgServer");
-			let apiRedirectUrl = server + mw.util.getUrl(`Special:IIIFServ/manifest/mergerange/${targetPageIdProxy.value}/${props.targetSlot}`);
+			let apiRedirectUrl = server + mw.util.getUrl( `Special:IIIFServ/manifest/mergerange/${targetPageIdProxy.value}/${props.targetSlot}` );
 
 			switch(newSelection) {
 				case "view-data":

@@ -2,7 +2,7 @@
 
 ( function() {
 	const Vue = require("vue");
-	const Vuex = require("vuex");
+	const Pinia = require("pinia");
 	const isAnon = mw.user.isAnon();
 
 	function initTOC( App, item, configData ) {
@@ -82,8 +82,9 @@
 			// Any other config data that might be needed in the app
 			configData
 		});
-		createdApp.use(Vuex);
-		createdApp.mount(item);
+		const pinia = Pinia.createPinia();
+		createdApp.use( pinia );
+		createdApp.mount( item );
 	}
 
 	function getDefaultFormData() {

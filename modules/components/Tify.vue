@@ -6,8 +6,10 @@
 </template>
 
 <script>
-const { defineComponent, computed, ref, onMounted } = require("vue");
-require("ext.iiif.lib.tify");
+const { defineComponent, computed, ref, onMounted, watch } = require( "vue" );
+require( "ext.iiif.lib.tify" );
+const { storeToRefs } = require( "pinia" );
+const useTOCStore = require( "../stores/toc.js" );
 
 module.exports = defineComponent( {
 	name: "Tify",
@@ -18,6 +20,11 @@ module.exports = defineComponent( {
 		manifest: { type: String, default: "" }
 	},
 	setup( props ) {
+		// Pinia setup
+		const store = useTOCStore();
+		const { canvasNavigationRequest } = storeToRefs( store );
+
+		const tify = ref( null );
 		//id
 		//manifest
 		onMounted( () => {
@@ -29,11 +36,38 @@ module.exports = defineComponent( {
 			// options.annotationsVisible = true;
 			// options.pages
 			// options.setView .. [ "export", "help", "info", "fulltext", "text", "thumbnails", "toc" ]
-			const tify = new Tify( options );
+			tify.value = new Tify( options );
+
+			/* Example
+			// Wait for Tify to initialise its viewer
+			tify.value?.ready.then( () => {
+				const osdViewer = tify.value.viewer;
+				osdViewer.addHandler( 'open', (e) => {
+					console.log( "Tify OSD open", e );
+				});
+			});
+			*/
+
+		} );
+
+		watch( () => canvasNavigationRequest.value, (request) => {
+			if ( request.index == null ) {
+				return;
+			}
+			goToCanvas( request.index );
 		});
 
+		function goToCanvas( index ) {
+			if ( !tify.value ) {
+				console.log( "Tify is not ready" );
+				return;
+			}
+			tify.value.setPage( index );
+		}
+
 		return {
-			//
+			tify,
+			canvasNavigationRequest
 		};
 	}
 } );
