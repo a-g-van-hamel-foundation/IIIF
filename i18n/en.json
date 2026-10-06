@@ -89,6 +89,9 @@
 	"iiif-printer-iiif-annotation-gallery-name": "IIIF Annotation Gallery",
 	"iiif-printer-iiif-annotation-gallery-paramdesc-template": "name of the wiki template with which to display the printouts in the caption",
 	"iiif-printer-iiif-annotation-gallery-paramdesc-layout": "layout theme (default or 'columns')",
-	"iiif-printer-iiif-annotation-gallery-paramdesc-columns": "number of columns (2, 3, 4, 5, 6, 8, or 12)"
+	"iiif-printer-iiif-annotation-gallery-paramdesc-columns": "number of columns (2, 3, 4, 5, 6, 8, or 12)",
+
+	"iiif-toc-creator-canvas-updater-button-text": "Show first canvas in viewer",
+	"iiif-toc-creator-tab-main": "Main"
 
 }

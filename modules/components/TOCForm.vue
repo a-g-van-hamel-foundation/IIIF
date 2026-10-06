@@ -10,10 +10,17 @@
 		class="toc-form"
 		:disabled="isFormDisabled"
 	>
-		<div v-if="hasAlternativeForm" class="select-forms-menu">
-			<cdx-button @click.prevent="selectForm('Main')" size="small">Main</cdx-button>
-			<div :key="`menu-` + config.name" v-for="config in alternativeFormConfigs">
-				<cdx-button @click.prevent="selectForm(config.name)" size="small">{{ config.name }}</cdx-button>
+		<div class="toc-form-header">
+			<div>
+				<template v-if="itemData[`canvasids`] && itemData[`canvasids`].length ">
+					<cdx-button @click.prevent="updateCanvas( itemData[`canvasids`] )" size="small">{{ $i18n( "iiif-toc-creator-canvas-updater-button-text" ).text() }}</cdx-button>
+				</template>
+			</div>
+			<div v-if="hasAlternativeForm" class="select-forms-menu">
+				<cdx-button @click.prevent="selectForm('Main')" size="small" :weight="tabWeightMain">{{ $i18n( "iiif-toc-creator-tab-main" ).text() }}</cdx-button>
+				<div :key="`menu-` + config.name" v-for="config in alternativeFormConfigs">
+					<cdx-button @click.prevent="selectForm(config.name)" size="small" :weight="tabWeightAlternative">{{ config.name }}</cdx-button>
+				</div>
 			</div>
 		</div>
 
@@ -87,6 +94,8 @@ const { defineComponent, ref, reactive, watch, computed, defineModel, toRaw } = 
 const { CdxTextArea, CdxTextInput, CdxButton, CdxIcon } = require( '@wikimedia/codex' );
 //const { cdxIconCheck, cdxIconClose, cdxIconEllipsis } = require( "./icons.json" );
 const DynamicFormField = require( "./DynamicFormField.vue" );
+const { storeToRefs } = require( "pinia" );
+const useTOCStore = require( "../stores/toc.js" );
 
 module.exports = defineComponent( {
 	name: "TOCForm",
@@ -105,6 +114,9 @@ module.exports = defineComponent( {
 	},
 	emits: [ 'update:value-data', 'update-field' ],
 	setup(props, { emit } ) {
+		// Pinia setup
+		const store = useTOCStore();
+		const { makeCanvasNavigationRequestById } = store;
 
 		// Data
 		const itemData = reactive( props.valueData );
@@ -134,6 +146,9 @@ module.exports = defineComponent( {
 		debugLog( "TOCForm, formFields", formFields );
 
 		const selectedForm = ref( props.valueData.Select ?? "Main" );
+		const tabWeightMain = ref( selectedForm.value == "Main" ? "normal" : "quiet" );
+		const tabWeightAlternative = ref( selectedForm.value == "Main" ? "quiet" : "normal" );
+
 		const hasAlternativeForm = ref( false );
 		const alternativeFormConfigs = ref( [] );
 		const alternativeFormFields = ref( [] );
@@ -155,6 +170,8 @@ module.exports = defineComponent( {
 		function selectForm( formName ) {
 			selectedForm.value = itemData["Select"] = formName;
 			isMainFormEnabled.value = ( formName == "Main" );
+			tabWeightMain.value = formName == "Main" ? "normal" : "quiet";
+			tabWeightAlternative.value = formName == "Main" ? "quiet" : "normal";
 		}
 
 		const isFormDisabled = ref( computed( () => {
@@ -187,6 +204,13 @@ module.exports = defineComponent( {
 			emit('update-field', payload.key, payload.value);
 		}
 		
+		function updateCanvas( canvasIds ) {
+			if ( !Array.isArray( canvasIds ) || canvasIds.length == 0 ) {
+				return;
+			}
+			makeCanvasNavigationRequestById( canvasIds[0] );
+		}
+
 		function debugLog( msg, res ) {
 			//console.log( "TOCForm: " + msg, res || "" );
 		}
@@ -195,6 +219,8 @@ module.exports = defineComponent( {
 			itemData,
 			uniqueId,
 			selectedForm,
+			tabWeightMain,
+			tabWeightAlternative,
 			formFields,
 			hasAlternativeForm,
 			isMainFormEnabled,
@@ -205,16 +231,39 @@ module.exports = defineComponent( {
 			standardiseOptions,
 			onUpdateField,
 			updateValue,
+			updateCanvas,
 			debugLog
 		}
 	}
 
 } );
 </script>
-<style>
-.select-forms-menu {
+<style lang="less">
+.toc-form-header {
 	display: flex;
-	justify-content: flex-end;
-	gap: 0.5rem;
+	justify-content: space-between;
+	.select-forms-menu {
+		display: flex;
+		justify-content: flex-end;
+		gap: 0.5rem;
+	}
 }
+
+.cdx-text-input__input:enabled,
+.lookup-field,
+.ql-container.ql-snow,
+.anno-field .anno-grow-wrap > textarea {
+	background-color: #cbe0e0;
+}
+
+.lookup-field {
+	.lookup-chip {
+		background-color: #d5eded;
+	}
+	code {
+		background-color: transparent;
+		border: 0;
+	}
+}
+
 </style>

@@ -301,6 +301,10 @@
 				"ext.iiif.toc.components",
 				"vue",
 				"pinia"
+			],
+			"messages": [
+				"iiif-toc-creator-canvas-updater-button-text",
+				"iiif-toc-creator-tab-main"
 			]
 		},
 		"ext.iiif.toc.components": {
