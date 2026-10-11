@@ -21,6 +21,7 @@ use IIIF\ParserFunctions\IIIFAnnotatorData;
 use IIIF\ParserFunctions\IIIFTify;
 use IIIF\ParserFunctions\IIIFTOC;
 use IIIF\ParserFunctions\IIIFManifestFromSMWQuery;
+use IIIF\ParserFunctions\IIIFResizableWindows;
 
 class IIIFHooks implements
 	ParserFirstCallInitHook,
@@ -89,6 +90,15 @@ class IIIFHooks implements
 			},
 			$flags
 		);
+		$parser->setFunctionHook(
+			"iiif-resizable-windows",
+			function( Parser $parser, PPFrame $frame, array $args ) {
+				$pf = new IIIFResizableWindows();
+				return $pf->run( $parser, $frame, $args );
+			},
+			$flags
+		);
+
 		return true;
 	}
 

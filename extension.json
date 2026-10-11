@@ -79,7 +79,9 @@
 			"styles": ["lib-annotorious/annotorious-cdn.css"]
 		},
 		"ext.iiif.annotator": {
-			"packageFiles": ["ext.iiif.annotator.vue.js"],
+			"packageFiles": [
+				"ext.iiif.annotator.vue.js"
+			],
 			"dependencies": [
 				"ext.iiif.annotator.components",
 				"ext.iiif.annotator.store",
@@ -351,6 +353,42 @@
 			"es6": true,
 			"packageFiles": ["lib-draggable-plus/main.js"],
 			"dependencies": ["sortablejs", "vue"]
+		},
+		"ext.iiif.resizablewindows": {
+			"es6": true,
+			"packageFiles": [
+				"ext.iiif.resizable-windows.js"
+			],
+			"dependencies": [
+				"ext.iiif.resizablewindows.components",
+				"vue",
+				"pinia"
+			],
+			"messages": [
+			]
+		},
+		"ext.iiif.resizablewindows.components": {
+			"es6": true,
+			"packageFiles": [
+				"components/index-resizable-windows.js",
+				"components/ResizableWindowsStandalone.vue",
+				"components/ResizableWindows.vue",
+				{
+					"name": "components/icons.json",
+					"callback": "MediaWiki\\ResourceLoader\\CodexModule::getIcons",
+					"callbackParam": [
+						"cdxIconFullScreen",
+						"cdxIconExitFullscreen"
+					]
+				}
+			],
+			"dependencies": [
+				"@wikimedia/codex"
+			],
+			"codexComponents": [
+				"CdxButton",
+				"CdxIcon"
+			]
 		}
 	},
 	"APIModules": {
