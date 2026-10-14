@@ -12,10 +12,10 @@ It is recommended to come up with a consistent naming pattern for pages that sto
 ### Input types
 The properties section is where you select and configure the inputs you want from the available options. Current options for `inputType` are:
 
-- **"textarea"** - textarea input.
+- **"textarea"** - textarea input. Supports VisualEditor if VEForAll is installed, too. Just add `"editor": "ve"` to the form definition.
 - **"text"** - text input.
 - **"select"** - enables a dropdown with selectable options from a predefined list. Accepts single values only.
-- **"lookup"** - enables a Select2-like dropdown, with selectable options from either an API query or a predefined list. It allows for both single and multiple values to be stored. See below.
+- **"lookup"** - enables a Select2-like dropdown, with selectable options from either an API query or a predefined list. It allows for both single and multiple values to be stored. See below. If you need to allow for user-provided values in addition to pre-existing ones, set `"allowTags": true`.
 - **"texteditor"** - a minimal text editor.
 - **"xmleditor"** - a simple XML editor, which may be useful if for instance, you create a transcription directly in TEI XML.
 - **"hidden"** - the hidden input is useful only in conjunction with a value for `defaultValue`.
@@ -34,7 +34,8 @@ This fictional example, which does not have any particular scenario in mind, con
 			"inputType": "textarea",
 			"label": "Description",
 			"name": "description",
-			"placeholder": "Description"
+			"placeholder": "Description",
+			"editor": "ve"
 		},		
 		// text
 		{
