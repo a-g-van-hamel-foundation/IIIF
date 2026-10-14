@@ -2,10 +2,11 @@
 	<resizable-windows
 		:is-enabled="isResizableEnabled"
 		:wrapper-class="resizableClass"
-		:resizer-width="10"
+		:resizer-thickness="10"
 		:init-width-left="`50%`"
 		:init-width-right="`50%`"
 		:full-viewport-mode="fullViewportMode"
+		:orientation="orientation"
 	>
 		<template v-slot:window1>
 			<div ref="leftHost" class="pane-host"></div>
@@ -30,7 +31,7 @@
 </template>
 
 <script>
-const { defineComponent, ref, onMounted } = require( "vue" );
+const { defineComponent, ref, onMounted } = require("vue");
 const ResizableWindows = require( "./ResizableWindows.vue" );
 const { CdxButton, CdxIcon } = require( "@wikimedia/codex" );
 const { cdxIconFullScreen, cdxIconExitFullscreen } = require( "./icons.json" );
@@ -50,13 +51,14 @@ module.exports = defineComponent( {
 	setup ( props ) {
 		const leftHost = ref( null );
 		const rightHost = ref( null );
+		const isResizableEnabled = ref( true );
+		const resizableClass = ref( "resizable-layout" );
+		const orientation = ref( props.configData.orientation ?? "EW" );
+
 		onMounted( () => {
 			leftHost.value.appendChild( props.leftContent );
 			rightHost.value.appendChild( props.rightContent );
 		} );
-
-		const isResizableEnabled = ref( true );
-		const resizableClass = ref( "resizable-layout" );
 
 		const fullViewportMode = ref( false );
 		function toggleViewportMode() {
@@ -64,6 +66,7 @@ module.exports = defineComponent( {
 		}
 
 		return {
+			orientation,
 			leftHost,
 			rightHost,
 			isResizableEnabled,

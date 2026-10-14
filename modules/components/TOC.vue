@@ -4,7 +4,7 @@
 		:wrapper-class="wrapperClass"
 		:full-viewport-mode="fullViewportMode"
 		:wrapper-style="wrapperStyle"
-		:resizer-width="10"
+		:resizer-thickness="10"
 		:is-enabled="isResizableWindowsEnabled"
 	>
 		<template v-slot:window1>

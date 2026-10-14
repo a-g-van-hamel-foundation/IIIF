@@ -6,7 +6,7 @@
 	<resizable-windows
 		:wrapper-class="resizableClass"
 		:wrapper-style="resizableStyle"
-		:resizer-width="10"
+		:resizer-thickness="10"
 		:is-enabled="isResizableEnabled"
 		:init-width-left="`70%`"
 		:init-width-right="`30%`"
