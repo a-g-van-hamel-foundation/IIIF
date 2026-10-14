@@ -19,6 +19,7 @@
 				v-model:input-value="inputValue"
 				@emit-update-value="updateValue"
 				:placeholder="placeholder"
+				:editor="editor"
 			></field-text-area>
 		</section>
 	</template>
@@ -163,7 +164,8 @@ module.exports = defineComponent( {
 		options: { type: Array, default: [] },
 		defaultValue: { type: String, default: "" },
 		wrapperClass: { type: String, default: "anno-field" },
-		customOptions: { type: Object, default: {} }
+		customOptions: { type: Object, default: {} },
+		editor: { type: String, default: "" }
 	},
 	watch: {
 		selection: function( n, o ) {
@@ -192,7 +194,7 @@ module.exports = defineComponent( {
 		/*
 		selections.value = computed({
 			get() { return props.inputValue },
-      		set(val) { emit('update:inputValue', val) }
+			set(val) { emit('update:inputValue', val) }
 		});
 		*/
 

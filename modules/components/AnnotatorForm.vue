@@ -43,6 +43,7 @@
 					:api-type="field.apiType || null"
 					:api-url="field.apiUrl || null"
 					:custom-options="customOptions"
+					:editor="field.editor || ``"
 				></dynamic-form-field>
 			</template>
 
@@ -289,6 +290,7 @@ module.exports = defineComponent( {
 	animation: comp-fade-in .7s;
 	-moz-animation: comp-fade-in .7s;
 }
+
 @keyframes comp-fade-in {
 	0%   { opacity: 0; }
 	100% { opacity: 1; }

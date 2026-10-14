@@ -49,6 +49,7 @@
 						@update-field="onUpdateField"
 						:wrapper-class="field.wrapperClass || `form-field`"
 						:custom-options="customOptions"
+						:editor="field.editor || ``"
 					></dynamic-form-field>
 				</template>
 			</fieldset>
@@ -76,6 +77,7 @@
 					@update-field="onUpdateField"
 					:wrapper-class="field.wrapperClass || `form-field`"
 					:custom-options="customOptions"
+					:editor="field.editor || ``"
 				></dynamic-form-field>
 			</template>
 		</fieldset>
