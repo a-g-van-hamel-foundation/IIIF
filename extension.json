@@ -197,7 +197,8 @@
 				"ext.iiif.lib.annotorious.osd",
 				"ext.iiif.lib.vuedraggableplus",
 				"@wikimedia/codex",
-				"mediawiki.language.names"
+				"mediawiki.language.names",
+				"ext.iiif.form"
 			],
 			"codexComponents": [
 				"CdxButtonGroup",
@@ -337,7 +338,8 @@
 				"ext.iiif.lib.quill",
 				"ext.iiif.lib.ace",
 				"ext.iiif.lib.ace.utils",
-				"ext.iiif.lib.tify"
+				"ext.iiif.lib.tify",
+				"ext.iiif.form"
 			],
 			"codexComponents": [
 				"CdxButton",
@@ -388,6 +390,11 @@
 			"codexComponents": [
 				"CdxButton",
 				"CdxIcon"
+			]
+		},
+		"ext.iiif.form": {
+			"messages": [
+				"iiif-field-new-tag-text"
 			]
 		}
 	},

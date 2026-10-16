@@ -92,6 +92,7 @@
 	"iiif-printer-iiif-annotation-gallery-paramdesc-columns": "number of columns (2, 3, 4, 5, 6, 8, or 12)",
 
 	"iiif-toc-creator-canvas-updater-button-text": "Show first canvas in viewer",
-	"iiif-toc-creator-tab-main": "Main"
+	"iiif-toc-creator-tab-main": "Main",
+	"iiif-field-new-tag-text": "New tag"
 
 }

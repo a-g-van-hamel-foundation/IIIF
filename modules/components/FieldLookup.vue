@@ -114,6 +114,9 @@ module.exports = defineComponent( {
 		
 		// Allow tags for reconciliation API; options not yet implemented
 		const doAllowTags = ref( props.allowTags );
+		// @DG The last custom/user-provided tag used as a menu item
+		const customMenuTag = ref( "" );
+		let newTagText = mw.message( "iiif-field-new-tag-text" );
 		if ( dataSourceType == "api" ) {
 			initSetSelectedItemsForAPI( props.selected, props.multiple );
 		} else {
@@ -197,8 +200,8 @@ module.exports = defineComponent( {
 				var options = props.options;
 				const found = options.find( ( res ) => res.value == item );
 				debugLog( "...Found option", found );
-				addToSelectedItems( { 
-					value: item, 
+				addToSelectedItems( {
+					value: item,
 					label: ( found != undefined ? found.label : item )
 				} );
 			}
@@ -235,7 +238,7 @@ module.exports = defineComponent( {
 			requestAPIResults( item )
 			.then( ( data ) => {
 				if ( data == undefined || data == null ) {
-					console.log( "No data returned from the API" );
+					console.error( "No data returned from the API" );
 					// ?menuItems.value = [];
 					return;
 				}
@@ -286,7 +289,7 @@ module.exports = defineComponent( {
 			requestAPIResults( currentSelection.value )
 			.then( ( data ) => {
 				if ( data == undefined || data == null ) {
-					console.log( "No data returned from the API" );
+					console.error( "No data returned from the API" );
 					// ?menuItems.value = [];
 					return;
 				}
@@ -334,12 +337,21 @@ module.exports = defineComponent( {
 						tag: true
 					} );
 				} else if ( !exists && sourceType === "options" ) {
+					// First remove any previous custom menu tag from
+					// the list (we don't want them to accumulate)
+					let previous = results.find( ( res ) => res.value == customMenuTag.value && res.description == newTagText );
+					if ( previous ) {
+						results.splice( results.indexOf( previous ), 1 );
+					}
+					// Add search term as new menu tag to the top of the list
 					results.unshift( {
 						value: searchTerm,
 						label: searchTerm,
-						description: "New tag",
+						description: newTagText,
 						tag: true
 					} );
+					// 'Memorise' search term as the last custom menu tag used
+					customMenuTag.value = searchTerm;
 				}
 			}
 			return results;
@@ -357,10 +369,10 @@ module.exports = defineComponent( {
 
 			let found = props.options.find( ( res ) => res.value == currentSelection.value );
 			if ( found != undefined && found["label"] != undefined ) {
-				console.log( 'Found with label' );
 				currentSelectionLabel.value = found["label"];
 				addCurrentSelectionToSelectedItems( currentSelectionLabel.value );
 			} else if ( found == undefined && doAllowTags.value ) {
+				// Custom tag
 				let options = possiblyAddTagToResults( currentSelection.value, props.options, "options" );
 				found = options.find( ( res ) => res.value == currentSelection.value );
 				currentSelectionLabel.value = found
@@ -544,7 +556,7 @@ module.exports = defineComponent( {
 				const newMenuRes = dataResult.map( ( res ) => ( {
 					value: res.id,
 					label: res[labelName] ?? res.id,
-					description: res.description ?? ( res.tag ? "New tag" : "" ),
+					description: res.description ?? ( res.tag ? newTagText : "" ),
 					tag: res.tag ?? false
 				} ) );
 				// debugLog( "new menu results ",newMenuRes );
@@ -660,6 +672,7 @@ module.exports = defineComponent( {
 			getRandomNumber,
 
 			doAllowTags,
+			customMenuTag,
 
 			debugLog
 		};
@@ -690,6 +703,8 @@ module.exports = defineComponent( {
 	display:flex;
 	flex-wrap:wrap;
 	gap: .1rem;
+	max-height: 15em;
+	overflow-y: auto;
 }
 .lookup-chip {
 	padding: .2em .4em;
