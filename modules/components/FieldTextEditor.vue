@@ -33,29 +33,37 @@ module.exports = defineComponent({
 	},
 	emits: ['update:inputValue'],
 	setup(props, { emit } ) {
-		const content = ref(props.inputValue);
-		const storableContent = computed({
+		const content = ref( sanitiseContent( props.inputValue ) );
+		const storableContent = computed( {
 			get() { return content.value; },
 			// For a non-FormData approach like TOC
 			set(val) { emit('update:inputValue', val); }
-		});
+		} );
 
-		function handleUpdatedContent(str) {
-			content.value = sanitiseContent(str);
-			if (content.value === "<p><br></p>") {
+		function handleUpdatedContent( str ) {
+			content.value = sanitiseContent( str );
+			if ( content.value === "<p><br></p>" || content.value === "<p></p>" ) {
 				storableContent.value = "";
 			} else {
+				//content.value.replace(/(\r\n|\n|\r)/gm, "");
 				storableContent.value = content.value;
 			}
 		}
 
 		// https://gomakethings.com/how-to-sanitize-html-strings-with-vanilla-js-to-reduce-your-risk-of-xss-attacks/
-		function sanitiseContent(str) {
+		function sanitiseContent( str ) {
+			if ( str == null ) {
+				return str;
+			}
+			if ( str !== "" && !str.startsWith( "<p>" ) ) {
+				// Quill does not like loose fragments.
+				str = "<p>" + str + "</p>";
+			}
 			// convert string to html obj
 			let parser = new DOMParser();
 			let doc = parser.parseFromString(str, "text/html");
 			let html = doc.body || document.createElement("body");
-			//
+
 			removeTags(html);
 			return html.innerHTML;
 		}
@@ -121,9 +129,10 @@ ul.cdx-menu {
 		li:not(.ql-direction-rtl) {
 			padding-left: 0.5em;
 		}
-		ul > li::before {
-			content: none;
-		}
+	}
+	ul > li::before {
+		content: none;
 	}
 }
+
 </style>
