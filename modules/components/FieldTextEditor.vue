@@ -55,7 +55,7 @@ module.exports = defineComponent({
 			if ( str == null ) {
 				return str;
 			}
-			if ( str !== "" && !str.startsWith( "<p>" ) ) {
+			if ( str !== "" && startsWithAnyElement( str ) === false ) {
 				// Quill does not like loose fragments.
 				str = "<p>" + str + "</p>";
 			}
@@ -81,6 +81,50 @@ module.exports = defineComponent({
 			for (let r of removableTags) {
 				r.remove();
 			}
+		}
+
+		/**
+		 * Checks if the trimmed string starts with an opening
+		 * HTML tag. Cf. startsWithBlockLevel() below.
+		 * @param htmlString
+		 */
+		function startsWithAnyElement( htmlString ) {
+			return /^\s*<[a-zA-Z][^>]*>/.test( htmlString );
+		}
+
+		/**
+		 * Unused alternative to startsWithAnyElement() that checks 
+		 * for block-level elements specifically. It's a better
+		 * approach but due to DOMParser, comes with a performance cost.
+		 * Keep this for future reference if needed.
+		 */
+		function startsWithBlockLevel( htmlString ) {
+			// Use DOMParser
+			const parser = new DOMParser();
+			const doc = parser.parseFromString( htmlString, "text/html" );
+
+			// Standard HTML block-level elements
+			const blockLevelTags = new Set( [
+				"address", "article", "aside", "blockquote", "canvas", "dd", "div", "dl", "dt", "fieldset", "figcaption", "figure", "footer", "form", "h1", "h2", "h3", "h4", "h5", "h6", "header", "hr", "li", "main", "nav", "noscript", "ol", "p", "pre", "section", "table", "tfoot", "ul"
+			] );
+
+			// Find first meaningful node
+			for ( const node of doc.body.childNodes ) {
+				// Ignore empty text nodes or pure whitespace
+				if ( node.nodeType === Node.TEXT_NODE ) {
+					if ( node.textContent.trim() !== "" ) {
+						// Found raw text before block element
+						return false;
+					}
+				} else if (node.nodeType === Node.ELEMENT_NODE ) {
+					// Check the first element node encountered
+					const tagName = node.tagName.toLowerCase();
+					return blockLevelTags.has(tagName);
+				}
+			}
+			
+			// Either empty or only whitespace-only
+			return false;
 		}
 
 		return {
