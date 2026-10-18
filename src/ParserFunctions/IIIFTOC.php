@@ -1,8 +1,7 @@
 <?php
 
 /**
- * Parser fnction for the TIFY viewer.
- * Added in v0.6
+ * `#iiif-toc` parser function.
  */
 
 namespace IIIF\ParserFunctions;

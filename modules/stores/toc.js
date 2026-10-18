@@ -41,7 +41,7 @@ module.exports = exports = defineStore( "toc", () => {
 		if ( canvasId == null || canvasIdentifierObjects.value == null ) {
 			return null;
 		}
-		return canvasIdentifierObjects.value.findIndex( (item) => item.value == canvasId ) ?? null;
+		return canvasIdentifierObjects.value.findIndex( (item) => item.value == canvasId ) + 1 ?? null;
 	}
 
 	return {
@@ -50,6 +50,6 @@ module.exports = exports = defineStore( "toc", () => {
 		makeCanvasNavigationRequestById,
 		makeCanvasNavigationRequestByIndex,
 		getCanvasIndexById
-	}
+	};
 
 });

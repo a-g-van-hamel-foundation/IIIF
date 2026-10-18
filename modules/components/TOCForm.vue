@@ -251,11 +251,15 @@ module.exports = defineComponent( {
 	}
 }
 
+// Background colors:
 .cdx-text-input__input:enabled,
 .lookup-field,
 .ql-container.ql-snow,
 .anno-field .anno-grow-wrap > textarea {
 	background-color: #cbe0e0;
+}
+.ve-area-wrapper .ve-ce-documentNode.ve-ce-attachedRootNode {
+	background: #cbe0e0;
 }
 
 .lookup-field {

@@ -7,15 +7,18 @@
 		ref="textarea"
 		:name="name"
 		:placeholder="placeholder"
-		class="anno-textarea"
 		v-model="content"
-		@input="handleInput"
+		@input="handleTextareaInput"
+		@focus="autogrowTextarea"
+		class="anno-textarea"
 	></textarea>
 </div>
 </template>
 
 <script>
-const { defineComponent, ref, onMounted } = require( "vue" );
+const { defineComponent, ref, reactive, watch, onMounted, onBeforeUnmount } = require( "vue" );
+const useVEField = require( "./composable.useVEField.js" );
+const useVEFieldsStore = require( "../stores/veFields.js" );
 
 module.exports = defineComponent( {
 	name: "FieldTextArea",
@@ -31,89 +34,92 @@ module.exports = defineComponent( {
 		// Default is to have no text editor
 		editor: { type: String, default: "" }
 	},
-	methods: {
-		handleInput(e) {
-			this.$refs.textareawrapper.dataset.replicatedValue = e.target.value;
-			// this.$refs.textarea.value = same as = e.target.value 
-			var content = e.target.value;
-			this.$emit('emit-update-value', e.target.value );
-		}
-	},
-	setup( props ) {
+	emits: [ "emit-update-value" ],
+	setup( props, { emit, expose } ) {
 		const content = ref( props.inputValue );
 		const textarea = ref( null );
+		const textareawrapper = ref( null );
+		const targets = reactive( [] );
 		const wrapperClass = ref( "anno-grow-wrap" );
 
-		onMounted( () => {
-			if ( props.editor === "ve" ) {
-				applyVisualEditorToTextarea( textarea.value );
-			}
+		watch( content, (n, o) => {
+			console.log( "content changed", n );
+			emit( "emit-update-value", n );
 		} );
 
-		function applyVisualEditorToTextarea( textarea ) {
-			if ( mw.loader.getState( 'ext.veforall.main' ) === null ) {
-				mw.log.warn( 'VEForAll is not installed' );
-				return;
+		function handleTextareaInput( e ) {
+			if ( props.editor == "ve" ) { return; }
+			autogrowTextarea();
+			textareawrapper.value.dataset.replicatedValue = e.target.value;
+			content.value = e.target.value;
+			emit( "emit-update-value", e.target.value );
+		}
+
+		// Plain textarea autowrap
+		function autogrowTextarea() {
+			if ( props.editor == "ve" ) { return; }
+			const el = textarea.value;
+			el.style.height = "auto";
+			el.style.height = `${el.scrollHeight}px`;
+		};
+
+		// Textarea with VisualEditor
+		let wikitext = ref( null );
+		if ( props.editor == "ve" ) {
+			// Set class required by VEForAll
+			wrapperClass.value = "ve-area-wrapper";
+
+			// Registry store
+			const veFieldsStore = useVEFieldsStore();
+			const { wikitext, getWikitext } = useVEField( textarea, content );
+
+			watch( wikitext, ( value ) => handleVEInput( value ) );
+			function handleVEInput( v ) {
+				console.log( "new value for content", value );
+				//content.value = v; // is no longer necessary
+				// emit( "emit-update-value:content", v );
 			}
-			mw.loader.using( 'ext.veforall.main' ).then( function () {
-				// Class required by VEForAll
-				wrapperClass.value = "ve-area-wrapper";
-				$( textarea ).applyVisualEditor();
-			}, function () {
-				// Module is registered but failed to load
-				// e.g. because VisualEditor is missing
-				mw.log.error( 'VEForAll could not be loaded' );
-			} );
+
+			const toUnregister = veFieldsStore.register( getWikitext );
+			onBeforeUnmount( toUnregister );
 		}
 
 		return {
 			textarea,
+			textareawrapper,
+			handleTextareaInput,
+			autogrowTextarea,
 			content,
-			wrapperClass,
-			applyVisualEditorToTextarea
+			wikitext,
+			wrapperClass
 		}
 	}
 });
 </script>
 
 <style lang="less">
-.anno-textarea {
-	&:hover {
-		border-color: #72777d;
-	}
-	&:focus {
-		border-color:#36c;
-		box-shadow: inset 0 0 0 1px #36c;
-		outline:1px solid transparent;
-	}
-}
-
 .anno-grow-wrap {
-	display: grid;
-	&::after {
-		white-space: pre-wrap;
-		content: attr(data-replicated-value) " ";
-		visibility: hidden;
-	}
 	& > textarea {
+		resize: none;
+		overflow: hidden;
+		padding: .5rem;
 		background-color: #fff;
 		color: #202122;
 		border-color: #a2a9b1;
 		box-shadow: inset 0 0 0 1px transparent;
 		transition-property: background-color,color,border-color,box-shadow;
 		transition-duration: .25s;
+		font-size: .8rem;
+		&:hover {
+			border-color: #72777d;
+		}
+		&:focus {
+			padding: .5rem;
+			border-color:#36c;
+			box-shadow: inset 0 0 0 1px #36c;
+			outline:1px solid transparent;
+		}
 	}
-}
-
-.anno-grow-wrap > textarea {
-	resize: none;
-	overflow: hidden;
-}
-.anno-grow-wrap > textarea,
-.anno-grow-wrap::after {
-	display: grid;
-	padding: 0.5rem;
-	grid-area: 1 / 1 / 2 / 2;
 }
 
 .ve-area-wrapper {
@@ -139,9 +145,6 @@ module.exports = defineComponent( {
 
 	.ve-ce-documentNode.ve-ce-attachedRootNode {
 		min-height: 1em;
-	}
-	.ve-ce-documentNode.ve-ce-attachedRootNode {
-		background: #cbe0e0;
 		padding: .5rem;
 		font-size: .8rem;
 	}

@@ -3,7 +3,7 @@
 		<div class="annot-placeholder-text"><i>{{ $i18n( "iiif-annotator-create-or-select-annotation" ).text() }}</i></div>
 	</template>
 	<form
-		@submit.prevent="submitForm"
+		@submit.prevent="initSubmitForm"
 		ref="annoform"
 		:disabled="isFormDisabled"
 		class="anno-sidebar-form"
@@ -53,8 +53,9 @@
 
 <script>
 const { defineComponent, ref, watch, computed } = require( "vue" );
-const store = require("ext.iiif.annotator.store");
-const { CdxTextArea, CdxTextInput, CdxButton, CdxIcon } = require( '@wikimedia/codex' );
+const store = require( "ext.iiif.annotator.store" ); // main store
+const useVEFieldsStore = require( "../stores/veFields.js" );
+const { CdxTextArea, CdxTextInput, CdxButton, CdxIcon } = require( "@wikimedia/codex" );
 const { cdxIconCheck, cdxIconClose, cdxIconEllipsis } = require( "./icons.json" );
 const DynamicFormField = require( "./DynamicFormField.vue" );
 
@@ -155,6 +156,19 @@ module.exports = defineComponent( {
 			return defaults ?? {};
 		}
 
+		// cf. TOC.vue - initCheckAndEditTargetPage
+		const veFieldsStore = useVEFieldsStore();
+		async function initSubmitForm() {
+			try {
+				await veFieldsStore.flushAll();
+			} catch ( e ) {
+				console.error( e.message );
+				mw.notify( e.message, { type: "error" } );
+				return;
+			}
+			submitForm();
+		}
+
 		function submitForm() {
 			var formData = new FormData( annoform.value );
 			// Get latest annotation and update
@@ -218,6 +232,7 @@ module.exports = defineComponent( {
 			annotation,
 			//newAnnotation,
 
+			initSubmitForm,
 			submitForm,
 			fetchDataAsFormDefaults,
 			// Icons

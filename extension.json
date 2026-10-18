@@ -87,6 +87,7 @@
 				"ext.iiif.annotator.store",
 				"vue",
 				"vuex",
+				"pinia",
 				"mediawiki.api",
 				"mediawiki.ForeignApi",
 				"mediawiki.user"
@@ -129,7 +130,9 @@
 			]
 		},
 		"ext.iiif.resultformat.canvasviewer": {
-			"packageFiles": ["ext.iiif.resultformat.canvasviewer.js"],
+			"packageFiles": [
+				"ext.iiif.resultformat.canvasviewer.js"
+			],
 			"dependencies": [
 				"ext.iiif.annotator.components",
 				"ext.iiif.annotator.store",
@@ -154,6 +157,8 @@
 		"ext.iiif.annotator.components": {
 			"packageFiles": [
 				"components/index.js",
+				"stores/veFields.js",
+				"components/composable.useVEField.js",
 				"components/AnnotatorInterface.vue",
 				"components/OSDViewer.vue",
 				"components/OSDViewerNavigation.vue",
@@ -198,6 +203,7 @@
 				"ext.iiif.lib.vuedraggableplus",
 				"@wikimedia/codex",
 				"mediawiki.language.names",
+				"pinia",
 				"ext.iiif.form"
 			],
 			"codexComponents": [
@@ -215,7 +221,9 @@
 			]
 		},
 		"ext.iiif.annotator.store": {
-			"packageFiles": ["store/index.js"],
+			"packageFiles": [
+				"store/index.js"
+			],
 			"dependencies": ["vue", "vuex"]
 		},
 		"ext.iiif.lib.annotorious.osd": {
@@ -314,7 +322,9 @@
 			"es6": true,
 			"packageFiles": [
 				"components/index-toc.js",
+				"components/composable.useVEField.js",
 				"stores/toc.js",
+				"stores/veFields.js",
 				"components/TOC.vue",
 				"components/TOCForm.vue",
 				"components/ResizableWindows.vue",
@@ -393,6 +403,12 @@
 			]
 		},
 		"ext.iiif.form": {
+			"packageFiles": [
+				"stores/veFields.js"
+			],
+			"dependencies": [
+				"pinia"
+			],
 			"messages": [
 				"iiif-field-new-tag-text"
 			]

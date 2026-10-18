@@ -32,7 +32,7 @@
 					</div>
 					<div v-if="iconStatus == 'fail' "><span class="iiif-edit-fail">Failed</span></div>
 					<cdx-button
-						@click="checkAndEditTargetPage(targetSlot, list1)"
+						@click="initCheckAndEditTargetPage(targetSlot, list1)"
 						action="progressive"
 						weight="primary"
 					>Save</cdx-button>
@@ -154,7 +154,8 @@
 </template>
 
 <script>
-const { defineComponent, defineExpose, computed, ref, reactive } = require("vue");
+const { defineComponent, defineExpose, computed, ref, reactive } = require( "vue" );
+const useVEFieldsStore = require( '../stores/veFields.js' );
 const { useDraggable } = VueDraggableLib.VueDraggable;
 const TOCForm = require( "./TOCForm.vue" );
 const Tify = require( "./Tify.vue" );
@@ -188,7 +189,8 @@ module.exports = defineComponent( {
 	},
 	setup( props, context ) {
 		// Pinia setup
-		const store = useTOCStore();
+		const store = useTOCStore(); // main store
+		const veFieldsStore = useVEFieldsStore(); // VisualEditor
 		const { canvasIdentifierObjects, canvasNavigationRequest } = storeToRefs( store );
 		const { makeCanvasNavigationRequestById, makeCanvasNavigationRequestByIndex } = store;
 		canvasIdentifierObjects.value = props.canvasIdentifiers;
@@ -334,8 +336,21 @@ module.exports = defineComponent( {
 			}
 		}
 
-		function checkAndEditTargetPage(targetSlot, content) {
-			const self = this;
+		async function initCheckAndEditTargetPage( targetSlot, content ) {
+			// Before saving, all fields using VE must have their
+			// content synced.
+			try {
+				await veFieldsStore.flushAll();
+			} catch ( e ) {
+				console.error( e.message );
+				mw.notify( e.message, { type: "error" } );
+				// @DG - not sure...
+				return;
+			}
+			checkAndEditTargetPage( targetSlot, content );
+		}
+
+		function checkAndEditTargetPage( targetSlot, content ) {
 			if (targetPageIdProxy.value === "0") {
 				let createParams = {
 					action: "edit",
@@ -352,21 +367,21 @@ module.exports = defineComponent( {
 				new mw.Api().postWithToken("csrf", createParams)
 				.done( function(data) {
 					if (data.hasOwnProperty("warnings")) {
-						self.showStatusIcon("fail");
+						showStatusIcon("fail");
 						console.error(data.warnings.main["*"]);
 					} else {
 						targetPageIdProxy.value = data.edit.pageid;
-						editTargetPage(targetSlot, content, self);
+						editTargetPage( targetSlot, content );
 						// Update tool menu items
 						buildToolMenu();
 					}
 				})
 				.fail( function(e) {
-					self.showStatusIcon("fail");
+					showStatusIcon("fail");
 					console.error(e);
 				});
 			} else {
-				editTargetPage(targetSlot, content, self);
+				editTargetPage( targetSlot, content );
 			}
 		}
 
@@ -375,7 +390,7 @@ module.exports = defineComponent( {
 		 * to be used after checkAndEditTargetPage().
 		 * Page must exist before it can be edited over WSSlots' API.
 		 */
-		function editTargetPage(targetSlot, content, self) {
+		function editTargetPage( targetSlot, content ) {
 			var text = { "items": content };
 			if (props.iiifManifest !== null && props.iiifManifest !== "") {
 				text["manifest"] = props.iiifManifest;
@@ -406,11 +421,11 @@ module.exports = defineComponent( {
 			}
 			new mw.Api().postWithToken('csrf', editParams )
 			.done( function(data) {
-				self.showStatusIcon("success");
+				showStatusIcon("success");
 				debugLog( "Saved successfully with the IIIF TOC Creator" );
 			})
 			.fail( function(e) {
-				self.showStatusIcon("fail");
+				showStatusIcon("fail");
 				debugLog( "Failed to save data with the IIIF TOC Creator", e );
 			});
 		}
@@ -453,6 +468,7 @@ module.exports = defineComponent( {
 			toolMenuItems,
 			toolMenuItemSelected,
 			onSelectToolMenuItem,
+			initCheckAndEditTargetPage,
 			checkAndEditTargetPage,
 			iconStatus,
 			showStatusIcon,

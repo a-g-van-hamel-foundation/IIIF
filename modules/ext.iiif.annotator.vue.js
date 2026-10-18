@@ -4,6 +4,7 @@
 	// Require Vue.js v3
 	const Vue = require("vue");
 	const Vuex = require("vuex");
+	const Pinia = require("pinia");
 	const isAnon = mw.user.isAnon();
 
 	function fetchManifestDataAndMountApp( Vue, Vuex, App, item, configProps ) {
@@ -64,10 +65,12 @@
 				initialAnnotationPages,
 				summary
 			} );
-			createdApp.use(Vuex);
-			createdApp.mount(item);
+			createdApp.use( Vuex );
+			const pinia = Pinia.createPinia();
+			createdApp.use( pinia );
+			createdApp.mount( item );
 		})
-		.fail( function(manifestData, formProfileData) {
+		.fail( function( manifestData, formProfileData ) {
 			console.log( "No (valid) data retrieved from the API" );
 			console.log( "manifestData", manifestData );
 			console.log( "formProfileData", formProfileData );
