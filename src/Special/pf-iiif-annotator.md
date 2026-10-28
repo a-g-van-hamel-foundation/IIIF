@@ -10,6 +10,7 @@ The annotation tool can be enabled and configured on a wiki page by using the [p
 - **targetslot** - if the [WSSlots extension](https://github.com/Open-CSP/WSSlots) is installed, the [content slot](https://www.mediawiki.org/wiki/Manual:Slot) of the wiki page to which annotations should be saved. Defaults to `main`.
 - **canvasindex** - index of the canvas that should be opened when the viewer initialises.
 - **mode** - optionally, set this to 'viewer' to load a presentation-only version. Instead of a form, it will offer an overview of previously entered data.
+- **annotationfill** - optionally, the CSS colour code to apply to the semi-transparent background fill of an annotation layer. Defaults to white (#FFF).
 
 Example:
 

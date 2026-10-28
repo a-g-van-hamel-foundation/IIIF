@@ -2,7 +2,7 @@
 
 namespace IIIF\ParserFunctions;
 
-use MediaWiki\Parser\Parser;
+//use MediaWiki\Parser\Parser;
 use MediaWiki\Registration\ExtensionRegistry;
 use MediaWiki\Title\Title;
 use MediaWiki\Html\Html;
@@ -24,9 +24,10 @@ class IIIFAnnotator {
 			"targetid" => null,
 			"targetslot" => null,
 			"canvasindex" => "0",
-			"mode" => "annotator"
+			"mode" => "annotator",
+			"annotationfill" => null
 		];
-		list( $manifest, $profile, $profileId, $target, $targetId, $targetSlot, $canvasIndex, $mode ) = array_values( IIIFParserFunctionUtils::extractParams( $frame, $params, $paramsAllowed ) );
+		list( $manifest, $profile, $profileId, $target, $targetId, $targetSlot, $canvasIndex, $mode, $annotationFill ) = array_values( IIIFParserFunctionUtils::extractParams( $frame, $params, $paramsAllowed ) );
 		$contentModel = $target !== null && str_starts_with( $target, "IIIF:" ) ? "iiifjson" : "json";
 
 		// Parameters starting with @...
@@ -76,6 +77,9 @@ class IIIFAnnotator {
 			"data-canvas-index" => $canvasIndex,
 			"data-mode" => $mode
 		];
+		if ( $annotationFill !== null && $annotationFill !== "" ) {
+			$attribs["data-annotation-fill"] = $annotationFill;
+		}
 		if( !empty( $customOptions ) ) {
 			$attribs["data-custom-options"] = json_encode( $customOptions, JSON_INVALID_UTF8_SUBSTITUTE );
 		}
@@ -97,11 +101,11 @@ class IIIFAnnotator {
 
 	/**
 	 * Documentation according to TemplateData guidelines.
-	 * 
-	 * MediaWiki itself offers no specs for describing a parser 
+	 *
+	 * MediaWiki itself offers no specs for describing a parser
 	 * function's parameters but TemplateData is considering
 	 * taking on this role.
-	 * 
+	 *
 	 * @link https://phabricator.wikimedia.org/T54607
 	 */
 	public function getTemplateData(): array {
@@ -149,6 +153,11 @@ class IIIFAnnotator {
 				"mode" => [
 					"label" => "mode",
 					"description" => "Optionally, set this to 'viewer' to load a presentation-only version. Instead of a form, it will offer an overview of previously entered data.",
+					"type" => "line"
+				],
+				"annotationfill" => [
+					"label" => "annotationfill",
+					"description" => "Optionally, the CSS colour code to apply to the semi-transparent background fill of an annotation layer. Defaults to white (#FFF).",
 					"type" => "line"
 				]
 			]

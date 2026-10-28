@@ -21,9 +21,10 @@ Once the extension has been installed, a detailed guide to configuration and usa
     - In order for you to offer autocompletion in lookup fields, it is recommended that you install and use the [ReconciliationAPI extension](https://github.com/a-g-van-hamel-foundation/ReconciliationAPI).
 
 ## Links
-- https://codecs.vanhamel.nl/Show:Lab/IIIF (not updated in a while)
+- https://codecs.vanhamel.nl/Show:Lab/IIIF (reports on early explorations but has not been updated in a while)
 
 ## Changelog
+- Forthcoming - Added background colour option for annotation layers.
 - 1.5 (October 2026) - Completed support for VisualEditor/VEForAll (`"editor": "ve"`). Enforced block-level content in Quill text editor to satisfy Parchment's data model. Improved user interaction with custom tags in lookup field. Miscellaneous changes.
 - 1.4 (October 2026) - Updated result formats for SMW 7+. New features for the TOC creator: a canvas updater for the first canvas listed; a toggle to let you switch between regular/embedded view and full viewport. Experimentally introduced the `#iiif-resizable-windows` parser function to enable custom splitscreen views (same toggle, same resizer handle) with east-west (default) or north-south orientation. General enhancements to forms: started working on support for VisualEditor/VEForAll in textarea fields; added `allowTags` bool option to allow custom values in lookup fields. Minor changes to `#iiif-annotator`: added `targetid` parameter as an alternative to `target`; added parameter documentation in TemplateData's preferred format (per [T54607](https://phabricator.wikimedia.org/T54607)). Fixed typo in documentation: `$wgIIIFv2QueryArg` and `$wgIIIFv3QueryArg` use at signs, not ampersands. Styling changes.
 - 1.3 (August 2026) - Relatively minor release. Fixed recent regressions in the `iiif-collection` API module and 'select' input. Modified image rotation feature. Adjusted styling. Code improvements.

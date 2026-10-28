@@ -205,15 +205,18 @@ module.exports = defineComponent( {
 		const tocMenuItems = ref( createTOCFromCanvasItems( props.canvasItems ) );
 
 		// OSD Annotorious
-		const OSDAnnotator = ref(null);
-		const OSDAnnotatorOptions = ref({
+		const OSDAnnotator = ref( null );
+		let annotationFillColour = props.configProps.annotationFill ?? "#FFF";
+		const OSDAnnotatorOptions = ref( {
 			drawingEnabled: false,
 			style: {
-				fill: '#ff0000',
+				fill: annotationFillColour,
 				fillOpacity: 0.15
 			},
+			userSelectAction: "EDIT",
+			tool: "rectangle",
 			multiSelect: true
-		});
+		} );
 		if ( isViewerMode.value ) {
 			OSDAnnotatorOptions.value.userSelectAction = "SELECT";
 		}
@@ -748,25 +751,26 @@ a.annot-list-btn {
 	transition: color 250ms ease-out 0s,background-color 250ms ease-out 0s,border-color 250ms ease-out 0s;
 	-webkit-transition: color 250ms ease-out 0s,background-color 250ms ease-out 0s,border-color 250ms ease-out 0s;
 	-o-transition: color 250ms ease-out 0s,background-color 250ms ease-out 0s,border-color 250ms ease-out 0s;
-}
-a.annot-list-btn:hover,
-a.annot-list-btn:focus {
-	color: #fff;
-	background:	#4e5f5c linear-gradient(180deg,#687774,#4e5f5c) repeat-x;
-	border-color: #485855;
-}
-a.annot-list-btn:active {
-	background-color: #485855;
-	background-image: none;
-	border-color: #42514e;
-}
-a.annot-list-btn:focus {
-	box-shadow: inset 0 1px 0 rgba(255,255,255,0.15),0 1px 1px rgba(0,0,0,0.075),0 0 0 0.2rem rgba(119,137,133,0.5);
-	/*box-shadow: inset 0 3px 5px rgba(0,0,0,0.125),0 0 0 0.2rem rgba(119,137,133,0.5);*/
+
+	&:hover,
+	&:focus {
+		color: #fff;
+		background:	#4e5f5c linear-gradient(180deg,#687774,#4e5f5c) repeat-x;
+		border-color: #485855;
+	}
+	&:active {
+		background-color: #485855;
+		background-image: none;
+		border-color: #42514e;
+	}
+	&:focus {
+		box-shadow: inset 0 1px 0 rgba(255,255,255,0.15),0 1px 1px rgba(0,0,0,0.075),0 0 0 0.2rem rgba(119,137,133,0.5);
+		/*box-shadow: inset 0 3px 5px rgba(0,0,0,0.125),0 0 0 0.2rem rgba(119,137,133,0.5);*/
+	}
+
 }
 
 // Summary / metadata styling moved to ext.iiif.styles.less;
-
 .annotation-frame-resizable {
 	width:100%;
 	max-width:100%;
