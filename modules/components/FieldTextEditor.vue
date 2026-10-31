@@ -177,6 +177,12 @@ ul.cdx-menu {
 	ul > li::before {
 		content: none;
 	}
+	p {
+		margin-bottom: .6em;
+		&:last-child {
+			margin-bottom: 0;
+		}
+	}
 }
 
 </style>
